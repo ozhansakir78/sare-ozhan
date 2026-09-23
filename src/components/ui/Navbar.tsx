@@ -41,7 +41,9 @@ export function Navbar() {
   const [isProModalOpen, setIsProModalOpen] = useState<boolean>(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState<boolean>(false);
+  const [isToolsMenuOpen, setIsToolsMenuOpen] = useState<boolean>(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const toolsMenuRef = useRef<HTMLDivElement>(null);
 
   const updateQuota = () => {
     setQuota(getQuotaStatus());
@@ -55,6 +57,9 @@ export function Navbar() {
       if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
         setIsUserMenuOpen(false);
       }
+      if (toolsMenuRef.current && !toolsMenuRef.current.contains(e.target as Node)) {
+        setIsToolsMenuOpen(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
 
@@ -64,22 +69,58 @@ export function Navbar() {
     };
   }, []);
 
-  // Sayfa değiştiğinde mobil menüyü otomatik kapat
+  // Sayfa değiştiğinde menüleri otomatik kapat
   useEffect(() => {
     setIsMobileMenuOpen(false);
+    setIsToolsMenuOpen(false);
   }, [pathname]);
 
-  // Açılır menü olmadan doğrudan navbar'da görünen tüm ana bölümler (Footer ile birebir uyumlu renkli ikonlar)
-  const navLinks = [
-    { href: '/', label: isLise1 ? 'Not Hesapla' : 'Hesapla', icon: Calculator, iconColor: 'text-cyan-400' },
-    { href: '/deneme-coz', label: isLise1 ? 'Ortak Yazılı & TYT' : 'Deneme Çöz', icon: FileCheck2, highlight: true, iconColor: isLise1 ? 'text-emerald-300' : 'text-indigo-300' },
-    { href: '/yanlis-defteri', label: 'Yanlış Defteri', icon: BookOpen, iconColor: 'text-rose-400' },
-    { href: isLise1 ? '/lise1-konulari' : '/lgs-konulari', label: 'Konular', icon: Layers, iconColor: 'text-sky-400' },
-    { href: '/liderlik-tablosu', label: 'Liderlik', icon: Trophy, iconColor: 'text-amber-400' },
-    { href: '/odaklanma-odasi', label: 'Odaklan', icon: Timer, iconColor: 'text-violet-400' },
-    { href: '/deneme-gecmisi', label: 'Denemelerim', icon: TrendingUp, iconColor: 'text-emerald-400' },
-    { href: '/veli-raporu', label: 'Veli Raporu', icon: HeartHandshake, iconColor: 'text-pink-400' },
+  interface NavLinkItem {
+    href: string;
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+    iconColor: string;
+    highlight?: boolean;
+  }
+
+  // Ana Çekirdek Menü Linkleri (Masaüstünde daima görünenler)
+  const primaryNavLinks: NavLinkItem[] = [
+    {
+      href: '/deneme-coz',
+      label: isLise1 ? 'Ortak Yazılı & TYT' : 'Deneme Çöz',
+      icon: FileCheck2,
+      highlight: true,
+      iconColor: isLise1 ? 'text-emerald-300' : 'text-indigo-300',
+    },
+    {
+      href: '/',
+      label: isLise1 ? 'Not Hesapla' : 'Hesapla',
+      icon: Calculator,
+      iconColor: 'text-cyan-400',
+    },
+    {
+      href: '/yanlis-defteri',
+      label: 'Yanlış Defteri',
+      icon: BookOpen,
+      iconColor: 'text-rose-400',
+    },
+    {
+      href: isLise1 ? '/lise1-konulari' : '/lgs-konulari',
+      label: 'Konular',
+      icon: Layers,
+      iconColor: 'text-sky-400',
+    },
   ];
+
+  // Ekstra Koçluk & Analiz Araçları (Açılır menüde toplananlar)
+  const secondaryNavLinks: NavLinkItem[] = [
+    { href: '/liderlik-tablosu', label: 'Liderlik Sıralaması', icon: Trophy, iconColor: 'text-amber-400' },
+    { href: '/odaklanma-odasi', label: 'Odaklanma Odası (Pomodoro)', icon: Timer, iconColor: 'text-violet-400' },
+    { href: '/deneme-gecmisi', label: 'Deneme Geçmişim & Gelişim', icon: TrendingUp, iconColor: 'text-emerald-400' },
+    { href: '/veli-raporu', label: 'Haftalık Veli Raporu', icon: HeartHandshake, iconColor: 'text-pink-400' },
+  ];
+
+  const allNavLinks = [...primaryNavLinks, ...secondaryNavLinks];
 
   return (
     <>
@@ -102,15 +143,15 @@ export function Navbar() {
               </span>
             </Link>
 
-            {/* Şık ve Kompakt Kademe Açılır Menüsü (Asla taşmaz, sarmalanmaz) */}
+            {/* Şık ve Kompakt Kademe Açılır Menüsü */}
             <div className="hidden sm:flex items-center">
               <GradeTierSwitcher variant="dropdown" />
             </div>
           </div>
 
-          {/* Masaüstü Doğrudan Menü Linkleri (Açılır menü yok, tüm bölümler doğrudan tıklanabilir) */}
-          <nav className="hidden lg:flex items-center gap-1">
-            {navLinks.map((link) => {
+          {/* Masaüstü Menü Linkleri (Çekirdek Linkler + Şık 'Araçlar ▾' Açılır Menüsü) */}
+          <nav className="hidden lg:flex items-center gap-1.5">
+            {primaryNavLinks.map((link) => {
               const Icon = link.icon;
               const isActive =
                 link.href === '/'
@@ -136,6 +177,54 @@ export function Navbar() {
                 </Link>
               );
             })}
+
+            {/* Araçlar Açılır Menüsü (Asla sağa taşmaz, derli toplu) */}
+            <div className="relative" ref={toolsMenuRef}>
+              <button
+                type="button"
+                onClick={() => setIsToolsMenuOpen((prev) => !prev)}
+                className={`inline-flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-xs font-bold transition whitespace-nowrap cursor-pointer ${
+                  isToolsMenuOpen || secondaryNavLinks.some((l) => pathname?.startsWith(l.href))
+                    ? 'bg-slate-800 text-white border border-indigo-500/40 shadow-xs'
+                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                }`}
+                title="Diğer Sınav ve Koçluk Araçları"
+              >
+                <span>Araçlar</span>
+                <ChevronDown
+                  className={`h-3 w-3 text-slate-400 transition-transform duration-200 ${
+                    isToolsMenuOpen ? 'rotate-180 text-indigo-400' : ''
+                  }`}
+                />
+              </button>
+
+              {isToolsMenuOpen && (
+                <div className="absolute left-0 top-full mt-2 w-60 rounded-2xl border border-slate-700 bg-slate-900/98 p-1.5 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 backdrop-blur-md">
+                  <div className="px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-400">
+                    Koçluk &amp; Gelişim
+                  </div>
+                  {secondaryNavLinks.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = pathname?.startsWith(item.href);
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setIsToolsMenuOpen(false)}
+                        className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold transition ${
+                          isActive
+                            ? 'bg-indigo-600/30 text-white border border-indigo-500/30'
+                            : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                        }`}
+                      >
+                        <Icon className={`h-4 w-4 shrink-0 ${item.iconColor}`} />
+                        <span>{item.label}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </nav>
 
           {/* Sağ Alan: AI Kota, Giriş / Profil & Mobil Hamburger */}
@@ -293,7 +382,7 @@ export function Navbar() {
             </div>
 
             <div className="space-y-1">
-              {navLinks.map((link) => {
+              {allNavLinks.map((link) => {
                 const Icon = link.icon;
                 const isActive =
                   link.href === '/'

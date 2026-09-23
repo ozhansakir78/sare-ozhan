@@ -162,12 +162,12 @@ export default function KayitPage() {
             </div>
           </div>
 
-          {/* Hedef Lise (Akıllı Önerili Seçim) */}
+          {/* Hedef Okul (Akıllı Önerili Seçim - Lise & Üniversite) */}
           <SchoolAutocompleteInput
             value={targetSchool}
             onChange={(val) => setTargetSchool(val)}
-            label="Hedef Lise"
-            placeholder="Örn: Kabataş Erkek Lisesi, Galatasaray Lisesi..."
+            label="Hedef Okul"
+            placeholder="Örn: Kabataş Erkek Lisesi, Boğaziçi Üniversitesi, ODTÜ..."
           />
 
           <button

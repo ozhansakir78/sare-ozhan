@@ -192,3 +192,17 @@ export function analyzeUniversityTargetGap(
     statusMessage,
   };
 }
+
+export function searchUniversities(query: string): YksUniversityTarget[] {
+  if (!query || query.trim() === '') {
+    return YKS_TOP_UNIVERSITIES.slice(0, 10);
+  }
+  const q = query.toLowerCase().trim();
+  return YKS_TOP_UNIVERSITIES.filter(
+    (u) =>
+      u.name.toLowerCase().includes(q) ||
+      u.department.toLowerCase().includes(q) ||
+      u.city.toLowerCase().includes(q) ||
+      u.scoreType.toLowerCase().includes(q)
+  );
+}
