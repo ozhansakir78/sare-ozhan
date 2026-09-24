@@ -3,11 +3,13 @@ import type { OnlineExam, OnlineExamQuestion, ExamQuestionOptionKey, OnlineExamT
 import type { LgsCourseKey } from '@/types/exam';
 import { getCourseName } from '@/lib/lgs-topics';
 import { getLise1CourseName, Lise1CourseKey } from '@/lib/lise1-topics';
+import { ONLINE_EXAMS } from '@/lib/online-exams-data';
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.AI_API_KEY || '';
-
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'models/gemini-1.5-flash';
-const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+const GEMINI_MODELS = [
+  process.env.GEMINI_MODEL || 'gemini-3.6-flash',
+  'gemini-flash-latest',
+  'gemini-2.5-flash',
+];
 
 interface GenerateExamRequest {
   examTitle?: string;
@@ -136,33 +138,37 @@ Görevin, LGS formatına %100 uygun, yeni nesil, beceri temelli, grafik/deney/ta
       generationConfig: {
         temperature: 0.3,
         responseMimeType: 'application/json',
+        maxOutputTokens: 8192,
       },
     };
 
-    const response = await fetch(GEMINI_API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
+    const apiKey = process.env.GEMINI_API_KEY || process.env.AI_API_KEY || '';
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Gemini Generate Exam API Error:', errorText);
-      return NextResponse.json(
-        { error: 'Yapay zekâ deneme üretim servisi şu an meşgul. Lütfen tekrar deneyin.' },
-        { status: 500 }
-      );
+    let candidateText = '';
+
+    for (const model of GEMINI_MODELS) {
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          candidateText = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+          if (candidateText) {
+            break;
+          }
+        } else {
+          const errorText = await response.text();
+          console.warn(`Gemini Generate Exam (${model}) failed [${response.status}]:`, errorText);
+        }
+      } catch (err) {
+        console.warn(`Gemini (${model}) connection error:`, err);
+      }
     }
-
-    const data = await response.json();
-    const candidateText =
-      data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
-
-    const cleanJson = candidateText
-      .replace(/^```json\s*/i, '')
-      .replace(/^```\s*/i, '')
-      .replace(/\s*```$/i, '')
-      .trim();
 
     let parsedResult: {
       title?: string;
@@ -180,30 +186,76 @@ Görevin, LGS formatına %100 uygun, yeni nesil, beceri temelli, grafik/deney/ta
         explanation: string;
         hintForSocratic?: string;
       }>;
-    };
+    } | null = null;
 
-    try {
-      parsedResult = JSON.parse(cleanJson);
-    } catch (parseErr) {
-      console.error('Gemini JSON Parse Error:', parseErr, cleanJson);
-      return NextResponse.json(
-        { error: 'Üretilen sınav verisi JSON formatına dönüştürülemedi.' },
-        { status: 500 }
-      );
+    if (candidateText) {
+      const cleanJson = candidateText
+        .replace(/^```json\s*/i, '')
+        .replace(/^```\s*/i, '')
+        .replace(/\s*```$/i, '')
+        .trim();
+
+      try {
+        parsedResult = JSON.parse(cleanJson);
+      } catch (parseErr) {
+        console.error('Gemini JSON Parse Error:', parseErr, cleanJson);
+      }
     }
 
-    if (!parsedResult.questions || parsedResult.questions.length === 0) {
-      return NextResponse.json(
-        { error: 'Yapay zekâ geçerli bir soru üretemedi.' },
-        { status: 422 }
-      );
+    // Pedagojik Yedek Motor: Eğer yapay zekâ servisi geçici olarak yanıt vermezse,
+    // öğrenciyi asla hatayla karşılaştırma; soru havuzundan konuya uygun pedagojik test derle!
+    if (!parsedResult || !parsedResult.questions || parsedResult.questions.length === 0) {
+      console.info('Yapay zekâ yanıt vermediği için pedagojik havuz motoru devreye giriyor...');
+      
+      const relevantExams = ONLINE_EXAMS.filter((e) => {
+        if (isLise1) return e.tier === 'lise1';
+        return !e.tier || e.tier === 'lgs';
+      });
+
+      let candidateQuestions: OnlineExamQuestion[] = [];
+      for (const ex of relevantExams) {
+        for (const q of ex.questions) {
+          if (!courseKey || q.courseKey === courseKey) {
+            candidateQuestions.push(q);
+          }
+        }
+      }
+
+      // Eğer derse ait soru bulunamazsa tüm kademeden al
+      if (candidateQuestions.length === 0) {
+        for (const ex of relevantExams) {
+          candidateQuestions.push(...ex.questions);
+        }
+      }
+
+      // Rastgele karıştır ve istenen adet kadar al
+      const shuffled = [...candidateQuestions].sort(() => Math.random() - 0.5);
+      const selected = shuffled.slice(0, count);
+
+      parsedResult = {
+        title: examTitle || `${mainCourseName} Pekiştirme Testi`,
+        description: `${count} soruluk ${mainCourseName} MEB kazanım pekiştirme ve tarama testi.`,
+        durationMinutes: Math.round(count * 2.5),
+        questions: selected.map((q, idx) => ({
+          questionNumber: idx + 1,
+          courseKey: q.courseKey,
+          courseName: q.courseName,
+          topicName: topicName || q.topicName,
+          questionText: q.questionText,
+          options: q.options as any,
+          correctAnswer: q.correctAnswer,
+          explanation: q.explanation || 'Çözüm adımları ve kural açıklaması inceleniyor.',
+          hintForSocratic: q.hintForSocratic || 'Soru kökündeki temel kuralı hatırla.',
+        })),
+      };
     }
 
     const finalTitle = examTitle || parsedResult.title || `${mainCourseName} Özel Denemesi`;
     const finalSlug = `ai-${slugify(finalTitle)}-${Date.now().toString().slice(-5)}`;
     const finalId = `ai-exam-${Date.now()}`;
 
-    const formattedQuestions: OnlineExamQuestion[] = parsedResult.questions.map(
+    const finalQuestionsList = parsedResult?.questions || [];
+    const formattedQuestions: OnlineExamQuestion[] = finalQuestionsList.map(
       (q, idx) => ({
         id: `ai-q-${Date.now()}-${idx + 1}`,
         questionNumber: idx + 1,
