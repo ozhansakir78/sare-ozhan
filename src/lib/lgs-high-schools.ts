@@ -189,9 +189,9 @@ export function getHighSchoolById(id: string): LgsHighSchool | undefined {
   return LGS_HIGH_SCHOOLS.find((s) => s.id === id);
 }
 
-export function getSelectedTargetSchool(): LgsHighSchool {
+export function getSelectedTargetSchool(): LgsHighSchool | null {
   if (typeof window === 'undefined') {
-    return LGS_HIGH_SCHOOLS[2]; // Kabataş Erkek Lisesi varsayılan
+    return null;
   }
   try {
     const stored = localStorage.getItem(TARGET_SCHOOL_KEY);
@@ -202,7 +202,7 @@ export function getSelectedTargetSchool(): LgsHighSchool {
   } catch (e) {
     console.error('Error reading target school:', e);
   }
-  return LGS_HIGH_SCHOOLS[2]; // Kabataş Erkek
+  return null;
 }
 
 export function setSelectedTargetSchool(schoolId: string): void {

@@ -4,13 +4,14 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthProvider';
-import { getStoredExams } from '@/lib/exam-storage';
+import { getStoredExams, clearAllStoredExams } from '@/lib/exam-storage';
 import type { SavedStudentExam } from '@/types/exam';
-import { getStoredQuestions } from '@/lib/question-storage';
+import { getStoredQuestions, clearAllStoredQuestions } from '@/lib/question-storage';
 import { getStreakData, StreakData, DEFAULT_STREAK } from '@/lib/streak-storage';
 import { getLeaderboardEntries } from '@/lib/leaderboard-storage';
 import { LGS_HIGH_SCHOOLS } from '@/lib/lgs-high-schools';
 import { SchoolAutocompleteInput } from '@/components/school/SchoolAutocompleteInput';
+import { AuthGuard } from '@/components/auth/AuthGuard';
 import { useGradeTier } from '@/lib/grade-tier';
 import { GradeTierSwitcher } from '@/components/ui/GradeTierSwitcher';
 import { UniversityRadarCard } from '@/components/target/UniversityRadarCard';
@@ -88,12 +89,22 @@ export default function ProfilPage() {
   useEffect(() => {
     if (profile) {
       setDisplayName(profile.display_name || '');
-      setTargetSchool(profile.target_high_school || 'Kabataş Erkek Lisesi');
-      setTargetScore(Number(profile.target_score) || 485);
+      setTargetSchool(profile.target_high_school || '');
+      setTargetScore(Number(profile.target_score) || 450);
     } else if (user?.email) {
       setDisplayName(user.email.split('@')[0]);
     }
   }, [profile, user]);
+
+  const handleClearAllData = () => {
+    if (window.confirm('Tüm kayıtlı denemeleriniz ve yanlış defteri sorularınız sıfırlanacak. Onaylıyor musunuz?')) {
+      clearAllStoredExams();
+      clearAllStoredQuestions();
+      setExams([]);
+      setWrongQuestionsCount(0);
+      alert('Tüm veriler başarıyla sıfırlandı. Tertemiz bir başlangıç yapabilirsiniz!');
+    }
+  };
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -140,32 +151,13 @@ export default function ProfilPage() {
   // Giriş Yapılmamışsa
   if (!user && !profile) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center px-4 py-16">
-        <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-xl dark:border-slate-800 dark:bg-slate-900">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400">
-            <User className="h-7 w-7" />
-          </div>
-          <h2 className="mt-4 text-xl font-black text-slate-900 dark:text-white">
-            Öğrenci Profiline Erişmek İçin Giriş Yapın
-          </h2>
-          <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-            Deneme netlerinizi, yanlış defterinizi ve hedeflerinizi yönetmek için ücretsiz hesabınıza giriş yapın.
-          </p>
-          <div className="mt-6 flex flex-col sm:flex-row gap-3">
-            <Link
-              href="/giris"
-              className="flex-1 rounded-xl bg-indigo-600 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-indigo-700 transition"
-            >
-              Giriş Yap
-            </Link>
-            <Link
-              href="/kayit"
-              className="flex-1 rounded-xl border border-slate-300 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800 transition"
-            >
-              Ücretsiz Kayıt Ol
-            </Link>
-          </div>
-        </div>
+      <div className="py-12">
+        <AuthGuard
+          title="Öğrenci Profilinize Erişmek İçin Giriş Yapın"
+          description="Hedef liseni belirlemek, net takip grafiklerini görmek ve ayarlarını yönetmek için lütfen ücretsiz hesabına giriş yap."
+        >
+          <div />
+        </AuthGuard>
       </div>
     );
   }
@@ -217,16 +209,16 @@ export default function ProfilPage() {
                 </div>
 
                 <p className="mt-1 text-xs text-slate-300 flex items-center gap-1.5">
-                  <span>{user?.email || profile?.email || 'Yerel Öğrenci Hesabı'}</span>
+                  <span>{user?.email || profile?.email || 'Öğrenci Hesabı'}</span>
                   <span>&bull;</span>
                   <span className="text-amber-300 font-semibold flex items-center gap-1">
-                    <School className="h-3.5 w-3.5" /> {targetSchool}
+                    <School className="h-3.5 w-3.5" /> {targetSchool || 'Hedef Belirlenmedi'}
                   </span>
                 </p>
 
                 <p className="mt-1 text-[11px] text-indigo-200/80">
                   {isLise1 ? 'Lise 1 Modu: Hedef Üniversite & OBP Takibi' : `Hedef LGS Puanı: `}
-                  {!isLise1 && <strong className="text-white font-bold">{targetScore} Puan</strong>}
+                  {!isLise1 && <strong className="text-white font-bold">{targetSchool ? `${targetScore} Puan` : 'Henüz Belirlenmedi'}</strong>}
                 </p>
 
                 <div className="mt-2.5 flex items-center gap-2">
@@ -568,6 +560,17 @@ export default function ProfilPage() {
                 <Save className="h-4 w-4" />
                 <span>{isSaving ? 'Kaydediliyor...' : 'Değişiklikleri Kaydet'}</span>
               </button>
+
+              {/* Tüm Verileri Sıfırla Butonu */}
+              <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={handleClearAllData}
+                  className="w-full flex items-center justify-center gap-2 rounded-xl border border-rose-200 bg-rose-50/60 hover:bg-rose-100/80 dark:border-rose-900/50 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 py-2 text-xs font-semibold text-rose-700 dark:text-rose-400 transition cursor-pointer"
+                >
+                  <span>🗑️ Tüm Deneme &amp; Soru Verilerimi Sıfırla (Temiz Başlangıç)</span>
+                </button>
+              </div>
             </form>
           </div>
         </div>

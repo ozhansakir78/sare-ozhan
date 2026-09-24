@@ -30,9 +30,18 @@ export async function syncLocalDataToCloud(userId: string): Promise<SyncResult> 
   let examsSynced = 0;
   let questionsSynced = 0;
 
+  const SAMPLE_TITLES = ['Özdebir Türkiye Geneli LGS-1', 'TÖDER LGS Genel Deneme Sınavı', 'Okul Sonu Değerlendirme Denemesi'];
+  const SAMPLE_TOPICS = ['Çarpanlar ve Katlar (EBOB - EKOK)', 'Mevsimler ve İklim', 'Fiilimsiler (Eylemsiler)', 'Üslü İfadeler'];
+
   try {
+    // Varsa kullanıcının veritabanındaki eski mock deneme ve soruları kalıcı temizle
+    await supabase.from('student_exams').delete().eq('user_id', userId).in('exam_title', SAMPLE_TITLES);
+    await supabase.from('wrong_questions').delete().eq('user_id', userId).in('topic_name', SAMPLE_TOPICS);
+
     // 1. Yerel denemeleri al ve buluta aktar
-    const localExams = getStoredExams();
+    const localExams = getStoredExams().filter(
+      (e) => !e.id?.startsWith('sample-') && !SAMPLE_TITLES.includes(e.examTitle)
+    );
     for (const exam of localExams) {
       // Bulutta aynı tarih ve isimde kayıt var mı kontrol et
       const { data: existing } = await supabase
@@ -115,16 +124,21 @@ export async function pullCloudDataToLocal(userId: string): Promise<void> {
   if (!isSupabaseConfigured || !userId) return;
 
   try {
+    const SAMPLE_TITLES = ['Özdebir Türkiye Geneli LGS-1', 'TÖDER LGS Genel Deneme Sınavı', 'Okul Sonu Değerlendirme Denemesi'];
+    const SAMPLE_TOPICS = ['Çarpanlar ve Katlar (EBOB - EKOK)', 'Mevsimler ve İklim', 'Fiilimsiler (Eylemsiler)', 'Üslü İfadeler'];
+
     // 1. Buluttaki denemeleri çek
     const { data: cloudExams } = await supabase
       .from('student_exams')
       .select('*')
       .eq('user_id', userId)
+      .not('exam_title', 'in', `(${SAMPLE_TITLES.map((t) => `"${t}"`).join(',')})`)
       .order('exam_date', { ascending: false });
 
     if (cloudExams && cloudExams.length > 0) {
       const localExams = getStoredExams();
       for (const ce of cloudExams) {
+        if (SAMPLE_TITLES.includes(ce.exam_title)) continue;
         const exists = localExams.some(
           (le) => le.examTitle === ce.exam_title && le.examDate === ce.exam_date
         );
@@ -159,6 +173,7 @@ export async function pullCloudDataToLocal(userId: string): Promise<void> {
     if (cloudQuestions && cloudQuestions.length > 0) {
       const localQuestions = getStoredQuestions();
       for (const cq of cloudQuestions) {
+        if (SAMPLE_TOPICS.includes((cq as any).topic_name)) continue;
         const exists = localQuestions.some((lq) => lq.topicName === (cq as any).topic_name);
         if (!exists) {
           saveQuestionToStorage({

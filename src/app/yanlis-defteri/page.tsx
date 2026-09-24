@@ -13,6 +13,7 @@ import { QuestionUploader } from '@/components/question/QuestionUploader';
 import { QuestionList } from '@/components/question/QuestionList';
 import { SocraticAssistantModal } from '@/components/question/SocraticAssistantModal';
 import { ErrorDiagnosisBanner } from '@/components/question/ErrorDiagnosisBanner';
+import { AuthGuard } from '@/components/auth/AuthGuard';
 import {
   Plus,
   Sparkles,
@@ -60,7 +61,11 @@ export default function YanlisDefteriPage() {
   };
 
   return (
-    <div className="mx-auto max-w-6xl px-4 sm:px-6 space-y-8 py-8">
+    <AuthGuard
+      title="Yanlış Defteri'ni Kullanmak İçin Giriş Yapmalısınız"
+      description="Yapamadığınız soruların fotoğrafını yüklemek, yapay zekâlı Sokratik koç ile adım adım öğrenmek ve yanlışlarınızı pekiştirmek için lütfen ücretsiz üye olun veya giriş yapın."
+    >
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 space-y-8 py-8">
           {/* Başlık ve Aksiyon Butonu */}
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -159,6 +164,7 @@ export default function YanlisDefteriPage() {
           onQuestionUpdated={handleQuestionUpdated}
         />
       )}
-    </div>
+      </div>
+    </AuthGuard>
   );
 }

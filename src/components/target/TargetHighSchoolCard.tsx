@@ -24,8 +24,8 @@ import {
 } from 'lucide-react';
 
 export function TargetHighSchoolCard() {
-  const [selectedSchool, setSelectedSchool] = useState<LgsHighSchool>(() => getSelectedTargetSchool());
-  const [currentScore, setCurrentScore] = useState<number>(445.5);
+  const [selectedSchool, setSelectedSchool] = useState<LgsHighSchool | null>(() => getSelectedTargetSchool());
+  const [currentScore, setCurrentScore] = useState<number>(0);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCity, setSelectedCity] = useState<string>('Tümü');
@@ -52,7 +52,7 @@ export function TargetHighSchoolCard() {
     setIsModalOpen(false);
   };
 
-  const analysis = analyzeTargetGap(selectedSchool, currentScore);
+  const analysis = selectedSchool ? analyzeTargetGap(selectedSchool, currentScore) : null;
 
   // Filtrelenmiş okul listesi
   const filteredSchools = allSchools.filter((school) => {
@@ -70,124 +70,155 @@ export function TargetHighSchoolCard() {
 
   return (
     <>
-      <section
-        aria-label="Hedef Lise ve Puan Takip Radarı"
-        className="relative overflow-hidden rounded-3xl border border-indigo-100/90 bg-gradient-to-br from-white via-indigo-50/30 to-violet-50/40 p-5 shadow-xs dark:border-slate-800 dark:from-slate-900 dark:via-slate-900 dark:to-indigo-950/40 sm:p-6"
-      >
-        {/* Dekoratif Işık Efekti */}
-        <div className="absolute -top-16 -right-16 h-40 w-40 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none" />
+      {selectedSchool && analysis ? (
+        <section
+          aria-label="Hedef Lise ve Puan Takip Radarı"
+          className="relative overflow-hidden rounded-3xl border border-indigo-100/90 bg-gradient-to-br from-white via-indigo-50/30 to-violet-50/40 p-5 shadow-xs dark:border-slate-800 dark:from-slate-900 dark:via-slate-900 dark:to-indigo-950/40 sm:p-6"
+        >
+          {/* Dekoratif Işık Efekti */}
+          <div className="absolute -top-16 -right-16 h-40 w-40 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none" />
 
-        <div className="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-          {/* Sol: Okul Bilgisi ve Hedef Başlığı */}
-          <div className="space-y-3 max-w-xl">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-600 px-3 py-1 text-[11px] font-black text-white shadow-xs">
-                <Target className="h-3.5 w-3.5" />
-                LGS HEDEF RADARI
-              </span>
-              {selectedSchool.badge && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-bold text-amber-800 dark:bg-amber-950/70 dark:text-amber-300">
-                  <Award className="h-3 w-3 text-amber-600" />
-                  {selectedSchool.badge}
+          <div className="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            {/* Sol: Okul Bilgisi ve Hedef Başlığı */}
+            <div className="space-y-3 max-w-xl">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-600 px-3 py-1 text-[11px] font-black text-white shadow-xs">
+                  <Target className="h-3.5 w-3.5" />
+                  LGS HEDEF RADARI
                 </span>
-              )}
+                {selectedSchool.badge && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-bold text-amber-800 dark:bg-amber-950/70 dark:text-amber-300">
+                    <Award className="h-3 w-3 text-amber-600" />
+                    {selectedSchool.badge}
+                  </span>
+                )}
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+                    {selectedSchool.name}
+                  </h3>
+                </div>
+                <p className="mt-1 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                  <MapPin className="h-3.5 w-3.5 text-slate-400" />
+                  <span>{selectedSchool.city} &bull; {selectedSchool.type === 'fen' ? 'Fen Lisesi' : 'Anadolu Lisesi'} &bull; Kontenjan: {selectedSchool.quota}</span>
+                </p>
+              </div>
+
+              {/* AI Koç Akıllı Tavsiyesi */}
+              <div className="rounded-2xl bg-indigo-50/80 border border-indigo-100/80 p-3 text-xs text-indigo-950 dark:bg-indigo-950/40 dark:border-indigo-900/60 dark:text-indigo-200">
+                <div className="flex items-start gap-2">
+                  <Sparkles className="h-4 w-4 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5" />
+                  <p className="leading-relaxed font-medium">
+                    {analysis.smartAdvice}
+                  </p>
+                </div>
+              </div>
             </div>
 
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">
-                  {selectedSchool.name}
+            {/* Sağ: Canlı Puan İbresi & İlerleme Kartı */}
+            <div className="flex flex-col sm:flex-row items-center gap-4 lg:gap-6 bg-white/80 dark:bg-slate-800/80 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 p-4 shrink-0">
+              {/* İlerleme Yüzdesi Çemberi / Göstergesi */}
+              <div className="text-center sm:text-left">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  Hedefe Yakınlık
+                </span>
+                <div className="flex items-baseline gap-1 mt-0.5">
+                  <span className="text-3xl font-black text-indigo-600 dark:text-indigo-400">
+                    %{analysis.progressPercent}
+                  </span>
+                  <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                    tamamlandı
+                  </span>
+                </div>
+                <div className="w-36 h-2 rounded-full bg-slate-200 dark:bg-slate-700 mt-2 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-600 transition-all duration-700"
+                    style={{ width: `${analysis.progressPercent}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Puan Karşılaştırması */}
+              <div className="grid grid-cols-2 gap-3 text-center border-t sm:border-t-0 sm:border-l border-slate-200 dark:border-slate-700 pt-3 sm:pt-0 sm:pl-4">
+                <div>
+                  <span className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400">
+                    Taban Puan
+                  </span>
+                  <p className="text-base font-black text-slate-900 dark:text-white mt-0.5">
+                    {selectedSchool.minScore.toFixed(1)}
+                  </p>
+                  <span className="text-[10px] font-semibold text-amber-700 dark:text-amber-400">
+                    Dilim: %{selectedSchool.minPercentile}
+                  </span>
+                </div>
+
+                <div>
+                  <span className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400">
+                    {analysis.isAchieved ? 'Hedef Aşıldı' : 'Kalan Puan'}
+                  </span>
+                  <p className={`text-base font-black mt-0.5 ${analysis.isAchieved ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'}`}>
+                    {analysis.isAchieved ? `+${Math.abs(analysis.scoreDifference)} P` : `-${analysis.scoreDifference} P`}
+                  </p>
+                  <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                    {currentScore > 0 ? `(Son Denemen: ${currentScore.toFixed(1)})` : '(Henüz Deneme Yok)'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Butonlar */}
+              <div className="flex flex-col gap-2 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(true)}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-3.5 py-2 text-xs font-bold shadow-xs hover:bg-slate-800 dark:hover:bg-slate-100 transition cursor-pointer"
+                >
+                  <School className="h-3.5 w-3.5" />
+                  <span>Hedefi Değiştir</span>
+                </button>
+
+                <Link
+                  href="/#hesaplama"
+                  className="inline-flex items-center justify-center gap-1 text-[11px] font-bold text-indigo-700 dark:text-indigo-400 hover:underline"
+                >
+                  <span>Netleri Simüle Et</span>
+                  <ChevronRight className="h-3 w-3" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+      ) : (
+        <section
+          aria-label="Hedef Lise ve Puan Takip Radarı"
+          className="relative overflow-hidden rounded-3xl border border-dashed border-indigo-200 bg-gradient-to-br from-indigo-50/50 via-white to-violet-50/40 p-6 shadow-xs dark:border-slate-800 dark:from-slate-900 dark:via-slate-900 dark:to-indigo-950/40"
+        >
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-600 dark:bg-indigo-950/80 dark:text-indigo-400">
+                <Target className="h-6 w-6" />
+              </div>
+              <div>
+                <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
+                  Henüz Bir Hedef Lise Belirlemediniz
                 </h3>
-              </div>
-              <p className="mt-1 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-                <MapPin className="h-3.5 w-3.5 text-slate-400" />
-                <span>{selectedSchool.city} &bull; {selectedSchool.type === 'fen' ? 'Fen Lisesi' : 'Anadolu Lisesi'} &bull; Kontenjan: {selectedSchool.quota}</span>
-              </p>
-            </div>
-
-            {/* AI Koç Akıllı Tavsiyesi */}
-            <div className="rounded-2xl bg-indigo-50/80 border border-indigo-100/80 p-3 text-xs text-indigo-950 dark:bg-indigo-950/40 dark:border-indigo-900/60 dark:text-indigo-200">
-              <div className="flex items-start gap-2">
-                <Sparkles className="h-4 w-4 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5" />
-                <p className="leading-relaxed font-medium">
-                  {analysis.smartAdvice}
+                <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+                  Hayalindeki liseyi seç; kazanmak için hangi dersten kaç nete ihtiyacın olduğunu anında hesaplayalım.
                 </p>
               </div>
             </div>
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(true)}
+              className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 px-4 py-2.5 text-xs font-bold text-white shadow-md transition cursor-pointer shrink-0"
+            >
+              <School className="h-4 w-4" />
+              <span>Hedef Lise Belirle</span>
+            </button>
           </div>
-
-          {/* Sağ: Canlı Puan İbresi & İlerleme Kartı */}
-          <div className="flex flex-col sm:flex-row items-center gap-4 lg:gap-6 bg-white/80 dark:bg-slate-800/80 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 p-4 shrink-0">
-            {/* İlerleme Yüzdesi Çemberi / Göstergesi */}
-            <div className="text-center sm:text-left">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                Hedefe Yakınlık
-              </span>
-              <div className="flex items-baseline gap-1 mt-0.5">
-                <span className="text-3xl font-black text-indigo-600 dark:text-indigo-400">
-                  %{analysis.progressPercent}
-                </span>
-                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                  tamamlandı
-                </span>
-              </div>
-              <div className="w-36 h-2 rounded-full bg-slate-200 dark:bg-slate-700 mt-2 overflow-hidden">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-600 transition-all duration-700"
-                  style={{ width: `${analysis.progressPercent}%` }}
-                />
-              </div>
-            </div>
-
-            {/* Puan Karşılaştırması */}
-            <div className="grid grid-cols-2 gap-3 text-center border-t sm:border-t-0 sm:border-l border-slate-200 dark:border-slate-700 pt-3 sm:pt-0 sm:pl-4">
-              <div>
-                <span className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400">
-                  Taban Puan
-                </span>
-                <p className="text-base font-black text-slate-900 dark:text-white mt-0.5">
-                  {selectedSchool.minScore.toFixed(1)}
-                </p>
-                <span className="text-[10px] font-semibold text-amber-700 dark:text-amber-400">
-                  Dilim: %{selectedSchool.minPercentile}
-                </span>
-              </div>
-
-              <div>
-                <span className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400">
-                  {analysis.isAchieved ? 'Hedef Aşıldı' : 'Kalan Puan'}
-                </span>
-                <p className={`text-base font-black mt-0.5 ${analysis.isAchieved ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'}`}>
-                  {analysis.isAchieved ? `+${Math.abs(analysis.scoreDifference)} P` : `-${analysis.scoreDifference} P`}
-                </p>
-                <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
-                  (Son Denemen: {currentScore.toFixed(1)})
-                </span>
-              </div>
-            </div>
-
-            {/* Butonlar */}
-            <div className="flex flex-col gap-2 w-full sm:w-auto">
-              <button
-                type="button"
-                onClick={() => setIsModalOpen(true)}
-                className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-3.5 py-2 text-xs font-bold shadow-xs hover:bg-slate-800 dark:hover:bg-slate-100 transition cursor-pointer"
-              >
-                <School className="h-3.5 w-3.5" />
-                <span>Hedefi Değiştir</span>
-              </button>
-
-              <Link
-                href="/#hesaplama"
-                className="inline-flex items-center justify-center gap-1 text-[11px] font-bold text-indigo-700 dark:text-indigo-400 hover:underline"
-              >
-                <span>Netleri Simüle Et</span>
-                <ChevronRight className="h-3 w-3" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Hedef Lise Seçim Modalı */}
       {isModalOpen && (
@@ -257,7 +288,7 @@ export function TargetHighSchoolCard() {
                 </div>
               ) : (
                 filteredSchools.map((school) => {
-                  const isSelected = selectedSchool.id === school.id;
+                  const isSelected = selectedSchool?.id === school.id;
                   return (
                     <div
                       key={school.id}

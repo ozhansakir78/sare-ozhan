@@ -4,82 +4,33 @@ import { supabase, isSupabaseConfigured } from './supabase';
 
 const STORAGE_KEY = 'lgs_wrong_questions_v1';
 
-// Başlangıçta boş kalmaması için örnek eğitici sorular
-const SAMPLE_QUESTIONS: WrongQuestionItem[] = [
-  {
-    id: 'sample-math-1',
-    courseKey: 'matematik',
-    courseName: 'Matematik',
-    topicName: 'Çarpanlar ve Katlar (EBOB - EKOK)',
-    imageUrl: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&auto=format&fit=crop&q=60',
-    studentNote: 'Kenar uzunlukları 24 cm ve 36 cm olan kartonların en az sayıda eş kareye bölünmesi sorusunda EBOB ile EKOK arasında kararsız kaldım.',
-    status: 'unresolved',
-    errorReason: 'carelessness',
-    isResolved: false,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
-    aiHintHistory: [],
-  },
-  {
-    id: 'sample-fen-1',
-    courseKey: 'fen',
-    courseName: 'Fen Bilimleri',
-    topicName: 'Mevsimler ve İklim',
-    imageUrl: 'https://images.unsplash.com/photo-1534088568595-a066f410bcda?w=800&auto=format&fit=crop&q=60',
-    studentNote: '21 Haziran tarihinde Güney Yarım Küre\'de gölge boyunun değişimi grafiğinde B ve C şıkları arasında kaldım.',
-    status: 'hinted',
-    errorReason: 'knowledge_gap',
-    isResolved: false,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-    aiHintHistory: [
-      {
-        id: 'h1',
-        step: 1,
-        prompt: '21 Haziran\'da Güney Yarım Küre\'de hangi mevsim başlar?',
-        hint: 'Güneş ışınlarının Yengeç Dönencesi\'ne dik geldiği bu tarihte, Güney Yarım Küre ışınları en eğik açıyla alır.',
-        created_at: new Date(Date.now() - 1000 * 60 * 60 * 20).toISOString(),
-      },
-    ],
-  },
-  {
-    id: 'sample-turkce-1',
-    courseKey: 'turkce',
-    courseName: 'Türkçe',
-    topicName: 'Fiilimsiler (Eylemsiler)',
-    imageUrl: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&auto=format&fit=crop&q=60',
-    studentNote: 'Sıfat-fiil eki olan -miş ile duyulan geçmiş zaman kip eki arasındaki farkı çözdüm.',
-    status: 'resolved',
-    errorReason: 'carelessness',
-    isResolved: true,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
-    aiHintHistory: [],
-  },
-  {
-    id: 'sample-math-2',
-    courseKey: 'matematik',
-    courseName: 'Matematik',
-    topicName: 'Üslü İfadeler',
-    imageUrl: 'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=800&auto=format&fit=crop&q=60',
-    studentNote: 'Negatif üs alırken sayıyı ters çevirmeyi unuttum, işaret hatası yaptım.',
-    status: 'unresolved',
-    errorReason: 'calculation_error',
-    isResolved: false,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(),
-    aiHintHistory: [],
-  },
-];
+// Örnek / mock soru artık yüklenmez. Gerçek kullanıcılar sıfır veriden başlar.
+export const SAMPLE_QUESTIONS: WrongQuestionItem[] = [];
 
 export function getStoredQuestions(): WrongQuestionItem[] {
-  if (typeof window === 'undefined') return SAMPLE_QUESTIONS;
+  if (typeof window === 'undefined') return [];
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(SAMPLE_QUESTIONS));
-      return SAMPLE_QUESTIONS;
+      return [];
     }
-    return JSON.parse(raw) as WrongQuestionItem[];
+    const parsed = JSON.parse(raw) as WrongQuestionItem[];
+    // Varsa eski mock/örnek soruları temizle
+    const clean = parsed.filter((q) => !q.id?.startsWith('sample-'));
+    if (clean.length !== parsed.length) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(clean));
+    }
+    return clean;
   } catch {
-    return SAMPLE_QUESTIONS;
+    return [];
   }
+}
+
+export function clearAllStoredQuestions(): void {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {}
 }
 
 export function saveQuestionToStorage(

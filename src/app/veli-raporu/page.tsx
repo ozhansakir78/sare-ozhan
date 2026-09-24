@@ -7,6 +7,7 @@ import type { SavedStudentExam } from '@/types/exam';
 import { getStoredQuestions, calculateQuestionStats } from '@/lib/question-storage';
 import { getStoredExams } from '@/lib/exam-storage';
 import { trackEvent } from '@/lib/analytics';
+import { AuthGuard } from '@/components/auth/AuthGuard';
 
 import {
   HeartHandshake,
@@ -75,13 +76,7 @@ export default function VeliRaporuPage() {
     .sort((a, b) => b[1].count - a[1].count)
     .slice(0, 2);
 
-  const criticalTopics =
-    sortedTopics.length > 0
-      ? sortedTopics.map(([name, data]) => ({ name, count: data.count }))
-      : [
-          { name: 'Matematik: Çarpanlar ve Katlar (EBOB-EKOK)', count: 2 },
-          { name: 'Fen Bilimleri: Mevsimler ve İklim', count: 1 },
-        ];
+  const criticalTopics = sortedTopics.map(([name, data]) => ({ name, count: data.count }));
 
   // WhatsApp için hazır paylaşım metni
   const examInfoText = latestExam
@@ -193,7 +188,11 @@ _Detaylı analiz için SınavKoçu platformunu ziyaret edin._`;
   };
 
   return (
-    <div className="mx-auto max-w-5xl px-4 sm:px-6 space-y-6 py-8">
+    <AuthGuard
+      title="Veli Raporunu Görüntülemek İçin Giriş Yapmalısınız"
+      description="Öğrencinizin haftalık gelişim karnesini oluşturmak, WhatsApp ile paylaşmak veya e-posta raporu almak için lütfen hesabınıza giriş yapın."
+    >
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 space-y-6 py-8">
           {/* Veli Bilgilendirme Hero Kutusu */}
           <div className="rounded-3xl border border-indigo-100 bg-gradient-to-r from-indigo-50 via-white to-purple-50 p-6 shadow-sm dark:border-indigo-900/40 dark:from-indigo-950/30 dark:via-slate-900 dark:to-purple-950/20 sm:p-8">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -564,5 +563,6 @@ _Detaylı analiz için SınavKoçu platformunu ziyaret edin._`;
             </div>
           </div>
         </div>
-  );
-}
+      </AuthGuard>
+    );
+  }

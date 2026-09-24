@@ -7,6 +7,7 @@ import { ExamCatalogGrid } from '@/components/exam-session/ExamCatalogGrid';
 import { LiveSundayExamCard } from '@/components/exam/LiveSundayExamCard';
 import { DailyQuestCard } from '@/components/quest/DailyQuestCard';
 import { CustomExamBanner } from '@/components/exam/CustomExamBanner';
+import { AuthGuard } from '@/components/auth/AuthGuard';
 import type { OnlineExam } from '@/types/online-exam';
 import {
   Sparkles,
@@ -33,7 +34,11 @@ export function DenemeCozTierContainer({ exams }: DenemeCozTierContainerProps) {
 
   if (isLise1) {
     return (
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 space-y-10 py-8 sm:py-12">
+      <AuthGuard
+        title="MEB Ortak Yazılı Provalarını Çözmek İçin Giriş Yapmalısınız"
+        description="9. Sınıf MEB ortak yazılı prova sınavlarını çözmek, 100 üzerinden yazılı notu karnesi almak ve TYT denemelerini başlatmak için lütfen ücretsiz üye olun veya giriş yapın."
+      >
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 space-y-10 py-8 sm:py-12">
         {/* 9. Sınıf (Lise 1) Hero Banner */}
         <section className="text-center space-y-4">
           <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-xs font-semibold text-emerald-700 dark:border-emerald-800/60 dark:bg-emerald-950/50 dark:text-emerald-300">
@@ -201,12 +206,17 @@ export function DenemeCozTierContainer({ exams }: DenemeCozTierContainerProps) {
           </div>
         </section>
       </div>
-    );
-  }
+    </AuthGuard>
+  );
+}
 
   // Varsayılan: 8. Sınıf (LGS) Deneyimi
   return (
-    <div className="mx-auto max-w-6xl px-4 sm:px-6 space-y-10 py-8 sm:py-12">
+    <AuthGuard
+      title="Online Deneme Çözmek İçin Giriş Yapmalısınız"
+      description="2027 LGS denemelerini süre tutarak çözmek, anında net ve standart puan karnesi almak ve sorularınızı kaydetmek için lütfen ücretsiz üye olun veya giriş yapın."
+    >
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 space-y-10 py-8 sm:py-12">
       {/* Hero Banner */}
       <section className="text-center space-y-4">
         <div className="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50/80 px-4 py-1.5 text-xs font-semibold text-indigo-700 dark:border-indigo-800/60 dark:bg-indigo-950/50 dark:text-indigo-300">
@@ -331,6 +341,7 @@ export function DenemeCozTierContainer({ exams }: DenemeCozTierContainerProps) {
           </Link>
         </div>
       </section>
-    </div>
+      </div>
+    </AuthGuard>
   );
 }

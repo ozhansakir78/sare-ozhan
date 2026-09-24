@@ -6,6 +6,7 @@ import { getOnlineExamBySlug } from '@/lib/online-exams-data';
 import { getWeeklySundayInfo } from '@/lib/weekly-live-exam';
 import { ExamSessionContainer } from '@/components/exam-session/ExamSessionContainer';
 import { LiveExamWaitingRoom } from '@/components/exam-session/LiveExamWaitingRoom';
+import { AuthGuard } from '@/components/auth/AuthGuard';
 import Link from 'next/link';
 import { BookOpen, ArrowLeft } from 'lucide-react';
 
@@ -67,5 +68,12 @@ export function ExamSessionResolver({ initialExam, slug }: ExamSessionResolverPr
     }
   }
 
-  return <ExamSessionContainer exam={exam} />;
+  return (
+    <AuthGuard
+      title="Deneme Sınavını Çözmek İçin Giriş Yapmalısınız"
+      description="Süre tutarak bu denemeyi çözmek, anında karne almak ve sorularınızı kaydetmek için lütfen hesabınıza giriş yapın."
+    >
+      <ExamSessionContainer exam={exam} />
+    </AuthGuard>
+  );
 }

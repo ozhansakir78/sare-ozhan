@@ -4,83 +4,35 @@ import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
 const EXAM_STORAGE_KEY = 'lgs_saved_exams_v1';
 
-// Başlangıçta boş kalmaması için örnek eğitici deneme verileri
-const SAMPLE_EXAMS: SavedStudentExam[] = [
-  {
-    id: 'sample-exam-1',
-    examTitle: 'Özdebir Türkiye Geneli LGS-1',
-    examDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString().split('T')[0],
-    totalScore: 412.45,
-    calculatedPercentile: 7.2,
-    totalNet: 72.33,
-    totalCorrect: 76,
-    totalIncorrect: 11,
-    totalEmpty: 3,
-    courses: {
-      turkce: { courseKey: 'turkce', courseName: 'Türkçe', questionCount: 20, weight: 4, correct: 18, incorrect: 2, empty: 0, net: 17.33, lostNet: 2.67 },
-      matematik: { courseKey: 'matematik', courseName: 'Matematik', questionCount: 20, weight: 4, correct: 14, incorrect: 4, empty: 2, net: 12.67, lostNet: 7.33 },
-      fen: { courseKey: 'fen', courseName: 'Fen Bilimleri', questionCount: 20, weight: 4, correct: 17, incorrect: 2, empty: 1, net: 16.33, lostNet: 3.67 },
-      inkilap: { courseKey: 'inkilap', courseName: 'T.C. İnkılap Tarihi ve Atatürkçülük', questionCount: 10, weight: 1, correct: 9, incorrect: 1, empty: 0, net: 8.67, lostNet: 1.33 },
-      din: { courseKey: 'din', courseName: 'Din Kültürü ve Ahlak Bilgisi', questionCount: 10, weight: 1, correct: 9, incorrect: 1, empty: 0, net: 8.67, lostNet: 1.33 },
-      ingilizce: { courseKey: 'ingilizce', courseName: 'Yabancı Dil (İngilizce)', questionCount: 10, weight: 1, correct: 9, incorrect: 1, empty: 0, net: 8.67, lostNet: 1.33 },
-    },
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString(),
-  },
-  {
-    id: 'sample-exam-2',
-    examTitle: 'TÖDER LGS Genel Deneme Sınavı',
-    examDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 14).toISOString().split('T')[0],
-    totalScore: 438.12,
-    calculatedPercentile: 4.5,
-    totalNet: 78.0,
-    totalCorrect: 81,
-    totalIncorrect: 9,
-    totalEmpty: 0,
-    courses: {
-      turkce: { courseKey: 'turkce', courseName: 'Türkçe', questionCount: 20, weight: 4, correct: 19, incorrect: 1, empty: 0, net: 18.67, lostNet: 1.33 },
-      matematik: { courseKey: 'matematik', courseName: 'Matematik', questionCount: 20, weight: 4, correct: 16, incorrect: 4, empty: 0, net: 14.67, lostNet: 5.33 },
-      fen: { courseKey: 'fen', courseName: 'Fen Bilimleri', questionCount: 20, weight: 4, correct: 18, incorrect: 2, empty: 0, net: 17.33, lostNet: 2.67 },
-      inkilap: { courseKey: 'inkilap', courseName: 'T.C. İnkılap Tarihi ve Atatürkçülük', questionCount: 10, weight: 1, correct: 10, incorrect: 0, empty: 0, net: 10.0, lostNet: 0 },
-      din: { courseKey: 'din', courseName: 'Din Kültürü ve Ahlak Bilgisi', questionCount: 10, weight: 1, correct: 9, incorrect: 1, empty: 0, net: 8.67, lostNet: 1.33 },
-      ingilizce: { courseKey: 'ingilizce', courseName: 'Yabancı Dil (İngilizce)', questionCount: 10, weight: 1, correct: 9, incorrect: 1, empty: 0, net: 8.67, lostNet: 1.33 },
-    },
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 14).toISOString(),
-  },
-  {
-    id: 'sample-exam-3',
-    examTitle: 'Okul Sonu Değerlendirme Denemesi',
-    examDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString().split('T')[0],
-    totalScore: 456.80,
-    calculatedPercentile: 2.8,
-    totalNet: 82.67,
-    totalCorrect: 85,
-    totalIncorrect: 7,
-    totalEmpty: 0,
-    courses: {
-      turkce: { courseKey: 'turkce', courseName: 'Türkçe', questionCount: 20, weight: 4, correct: 20, incorrect: 0, empty: 0, net: 20.0, lostNet: 0 },
-      matematik: { courseKey: 'matematik', courseName: 'Matematik', questionCount: 20, weight: 4, correct: 17, incorrect: 3, empty: 0, net: 16.0, lostNet: 4.0 },
-      fen: { courseKey: 'fen', courseName: 'Fen Bilimleri', questionCount: 20, weight: 4, correct: 19, incorrect: 1, empty: 0, net: 18.67, lostNet: 1.33 },
-      inkilap: { courseKey: 'inkilap', courseName: 'T.C. İnkılap Tarihi ve Atatürkçülük', questionCount: 10, weight: 1, correct: 10, incorrect: 0, empty: 0, net: 10.0, lostNet: 0 },
-      din: { courseKey: 'din', courseName: 'Din Kültürü ve Ahlak Bilgisi', questionCount: 10, weight: 1, correct: 10, incorrect: 0, empty: 0, net: 10.0, lostNet: 0 },
-      ingilizce: { courseKey: 'ingilizce', courseName: 'Yabancı Dil (İngilizce)', questionCount: 10, weight: 1, correct: 9, incorrect: 1, empty: 0, net: 8.67, lostNet: 1.33 },
-    },
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString(),
-  },
-];
+// Örnek / mock veri artık yüklenmez. Gerçek kullanıcılar sıfır veriden başlar.
+export const SAMPLE_EXAMS: SavedStudentExam[] = [];
 
 export function getStoredExams(): SavedStudentExam[] {
-  if (typeof window === 'undefined') return SAMPLE_EXAMS;
+  if (typeof window === 'undefined') return [];
   try {
     const raw = localStorage.getItem(EXAM_STORAGE_KEY);
     if (!raw) {
-      localStorage.setItem(EXAM_STORAGE_KEY, JSON.stringify(SAMPLE_EXAMS));
-      return SAMPLE_EXAMS;
+      return [];
     }
     const parsed = JSON.parse(raw) as SavedStudentExam[];
-    return parsed.sort((a, b) => new Date(b.examDate).getTime() - new Date(a.examDate).getTime());
+    // Varsa eski mock/örnek sınavları temizle
+    const clean = parsed.filter(
+      (e) => !e.id?.startsWith('sample-') && !['Özdebir Türkiye Geneli LGS-1', 'TÖDER LGS Genel Deneme Sınavı', 'Okul Sonu Değerlendirme Denemesi'].includes(e.examTitle)
+    );
+    if (clean.length !== parsed.length) {
+      localStorage.setItem(EXAM_STORAGE_KEY, JSON.stringify(clean));
+    }
+    return clean.sort((a, b) => new Date(b.examDate).getTime() - new Date(a.examDate).getTime());
   } catch {
-    return SAMPLE_EXAMS;
+    return [];
   }
+}
+
+export function clearAllStoredExams(): void {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.removeItem(EXAM_STORAGE_KEY);
+  } catch {}
 }
 
 export function saveExamToStorage(

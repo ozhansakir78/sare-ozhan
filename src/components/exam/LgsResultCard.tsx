@@ -62,7 +62,7 @@ export function LgsResultCard({ result, onNavigateToNotebook }: LgsResultCardPro
   } = result;
 
   const targetSchool = getSelectedTargetSchool();
-  const targetAnalysis = analyzeTargetGap(targetSchool, score);
+  const targetAnalysis = targetSchool ? analyzeTargetGap(targetSchool, score) : null;
 
   // Performans rengi
   const getScoreColor = (sc: number) => {
@@ -160,54 +160,79 @@ export function LgsResultCard({ result, onNavigateToNotebook }: LgsResultCardPro
         </div>
 
         {/* Hedef Lise Karşılaştırma Bandı */}
-        <div className="mt-5 rounded-xl border border-indigo-200/80 bg-gradient-to-r from-indigo-50/90 via-violet-50/70 to-indigo-50/90 p-4 dark:border-indigo-900/60 dark:from-indigo-950/40 dark:via-slate-900 dark:to-indigo-950/30">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-indigo-600 text-white shadow-2xs">
-                  <Target className="h-3.5 w-3.5" />
-                </span>
-                <h5 className="text-xs font-black text-slate-900 dark:text-white">
-                  Hedef Lise: {targetSchool.name} ({targetSchool.minScore.toFixed(1)} Puan)
-                </h5>
-                <span className="rounded-md bg-indigo-100 px-1.5 py-0.2 text-[10px] font-bold text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-300">
-                  %{targetAnalysis.progressPercent} Yakınlık
-                </span>
+        {targetSchool && targetAnalysis ? (
+          <div className="mt-5 rounded-xl border border-indigo-200/80 bg-gradient-to-r from-indigo-50/90 via-violet-50/70 to-indigo-50/90 p-4 dark:border-indigo-900/60 dark:from-indigo-950/40 dark:via-slate-900 dark:to-indigo-950/30">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-indigo-600 text-white shadow-2xs">
+                    <Target className="h-3.5 w-3.5" />
+                  </span>
+                  <h5 className="text-xs font-black text-slate-900 dark:text-white">
+                    Hedef Lise: {targetSchool.name} ({targetSchool.minScore.toFixed(1)} Puan)
+                  </h5>
+                  <span className="rounded-md bg-indigo-100 px-1.5 py-0.2 text-[10px] font-bold text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-300">
+                    %{targetAnalysis.progressPercent} Yakınlık
+                  </span>
+                </div>
+                <p className="text-xs text-slate-600 dark:text-slate-300">
+                  {targetAnalysis.isAchieved ? (
+                    <span className="font-bold text-emerald-700 dark:text-emerald-400">
+                      🎉 Harika! Bu deneme puanın ({score.toFixed(1)}) hedef lisenin taban puanının üzerinde!
+                    </span>
+                  ) : (
+                    <span>
+                      Hedefe ulaşmak için:{' '}
+                      <strong className="text-indigo-900 dark:text-indigo-200">
+                        +{targetAnalysis.scoreDifference.toFixed(1)} puan
+                      </strong>{' '}
+                      (Yaklaşık{' '}
+                      <strong className="text-indigo-900 dark:text-indigo-200">
+                        +{targetAnalysis.neededNetEquivalent[0].neededNets} Matematik Neti
+                      </strong>{' '}
+                      veya{' '}
+                      <strong className="text-indigo-900 dark:text-indigo-200">
+                        +{targetAnalysis.neededNetEquivalent[1].neededNets} Fen Neti
+                      </strong>
+                      ) gerekiyor.
+                    </span>
+                  )}
+                </p>
               </div>
-              <p className="text-xs text-slate-600 dark:text-slate-300">
-                {targetAnalysis.isAchieved ? (
-                  <span className="font-bold text-emerald-700 dark:text-emerald-400">
-                    🎉 Harika! Bu deneme puanın ({score.toFixed(1)}) hedef lisenin taban puanının üzerinde!
-                  </span>
-                ) : (
-                  <span>
-                    Hedefe ulaşmak için:{' '}
-                    <strong className="text-indigo-900 dark:text-indigo-200">
-                      +{targetAnalysis.scoreDifference.toFixed(1)} puan
-                    </strong>{' '}
-                    (Yaklaşık{' '}
-                    <strong className="text-indigo-900 dark:text-indigo-200">
-                      +{targetAnalysis.neededNetEquivalent[0].neededNets} Matematik Neti
-                    </strong>{' '}
-                    veya{' '}
-                    <strong className="text-indigo-900 dark:text-indigo-200">
-                      +{targetAnalysis.neededNetEquivalent[1].neededNets} Fen Neti
-                    </strong>
-                    ) gerekiyor.
-                  </span>
-                )}
-              </p>
-            </div>
 
+              <Link
+                href="/#hesaplama"
+                className="inline-flex items-center gap-1 text-xs font-bold text-indigo-700 dark:text-indigo-400 hover:underline shrink-0"
+              >
+                <span>Hedefi Yönet</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-5 rounded-xl border border-dashed border-indigo-200 bg-indigo-50/40 p-4 dark:border-indigo-900/40 dark:bg-indigo-950/20 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400">
+                <Target className="h-4 w-4" />
+              </span>
+              <div>
+                <h5 className="text-xs font-bold text-slate-900 dark:text-white">
+                  Henüz bir hedef lise belirlemediniz
+                </h5>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  Hedefinizi seçerek kazanmak için kaç nete ihtiyacınız olduğunu anında görün.
+                </p>
+              </div>
+            </div>
             <Link
               href="/#hesaplama"
-              className="inline-flex items-center gap-1 text-xs font-bold text-indigo-700 dark:text-indigo-400 hover:underline shrink-0"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-indigo-700 transition"
             >
-              <span>Hedefi Yönet</span>
-              <ArrowRight className="h-3.5 w-3.5" />
+              <span>Hedef Belirle</span>
+              <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
-        </div>
+        )}
 
         {/* Deneme Kaydetme Alanı */}
         <div className="mt-5 rounded-xl border border-indigo-100 bg-indigo-50/40 p-4 dark:border-indigo-900/40 dark:bg-indigo-950/20">

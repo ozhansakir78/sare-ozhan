@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
@@ -10,6 +10,7 @@ import {
   PastQuestionSource,
 } from '@/lib/meb-past-questions';
 import { PastQuestionCard } from '@/components/meb/PastQuestionCard';
+import { AuthGuard } from '@/components/auth/AuthGuard';
 import {
   FileText,
   Search,
@@ -46,7 +47,11 @@ export default function MebCikmisSorularPage() {
   );
 
   return (
-    <div className="mx-auto max-w-6xl px-4 sm:px-6 space-y-8 py-8 sm:py-12">
+    <AuthGuard
+      title="MEB Çıkmış Soruları İncelemek İçin Giriş Yapmalısınız"
+      description="2018–2024 yılları arasındaki resmi LGS sorularını, çeldirici analizlerini ve Sokratik ipuçlarını incelemek için lütfen hesabınıza giriş yapın."
+    >
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 space-y-8 py-8 sm:py-12">
       {/* Hero Başlık */}
       <section className="text-center space-y-3">
         <div className="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50/80 px-4 py-1.5 text-xs font-semibold text-indigo-700 dark:border-indigo-800/60 dark:bg-indigo-950/50 dark:text-indigo-300">
@@ -173,5 +178,6 @@ export default function MebCikmisSorularPage() {
         )}
       </div>
     </div>
+    </AuthGuard>
   );
 }

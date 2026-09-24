@@ -351,13 +351,22 @@ export function Navbar() {
                   )}
                 </div>
               ) : (
-                <Link
-                  href="/giris"
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-xs transition hover:bg-indigo-500"
-                >
-                  <LogIn className="h-3.5 w-3.5" />
-                  <span>Giriş</span>
-                </Link>
+                <div className="flex items-center gap-2">
+                  <Link
+                    href="/giris"
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/90 px-3 py-1.5 text-xs font-semibold text-slate-200 transition hover:bg-slate-700 hover:text-white"
+                  >
+                    <LogIn className="h-3.5 w-3.5" />
+                    <span>Giriş</span>
+                  </Link>
+                  <Link
+                    href="/kayit"
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-3 py-1.5 text-xs font-bold text-white shadow-xs transition hover:bg-indigo-500"
+                  >
+                    <Sparkles className="h-3 w-3 text-amber-300" />
+                    <span>Kayıt Ol</span>
+                  </Link>
+                </div>
               )}
             </div>
 

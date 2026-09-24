@@ -5,6 +5,7 @@ import { AmbientSoundPlayer } from '@/components/focus/AmbientSoundPlayer';
 import { FocusMotivationalQuotes } from '@/components/focus/FocusMotivationalQuotes';
 import { Timer, ArrowRight, BookOpen, Sparkles, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
+import { AuthGuard } from '@/components/auth/AuthGuard';
 
 export const metadata: Metadata = {
   title: 'LGS Çalışma & Odaklanma Odası (Pomodoro Sayacı) | SınavKoçu.ai',
@@ -13,7 +14,11 @@ export const metadata: Metadata = {
 
 export default function FocusRoomPage() {
   return (
-    <div className="py-8 sm:py-12">
+    <AuthGuard
+      title="Odaklanma Odasına Giriş Yapmalısınız"
+      description="Pomodoro sayacı, ortam sesleri ve odaklanma araçlarını kullanabilmek için lütfen ücretsiz üye olun veya giriş yapın."
+    >
+      <div className="py-8 sm:py-12">
       <div className="mx-auto max-w-5xl px-4 sm:px-6">
         {/* Başlık Alanı */}
         <div className="text-center max-w-2xl mx-auto mb-8">
@@ -96,6 +101,7 @@ export default function FocusRoomPage() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </AuthGuard>
   );
 }

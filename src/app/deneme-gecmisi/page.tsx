@@ -12,6 +12,7 @@ import {
 } from '@/lib/exam-storage';
 import type { SavedStudentExam } from '@/types/exam';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { AuthGuard } from '@/components/auth/AuthGuard';
 import {
   TrendingUp,
   Award,
@@ -50,7 +51,11 @@ export default function DenemeGecmisiPage() {
   };
 
   return (
-    <div className="mx-auto max-w-6xl px-4 sm:px-6 space-y-8 py-8">
+    <AuthGuard
+      title="Deneme Geçmişinizi Görmek İçin Giriş Yapmalısınız"
+      description="Çözdüğünüz tüm denemeleri, net artış grafiklerinizi ve LGS puan trendinizi takip edebilmek için lütfen ücretsiz üye olun veya giriş yapın."
+    >
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 space-y-8 py-8">
           {/* Başlık ve Eylem */}
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -279,6 +284,7 @@ export default function DenemeGecmisiPage() {
               </div>
             )}
           </div>
-    </div>
+      </div>
+    </AuthGuard>
   );
 }

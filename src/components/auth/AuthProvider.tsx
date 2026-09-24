@@ -85,8 +85,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           id: userId,
           email: userEmail || null,
           display_name: userEmail ? userEmail.split('@')[0] : 'Öğrenci',
-          target_high_school: 'İstanbul Erkek Lisesi',
-          target_score: 485,
+          target_high_school: null,
+          target_score: null,
           is_pro: false,
           pro_expires_at: null,
           daily_quota_used: 0,
@@ -236,7 +236,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     displayName?: string,
     targetSchool?: string
   ): Promise<{ error?: string }> => {
-    const cleanSchool = normalizeSchoolName(targetSchool || 'Kabataş Erkek Lisesi');
+    const cleanSchool = targetSchool ? normalizeSchoolName(targetSchool) : null;
 
     if (!isSupabaseConfigured) {
       // Yerel mod simülasyonu
@@ -245,7 +245,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email,
         display_name: displayName || email.split('@')[0],
         target_high_school: cleanSchool,
-        target_score: 485,
+        target_score: null,
         is_pro: false,
         pro_expires_at: null,
         daily_quota_used: 0,
@@ -283,7 +283,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           email,
           display_name: displayName || email.split('@')[0],
           target_high_school: cleanSchool,
-          target_score: 485,
+          target_score: null,
           is_pro: false,
           pro_expires_at: null,
           daily_quota_used: 0,
@@ -320,7 +320,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           email,
           display_name: displayName || email.split('@')[0],
           target_high_school: cleanSchool,
-          target_score: 485,
+          target_score: null,
           is_pro: false,
           pro_expires_at: null,
           daily_quota_used: 0,

@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { LeaderboardTable } from '@/components/leaderboard/LeaderboardTable';
 import { Trophy, Users, Award, Sparkles, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { AuthGuard } from '@/components/auth/AuthGuard';
 
 export const metadata: Metadata = {
   title: 'Türkiye Geneli LGS Liderlik Sıralaması | SınavKoçu.ai',
@@ -11,7 +12,11 @@ export const metadata: Metadata = {
 
 export default function LeaderboardPage() {
   return (
-    <div className="py-8 sm:py-12">
+    <AuthGuard
+      title="Liderlik Tablosuna Erişmek İçin Giriş Yapmalısınız"
+      description="Türkiye geneli LGS sıralamanızı görmek ve diğer öğrencilerle yarışmak için lütfen hesabınıza giriş yapın."
+    >
+      <div className="py-8 sm:py-12">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         {/* Başlık ve İstatistik Şeridi */}
         <div className="text-center max-w-2xl mx-auto mb-10">
@@ -67,5 +72,6 @@ export default function LeaderboardPage() {
         <LeaderboardTable />
       </div>
     </div>
+    </AuthGuard>
   );
 }
