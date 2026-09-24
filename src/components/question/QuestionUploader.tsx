@@ -14,6 +14,7 @@ import { compressImage, uploadQuestionImage } from '@/lib/storage';
 import {
   UploadCloud,
   Image as ImageIcon,
+  Camera,
   X,
   Plus,
   FileText,
@@ -45,6 +46,7 @@ export function QuestionUploader({ onQuestionAdded, onCancel }: QuestionUploader
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   // Ders değiştiğinde konuyu o dersin ilk konusuna güncelle
   const handleCourseChange = (courseKey: LgsCourseKey) => {
@@ -139,6 +141,9 @@ export function QuestionUploader({ onQuestionAdded, onCancel }: QuestionUploader
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+    if (cameraInputRef.current) {
+      cameraInputRef.current.value = '';
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -177,6 +182,9 @@ export function QuestionUploader({ onQuestionAdded, onCancel }: QuestionUploader
       setStudentNote('');
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
+      }
+      if (cameraInputRef.current) {
+        cameraInputRef.current.value = '';
       }
 
       if (onQuestionAdded) {
@@ -238,6 +246,14 @@ export function QuestionUploader({ onQuestionAdded, onCancel }: QuestionUploader
             onChange={handleFileInputChange}
             className="hidden"
           />
+          <input
+            ref={cameraInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            onChange={handleFileInputChange}
+            className="hidden"
+          />
 
           {isCompressing ? (
             <div className="flex flex-col items-center justify-center rounded-2xl border border-indigo-200 bg-indigo-50/40 p-8 text-center dark:border-indigo-900/40 dark:bg-indigo-950/20">
@@ -251,28 +267,46 @@ export function QuestionUploader({ onQuestionAdded, onCancel }: QuestionUploader
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
-              onClick={() => fileInputRef.current?.click()}
-              className={`flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-8 text-center transition-all cursor-pointer ${
+              className={`flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-8 text-center transition-all ${
                 isDragging
                   ? 'border-indigo-500 bg-indigo-50/50 dark:border-indigo-400 dark:bg-indigo-950/30'
                   : 'border-slate-300 bg-slate-50/50 hover:border-indigo-400 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800/40 dark:hover:border-slate-600'
               }`}
             >
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400">
-                <UploadCloud className="h-6 w-6" />
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-600 dark:bg-indigo-950/70 dark:text-indigo-400 shadow-xs">
+                <Camera className="h-7 w-7" />
               </div>
               <h4 className="mt-3 text-sm font-bold text-slate-800 dark:text-slate-200">
-                Görseli sürükleyin veya seçin
+                Sorunun Fotoğrafını Çek veya Yükle
               </h4>
-              <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
-                PNG, JPG veya WEBP (Maksimum 8MB)
+              <p className="mt-1 max-w-xs text-xs text-slate-500 dark:text-slate-400">
+                Kitapçığınızdan telefon kamerasıyla anında çekebilir veya galeriden seçebilirsiniz.
               </p>
-              <button
-                type="button"
-                className="mt-4 rounded-xl bg-white px-4 py-2 text-xs font-semibold text-indigo-600 shadow-sm border border-slate-200 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-indigo-300"
-              >
-                Dosya Seç
-              </button>
+
+              <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    cameraInputRef.current?.click();
+                  }}
+                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-2.5 text-xs font-bold text-white shadow-md shadow-indigo-500/20 hover:from-indigo-700 hover:to-violet-700 active:scale-95 transition cursor-pointer"
+                >
+                  <Camera className="h-4 w-4" />
+                  Kamerayla Fotoğraf Çek
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    fileInputRef.current?.click();
+                  }}
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 active:scale-95 transition cursor-pointer dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                >
+                  <UploadCloud className="h-4 w-4 text-slate-500" />
+                  Galeriden / Dosyadan Seç
+                </button>
+              </div>
             </div>
           ) : (
             <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-900/5 dark:border-slate-800">
@@ -283,23 +317,31 @@ export function QuestionUploader({ onQuestionAdded, onCancel }: QuestionUploader
                   className="max-h-64 w-auto rounded-xl object-contain shadow-sm"
                 />
               </div>
-              <div className="flex items-center justify-between border-t border-slate-200 bg-white px-4 py-2.5 dark:border-slate-800 dark:bg-slate-900">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-200 bg-white px-4 py-2.5 dark:border-slate-800 dark:bg-slate-900">
                 <span className="flex items-center gap-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
                   <Check className="h-3.5 w-3.5" /> Görsel hazırlandı
                 </span>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => cameraInputRef.current?.click()}
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:underline dark:text-indigo-400 cursor-pointer"
+                  >
+                    <Camera className="h-3.5 w-3.5" /> Yeniden Çek
+                  </button>
+                  <span className="text-slate-300 dark:text-slate-700">|</span>
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="text-xs font-semibold text-indigo-600 hover:underline dark:text-indigo-400"
+                    className="text-xs font-semibold text-indigo-600 hover:underline dark:text-indigo-400 cursor-pointer"
                   >
-                    Değiştir
+                    Galeriden Değiştir
                   </button>
                   <span className="text-slate-300 dark:text-slate-700">|</span>
                   <button
                     type="button"
                     onClick={handleClearImage}
-                    className="text-xs font-semibold text-rose-600 hover:underline dark:text-rose-400"
+                    className="text-xs font-semibold text-rose-600 hover:underline dark:text-rose-400 cursor-pointer"
                   >
                     Kaldır
                   </button>
