@@ -306,43 +306,302 @@ export function searchUniversities(query: string): YksUniversityTarget[] {
 }
 
 /**
+ * Türkiye 81 İl Üniversite Rehberi (Devlet & Vakıf)
+ */
+export const TURKEY_UNIVERSITIES_BY_CITY: Record<string, string[]> = {
+  'Adana': ['Çukurova Üniversitesi', 'Adana Alparslan Türkeş Bilim ve Teknoloji Üniversitesi'],
+  'Adıyaman': ['Adıyaman Üniversitesi'],
+  'Afyonkarahisar': ['Afyon Kocatepe Üniversitesi', 'Afyonkarahisar Sağlık Bilimleri Üniversitesi'],
+  'Ağrı': ['Ağrı İbrahim Çeçen Üniversitesi'],
+  'Amasya': ['Amasya Üniversitesi'],
+  'Ankara': [
+    'ODTÜ (Orta Doğu Teknik Üniversitesi)',
+    'Hacettepe Üniversitesi',
+    'Ankara Üniversitesi',
+    'Gazi Üniversitesi',
+    'Bilkent Üniversitesi',
+    'TOBB Ekonomi ve Teknoloji Üniversitesi',
+    'Ankara Yıldırım Beyazıt Üniversitesi',
+    'Başkent Üniversitesi',
+    'Çankaya Üniversitesi',
+    'TED Üniversitesi',
+    'Atılım Üniversitesi',
+    'Lokman Hekim Üniversitesi',
+    'Ankara Medipol Üniversitesi',
+    'Ankara Sosyal Bilimler Üniversitesi',
+    'Ufuk Üniversitesi',
+    'Ostim Teknik Üniversitesi',
+    'Türk Hava Kurumu Üniversitesi',
+    'Yüksek İhtisas Üniversitesi',
+  ],
+  'Antalya': ['Akdeniz Üniversitesi', 'Alanya Alaaddin Keykubat Üniversitesi', 'Antalya Bilim Üniversitesi', 'Alanya Üniversitesi'],
+  'Artvin': ['Artvin Çoruh Üniversitesi'],
+  'Aydın': ['Aydın Adnan Menderes Üniversitesi'],
+  'Balıkesir': ['Balıkesir Üniversitesi', 'Bandırma Onyedi Eylül Üniversitesi'],
+  'Bilecik': ['Bilecik Şeyh Edebali Üniversitesi'],
+  'Bingöl': ['Bingöl Üniversitesi'],
+  'Bitlis': ['Bitlis Eren Üniversitesi'],
+  'Bolu': ['Bolu Abant İzzet Baysal Üniversitesi'],
+  'Burdur': ['Burdur Mehmet Akif Ersoy Üniversitesi'],
+  'Bursa': ['Bursa Uludağ Üniversitesi', 'Bursa Teknik Üniversitesi', 'Mudanya Üniversitesi'],
+  'Çanakkale': ['Çanakkale Onsekiz Mart Üniversitesi'],
+  'Çankırı': ['Çankırı Karatekin Üniversitesi'],
+  'Çorum': ['Hitit Üniversitesi'],
+  'Denizli': ['Pamukkale Üniversitesi'],
+  'Diyarbakır': ['Dicle Üniversitesi'],
+  'Edirne': ['Trakya Üniversitesi'],
+  'Elazığ': ['Fırat Üniversitesi'],
+  'Erzincan': ['Erzincan Binali Yıldırım Üniversitesi'],
+  'Erzurum': ['Atatürk Üniversitesi', 'Erzurum Teknik Üniversitesi'],
+  'Eskişehir': ['Eskişehir Anadolu Üniversitesi', 'Eskişehir Osmangazi Üniversitesi', 'Eskişehir Teknik Üniversitesi (ESTÜ)'],
+  'Gaziantep': ['Gaziantep Üniversitesi', 'Gaziantep İslam Bilim ve Teknoloji Üniversitesi', 'Hasan Kalyoncu Üniversitesi', 'SANKO Üniversitesi'],
+  'Giresun': ['Giresun Üniversitesi'],
+  'Gümüşhane': ['Gümüşhane Üniversitesi'],
+  'Hakkari': ['Hakkari Üniversitesi'],
+  'Hatay': ['Hatay Mustafa Kemal Üniversitesi', 'İskenderun Teknik Üniversitesi'],
+  'Isparta': ['Süleyman Demirel Üniversitesi', 'Isparta Uygulamalı Bilimler Üniversitesi'],
+  'Mersin': ['Mersin Üniversitesi', 'Tarsus Üniversitesi', 'Toros Üniversitesi'],
+  'İstanbul': [
+    'Boğaziçi Üniversitesi',
+    'İTÜ (İstanbul Teknik Üniversitesi)',
+    'İstanbul Üniversitesi',
+    'İstanbul Üniversitesi - Cerrahpaşa',
+    'Yıldız Teknik Üniversitesi (YTÜ)',
+    'Marmara Üniversitesi',
+    'Koç Üniversitesi',
+    'Sabancı Üniversitesi',
+    'Özyeğin Üniversitesi',
+    'Galatasaray Üniversitesi',
+    'Türk-Alman Üniversitesi',
+    'Mimar Sinan Güzel Sanatlar Üniversitesi',
+    'İstanbul Medipol Üniversitesi',
+    'Bahçeşehir Üniversitesi (BAU)',
+    'Yeditepe Üniversitesi',
+    'İstanbul Bilgi Üniversitesi',
+    'Kadir Has Üniversitesi',
+    'Acıbadem Mehmet Ali Aydınlar Üniversitesi',
+    'Bezmiâlem Vakıf Üniversitesi',
+    'İstanbul Ticaret Üniversitesi',
+    'Üsküdar Üniversitesi',
+    'İstanbul Aydın Üniversitesi',
+    'İstanbul Sabahattin Zaim Üniversitesi',
+    'İstanbul Gelişim Üniversitesi',
+    'Doğuş Üniversitesi',
+    'Maltepe Üniversitesi',
+    'Haliç Üniversitesi',
+    'Beykent Üniversitesi',
+    'Kültür Üniversitesi',
+    'Nişantaşı Üniversitesi',
+    'Biruni Üniversitesi',
+    'İstanbul Sağlık ve Teknoloji Üniversitesi',
+    'İstanbul Gedik Üniversitesi',
+    'Fenerbahçe Üniversitesi',
+    'İstinye Üniversitesi',
+    'MEF Üniversitesi',
+    'Piri Reis Üniversitesi',
+    'İstanbul Atlas Üniversitesi',
+    'İstanbul Arel Üniversitesi',
+    'İstanbul Galata Üniversitesi',
+    'İstanbul Rumeli Üniversitesi',
+    'İstanbul Esenyurt Üniversitesi',
+    'Demiroğlu Bilim Üniversitesi',
+    'Beykoz Üniversitesi',
+    'İstanbul Okan Üniversitesi',
+    'İstanbul Ayvansaray / Topkapı Üniversitesi',
+    'İstanbul Kent Üniversitesi',
+  ],
+  'İzmir': [
+    'Ege Üniversitesi',
+    'Dokuz Eylül Üniversitesi',
+    'İzmir Yüksek Teknoloji Enstitüsü (İYTE)',
+    'İzmir Kâtip Çelebi Üniversitesi',
+    'İzmir Ekonomi Üniversitesi',
+    'Yaşar Üniversitesi',
+    'İzmir Bakırçay Üniversitesi',
+    'İzmir Demokrasi Üniversitesi',
+    'İzmir Tınaztepe Üniversitesi',
+  ],
+  'Kars': ['Kafkas Üniversitesi'],
+  'Kastamonu': ['Kastamonu Üniversitesi'],
+  'Kayseri': ['Erciyes Üniversitesi', 'Abdullah Gül Üniversitesi (AGÜ)', 'Kayseri Üniversitesi', 'Nuh Naci Yazgan Üniversitesi'],
+  'Kırklareli': ['Kırklareli Üniversitesi'],
+  'Kırşehir': ['Kırşehir Ahi Evran Üniversitesi'],
+  'Kocaeli': ['Kocaeli Üniversitesi', 'Gebze Teknik Üniversitesi (GTÜ)', 'Kocaeli Sağlık ve Teknoloji Üniversitesi'],
+  'Konya': ['Selçuk Üniversitesi', 'Necmettin Erbakan Üniversitesi', 'Konya Teknik Üniversitesi', 'KTO Karatay Üniversitesi', 'Konya Gıda ve Tarım Üniversitesi'],
+  'Kütahya': ['Kütahya Dumlupınar Üniversitesi', 'Kütahya Sağlık Bilimleri Üniversitesi (KSBÜ)'],
+  'Malatya': ['İnönü Üniversitesi', 'Malatya Turgut Özal Üniversitesi'],
+  'Manisa': ['Manisa Celal Bayar Üniversitesi'],
+  'Kahramanmaraş': ['Kahramanmaraş Sütçü İmam Üniversitesi', 'Kahramanmaraş İstiklal Üniversitesi'],
+  'Mardin': ['Mardin Artuklu Üniversitesi'],
+  'Muğla': ['Muğla Sıtkı Koçman Üniversitesi'],
+  'Muş': ['Muş Alparslan Üniversitesi'],
+  'Nevşehir': ['Nevşehir Hacı Bektaş Veli Üniversitesi', 'Kapadokya Üniversitesi'],
+  'Niğde': ['Niğde Ömer Halisdemir Üniversitesi'],
+  'Ordu': ['Ordu Üniversitesi'],
+  'Rize': ['Recep Tayyip Erdoğan Üniversitesi'],
+  'Sakarya': ['Sakarya Üniversitesi', 'Sakarya Uygulamalı Bilimler Üniversitesi'],
+  'Samsun': ['Ondokuz Mayıs Üniversitesi', 'Samsun Üniversitesi'],
+  'Siirt': ['Siirt Üniversitesi'],
+  'Sinop': ['Sinop Üniversitesi'],
+  'Sivas': ['Sivas Cumhuriyet Üniversitesi', 'Sivas Bilim ve Teknoloji Üniversitesi'],
+  'Tekirdağ': ['Tekirdağ Namık Kemal Üniversitesi'],
+  'Tokat': ['Tokat Gaziosmanpaşa Üniversitesi'],
+  'Trabzon': ['Karadeniz Teknik Üniversitesi (KTÜ)', 'Trabzon Üniversitesi', 'Avrasya Üniversitesi'],
+  'Tunceli': ['Munzur Üniversitesi'],
+  'Şanlıurfa': ['Harran Üniversitesi'],
+  'Uşak': ['Uşak Üniversitesi'],
+  'Van': ['Van Yüzüncü Yıl Üniversitesi'],
+  'Yozgat': ['Yozgat Bozok Üniversitesi'],
+  'Zonguldak': ['Zonguldak Bülent Ecevit Üniversitesi'],
+  'Aksaray': ['Aksaray Üniversitesi'],
+  'Bayburt': ['Bayburt Üniversitesi'],
+  'Karaman': ['Karamanoğlu Mehmetbey Üniversitesi'],
+  'Kırıkkale': ['Kırıkkale Üniversitesi'],
+  'Batman': ['Batman Üniversitesi'],
+  'Şırnak': ['Şırnak Üniversitesi'],
+  'Bartın': ['Bartın Üniversitesi'],
+  'Ardahan': ['Ardahan Üniversitesi'],
+  'Iğdır': ['Iğdır Üniversitesi'],
+  'Yalova': ['Yalova Üniversitesi'],
+  'Karabük': ['Karabük Üniversitesi'],
+  'Kilis': ['Kilis 7 Aralık Üniversitesi'],
+  'Osmaniye': ['Osmaniye Korkut Ata Üniversitesi'],
+  'Düzce': ['Düzce Üniversitesi'],
+};
+
+export interface StandardDepartment {
+  name: string;
+  scoreType: 'SAY' | 'EA' | 'SÖZ' | 'DİL';
+  minScore: number;
+  idealTytNet: number;
+  targetObp: number;
+  description: string;
+}
+
+export const STANDARD_YKS_PROGRAMS: StandardDepartment[] = [
+  { name: 'Tıp Fakültesi', scoreType: 'SAY', minScore: 505, idealTytNet: 98, targetObp: 95.0, description: 'Sağlık ve klinik tıp hekimliği' },
+  { name: 'Diş Hekimliği Fakültesi', scoreType: 'SAY', minScore: 470, idealTytNet: 86, targetObp: 92.0, description: 'Ağız ve diş sağlığı hekimliği' },
+  { name: 'Eczacılık Fakültesi', scoreType: 'SAY', minScore: 445, idealTytNet: 80, targetObp: 90.0, description: 'İlaç bilimi ve farmasötik teknoloji' },
+  { name: 'Bilgisayar Mühendisliği', scoreType: 'SAY', minScore: 480, idealTytNet: 92, targetObp: 93.0, description: 'Yazılım, algoritma ve bilişim sistemleri' },
+  { name: 'Yazılım Mühendisliği', scoreType: 'SAY', minScore: 460, idealTytNet: 85, targetObp: 90.0, description: 'Modern uygulama mimarisi ve yazılım geliştirme' },
+  { name: 'Yapay Zekâ ve Veri Mühendisliği', scoreType: 'SAY', minScore: 510, idealTytNet: 100, targetObp: 95.0, description: 'Büyük veri, makine öğrenimi ve derin öğrenme' },
+  { name: 'Elektrik-Elektronik Mühendisliği', scoreType: 'SAY', minScore: 470, idealTytNet: 88, targetObp: 92.0, description: 'Elektronik sistemler, sinyal işleme ve güç' },
+  { name: 'Endüstri Mühendisliği', scoreType: 'SAY', minScore: 455, idealTytNet: 84, targetObp: 91.0, description: 'Süreç optimizasyonu ve yönetim mühendisliği' },
+  { name: 'Makine Mühendisliği', scoreType: 'SAY', minScore: 435, idealTytNet: 78, targetObp: 88.0, description: 'Mekanik tasarım ve imalat teknolojileri' },
+  { name: 'Havacılık ve Uzay Mühendisliği', scoreType: 'SAY', minScore: 495, idealTytNet: 95, targetObp: 94.0, description: 'Savunma ve hava araçları teknolojisi' },
+  { name: 'Mimarlık', scoreType: 'SAY', minScore: 420, idealTytNet: 72, targetObp: 88.0, description: 'Yapı tasarımı ve kentsel estetik' },
+  { name: 'Moleküler Biyoloji ve Genetik', scoreType: 'SAY', minScore: 430, idealTytNet: 75, targetObp: 89.0, description: 'Biyoteknoloji ve hücre araştırmaları' },
+  { name: 'Hemşirelik', scoreType: 'SAY', minScore: 385, idealTytNet: 64, targetObp: 85.0, description: 'Klinik hasta bakımı ve sağlık hizmetleri' },
+  { name: 'Fizyoterapi ve Rehabilitasyon', scoreType: 'SAY', minScore: 395, idealTytNet: 68, targetObp: 86.0, description: 'Fiziksel tedavi ve hareket bilimi' },
+  { name: 'Hukuk Fakültesi', scoreType: 'EA', minScore: 440, idealTytNet: 80, targetObp: 90.0, description: 'Adalet, anayasa ve avukatlık/hâkimlik kariyeri' },
+  { name: 'Psikoloji', scoreType: 'EA', minScore: 425, idealTytNet: 76, targetObp: 89.0, description: 'İnsan davranışı ve klinik danışmanlık' },
+  { name: 'Yönetim Bilişim Sistemleri (YBS)', scoreType: 'EA', minScore: 435, idealTytNet: 80, targetObp: 89.0, description: 'Teknoloji yönetimi ve iş analitiği' },
+  { name: 'İşletme', scoreType: 'EA', minScore: 410, idealTytNet: 72, targetObp: 87.0, description: 'Finans, pazarlama ve şirket yönetimi' },
+  { name: 'İktisat / Ekonomi', scoreType: 'EA', minScore: 405, idealTytNet: 70, targetObp: 86.0, description: 'Makroekonomi ve piyasa analitiği' },
+  { name: 'Sınıf Öğretmenliği', scoreType: 'EA', minScore: 410, idealTytNet: 70, targetObp: 88.0, description: 'Temel ilkokul eğitimi ve pedagoji' },
+  { name: 'Rehberlik ve Psikolojik Danışmanlık (PDR)', scoreType: 'EA', minScore: 415, idealTytNet: 72, targetObp: 88.0, description: 'Okul ve kariyer psikolojik danışmanlığı' },
+  { name: 'Siyaset Bilimi ve Uluslararası İlişkiler', scoreType: 'EA', minScore: 400, idealTytNet: 68, targetObp: 86.0, description: 'Diplomasi ve küresel ilişkiler' },
+  { name: 'Özel Eğitim Öğretmenliği', scoreType: 'SÖZ', minScore: 430, idealTytNet: 78, targetObp: 89.0, description: 'Özel gereksinimli bireylerin eğitimi' },
+  { name: 'Türkçe Öğretmenliği', scoreType: 'SÖZ', minScore: 420, idealTytNet: 74, targetObp: 88.0, description: 'Ortaokul ana dil eğitimi' },
+  { name: 'Tarih Öğretmenliği', scoreType: 'SÖZ', minScore: 385, idealTytNet: 65, targetObp: 85.0, description: 'Kültür ve medeniyet tarihi eğitimi' },
+  { name: 'Halkla İlişkiler ve Tanıtım', scoreType: 'SÖZ', minScore: 375, idealTytNet: 60, targetObp: 84.0, description: 'Kurumsal iletişim ve medya' },
+  { name: 'Gastronomi ve Mutfak Sanatları', scoreType: 'SÖZ', minScore: 405, idealTytNet: 70, targetObp: 86.0, description: 'Mutfak sanatları ve restoran yönetimi' },
+  { name: 'İngilizce Öğretmenliği', scoreType: 'DİL', minScore: 460, idealTytNet: 82, targetObp: 91.0, description: 'Yabancı dil pedagojisi ve eğitimi' },
+  { name: 'Mütercim ve Tercümanlık (İngilizce)', scoreType: 'DİL', minScore: 450, idealTytNet: 80, targetObp: 90.0, description: 'Simültane ve yazılı çeviri' },
+  { name: 'İngiliz Dili ve Edebiyatı', scoreType: 'DİL', minScore: 430, idealTytNet: 74, targetObp: 87.0, description: 'Batı edebiyatı ve filoloji' },
+];
+
+/**
  * Şehre göre filtrelenmiş benzersiz üniversite isimlerini döner
  */
 export function getDistinctUniversities(city?: string): { name: string; city: string }[] {
-  let list = YKS_TOP_UNIVERSITIES;
-  if (city && city.trim() !== '' && city !== 'Tüm Şehirler') {
-    const cClean = city.trim().toLowerCase();
-    list = list.filter((u) => u.city.toLowerCase() === cClean);
-  }
+  const result: { name: string; city: string }[] = [];
+  const seen = new Set<string>();
 
-  const map = new Map<string, string>();
-  for (const item of list) {
-    if (!map.has(item.name)) {
-      map.set(item.name, item.city);
+  if (city && city.trim() !== '' && city !== 'Tüm Şehirler') {
+    const cClean = city.trim();
+    // 1) Şehir listesindeki üniversiteleri ekle
+    const unisForCity = TURKEY_UNIVERSITIES_BY_CITY[cClean] || [];
+    for (const uName of unisForCity) {
+      if (!seen.has(uName)) {
+        seen.add(uName);
+        result.push({ name: uName, city: cClean });
+      }
+    }
+
+    // 2) YKS_TOP_UNIVERSITIES içindeki varsa ekle
+    for (const item of YKS_TOP_UNIVERSITIES) {
+      if (item.city.toLowerCase() === cClean.toLowerCase() && !seen.has(item.name)) {
+        seen.add(item.name);
+        result.push({ name: item.name, city: item.city });
+      }
+    }
+  } else {
+    // Tüm şehirlerin üniversiteleri
+    for (const [cityName, unis] of Object.entries(TURKEY_UNIVERSITIES_BY_CITY)) {
+      for (const uName of unis) {
+        if (!seen.has(uName)) {
+          seen.add(uName);
+          result.push({ name: uName, city: cityName });
+        }
+      }
+    }
+    for (const item of YKS_TOP_UNIVERSITIES) {
+      if (!seen.has(item.name)) {
+        seen.add(item.name);
+        result.push({ name: item.name, city: item.city });
+      }
     }
   }
 
-  return Array.from(map.entries())
-    .map(([name, itemCity]) => ({ name, city: itemCity }))
-    .sort((a, b) => a.name.localeCompare(b.name, 'tr'));
+  return result.sort((a, b) => a.name.localeCompare(b.name, 'tr'));
 }
 
 /**
- * Seçilen üniversitenin program ve bölümlerini döner
+ * Seçilen üniversitenin program ve bölümlerini döner.
+ * Üniversiteye özel tanımlı bölümler varsa onları, yoksa standart zengin YKS bölümlerini döner.
  */
 export function getDepartmentsByUniversity(universityName: string): YksUniversityTarget[] {
   if (!universityName) return [];
   const uClean = universityName.trim().toLowerCase();
-  return YKS_TOP_UNIVERSITIES.filter((u) => u.name.toLowerCase() === uClean).sort(
-    (a, b) => b.minScore - a.minScore
-  );
+
+  // 1. Öncelik: Özel tanımlı hedef üniversite programları
+  const specific = YKS_TOP_UNIVERSITIES.filter((u) => u.name.toLowerCase() === uClean);
+  if (specific.length > 0) {
+    return [...specific].sort((a, b) => b.minScore - a.minScore);
+  }
+
+  // 2. Üniversite hangi şehirde bul
+  let cityOfUni = 'Türkiye';
+  for (const [cName, unis] of Object.entries(TURKEY_UNIVERSITIES_BY_CITY)) {
+    if (unis.some((u) => u.toLowerCase() === uClean)) {
+      cityOfUni = cName;
+      break;
+    }
+  }
+
+  // 3. Genel YKS lisans programlarını bu üniversiteye uyarla
+  return STANDARD_YKS_PROGRAMS.map((prog, idx) => ({
+    id: `${universityName.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${idx}`,
+    name: universityName,
+    department: prog.name,
+    city: cityOfUni,
+    type: 'devlet' as const,
+    scoreType: prog.scoreType,
+    minScore: prog.minScore,
+    minRank: 50000,
+    targetObp: prog.targetObp,
+    idealTytNet: prog.idealTytNet,
+    badge: `🎓 ${prog.scoreType} Lisans Programı`,
+    description: `${universityName} - ${prog.description}`,
+  }));
 }
 
 /**
- * Sistemde üniversitesi bulunan şehirler
+ * Sistemde üniversitesi bulunan şehirler (Tüm 81 il)
  */
 export function getCitiesWithUniversities(): string[] {
-  const cities = Array.from(new Set(YKS_TOP_UNIVERSITIES.map((u) => u.city)));
-  return cities.sort((a, b) => a.localeCompare(b, 'tr'));
+  return Object.keys(TURKEY_UNIVERSITIES_BY_CITY).sort((a, b) => a.localeCompare(b, 'tr'));
 }
+
 

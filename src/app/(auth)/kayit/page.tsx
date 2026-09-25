@@ -21,7 +21,7 @@ import {
 
 export default function KayitPage() {
   const router = useRouter();
-  const { signUpWithEmail, signInWithGoogle } = useAuth();
+  const { signUpWithEmail, signInWithGoogle, resendConfirmationEmail } = useAuth();
 
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
@@ -34,6 +34,9 @@ export default function KayitPage() {
   const [selectedDepartment, setSelectedDepartment] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [confirmationSent, setConfirmationSent] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendMessage, setResendMessage] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,6 +59,8 @@ export default function KayitPage() {
 
     if (res.error) {
       setError(res.error);
+    } else if (res.confirmationRequired) {
+      setConfirmationSent(true);
     } else {
       router.push('/');
     }
@@ -68,6 +73,88 @@ export default function KayitPage() {
       setError(res.error);
     }
   };
+
+  if (confirmationSent) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-4 py-12 dark:bg-slate-950 sm:px-6">
+        <Link href="/" className="mb-8 flex items-center gap-2.5">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/25">
+            <GraduationCap className="h-6 w-6" />
+          </div>
+          <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white">
+            SınavKoçu<span className="text-indigo-600 dark:text-indigo-400">.ai</span>
+          </span>
+        </Link>
+
+        <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-6 shadow-xl dark:border-slate-800 dark:bg-slate-900 sm:p-8 text-center">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400">
+            <Mail className="h-8 w-8 animate-bounce" />
+          </div>
+
+          <span className="mt-4 inline-block rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
+            ✓ Hesap Kaydınız Oluşturuldu
+          </span>
+
+          <h2 className="mt-2 text-2xl font-black text-slate-900 dark:text-white">
+            Onay E-postanız Gönderildi! 📬
+          </h2>
+
+          <p className="mt-2 text-xs text-slate-600 dark:text-slate-300 sm:text-sm">
+            <strong className="text-slate-900 dark:text-white">{email}</strong> adresine bir aktivasyon bağlantısı ilettik.
+          </p>
+
+          <div className="mt-4 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4 text-left text-xs text-slate-600 dark:border-slate-800 dark:bg-slate-800/50 dark:text-slate-300 space-y-2.5">
+            <div className="flex items-start gap-2">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-[10px] font-bold text-white">1</span>
+              <span>E-posta kutunuza (veya <strong>spam / gereksiz</strong> klasörüne) gidin.</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-[10px] font-bold text-white">2</span>
+              <span>Gelen doğrulama bağlantısına (<strong>Confirm signup</strong>) tıklayın.</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-[10px] font-bold text-white">3</span>
+              <span>Bağlantıya tıkladıktan sonra hesabınız hem mobilde hem bilgisayarda senkronize açılacaktır!</span>
+            </div>
+          </div>
+
+          {resendMessage && (
+            <div className="mt-3 rounded-xl bg-emerald-50 p-2.5 text-xs font-bold text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
+              {resendMessage}
+            </div>
+          )}
+
+          <div className="mt-6 flex flex-col gap-2.5">
+            <button
+              type="button"
+              disabled={resendLoading}
+              onClick={async () => {
+                setResendLoading(true);
+                setResendMessage(null);
+                const res = await resendConfirmationEmail(email);
+                setResendLoading(false);
+                if (res.error) {
+                  setResendMessage(`Hata: ${res.error}`);
+                } else {
+                  setResendMessage(res.message || 'Onay e-postası tekrar iletildi!');
+                }
+              }}
+              className="w-full rounded-2xl border border-indigo-200 bg-indigo-50 py-3 text-xs font-bold text-indigo-700 transition hover:bg-indigo-100 disabled:opacity-50 cursor-pointer dark:border-indigo-900/60 dark:bg-indigo-950/40 dark:text-indigo-300"
+            >
+              {resendLoading ? 'Gönderiliyor...' : 'Onay E-postasını Tekrar Gönder'}
+            </button>
+
+            <Link
+              href="/giris"
+              className="w-full rounded-2xl bg-slate-900 py-3 text-xs font-bold text-white transition hover:bg-slate-800 text-center dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
+            >
+              Giriş Yap Sayfasına Git
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-4 py-12 dark:bg-slate-950 sm:px-6">
@@ -96,9 +183,21 @@ export default function KayitPage() {
         </div>
 
         {error && (
-          <div className="mt-5 flex items-center gap-2 rounded-2xl border border-rose-200 bg-rose-50/80 p-3.5 text-xs font-medium text-rose-800 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-300">
-            <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" />
-            <span>{error}</span>
+          <div className="mt-5 rounded-2xl border border-rose-200 bg-rose-50/80 p-3.5 text-xs font-medium text-rose-800 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-300 space-y-2">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" />
+              <span>{error}</span>
+            </div>
+            {error.includes('zaten kayıtlı') && (
+              <div className="pt-2 border-t border-rose-200 dark:border-rose-900/60 flex items-center gap-2">
+                <Link
+                  href="/giris"
+                  className="rounded-lg bg-rose-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-rose-700 transition"
+                >
+                  Giriş Yap Sayfasına Git →
+                </Link>
+              </div>
+            )}
           </div>
         )}
 

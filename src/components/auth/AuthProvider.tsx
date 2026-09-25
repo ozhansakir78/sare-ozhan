@@ -30,7 +30,8 @@ interface AuthContextType {
     displayName?: string,
     targetSchool?: string,
     extraOptions?: SignUpExtraOptions
-  ) => Promise<{ error?: string }>;
+  ) => Promise<{ error?: string; confirmationRequired?: boolean }>;
+  resendConfirmationEmail: (email: string) => Promise<{ error?: string; message?: string }>;
   signInWithGoogle: () => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
   updateProfile: (updates: Partial<UserProfile>) => Promise<{ error?: string }>;
@@ -296,7 +297,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     displayName?: string,
     targetSchool?: string,
     extraOptions?: SignUpExtraOptions
-  ): Promise<{ error?: string }> => {
+  ): Promise<{ error?: string; confirmationRequired?: boolean }> => {
     const cleanSchool = targetSchool ? normalizeSchoolName(targetSchool) : null;
     const gradeLevel = extraOptions?.gradeLevel || '8';
     const targetCity = extraOptions?.targetCity || null;
@@ -337,10 +338,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
+      const origin =
+        typeof window !== 'undefined'
+          ? window.location.origin
+          : 'https://sare-ozhan.vercel.app';
+
       const { data, error } = await supabase.auth.signUp({
-        email,
+        email: email.trim(),
         password,
         options: {
+          emailRedirectTo: `${origin}/auth/callback?next=/profil`,
           data: {
             full_name: displayName,
             grade_level: gradeLevel,
@@ -354,6 +361,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         return { error: error.message };
       }
+
+      // Supabase'de e-posta onay zorunluluğu varken aynı maille tekrar kayıt olunursa identities boş dizi döner
+      if (
+        data?.user &&
+        Array.isArray(data.user.identities) &&
+        data.user.identities.length === 0
+      ) {
+        return {
+          error:
+            'Bu e-posta adresi zaten kayıtlıdır. Lütfen Giriş Yapın veya şifrenizi unuttuysanız şifre sıfırlama talebinde bulunun.',
+        };
+      }
+
       if (data.user) {
         setUser(data.user);
         // Profili kaydet
@@ -375,7 +395,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         };
 
         if (isSupabaseConfigured) {
-          await supabase.from('user_profiles').upsert(initialProfile);
+          try {
+            await supabase.from('user_profiles').upsert(initialProfile);
+          } catch (e) {
+            console.warn('Profil upsert:', e);
+          }
         }
 
         const fullProfile: UserProfile = {
@@ -401,8 +425,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (!data.session) {
           return {
-            error:
-              'Kayıt oluşturuldu! Ancak Supabase e-posta onayı bekliyor. Mobil ve PC senkronizasyonu için lütfen gelen kutunuzdaki onay linkine tıklayın veya Supabase Dashboard > Authentication > Providers > Email altından "Confirm email" seçeneğini kapatınız.',
+            confirmationRequired: true,
           };
         }
       }
@@ -434,6 +457,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return {};
       }
       return { error: msg };
+    }
+  };
+
+  const resendConfirmationEmail = async (
+    email: string
+  ): Promise<{ error?: string; message?: string }> => {
+    if (!isSupabaseConfigured) {
+      return { message: 'Yerel modda e-posta gönderimi simüle edilmiştir.' };
+    }
+    try {
+      const origin =
+        typeof window !== 'undefined'
+          ? window.location.origin
+          : 'https://sare-ozhan.vercel.app';
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email.trim(),
+        options: {
+          emailRedirectTo: `${origin}/auth/callback?next=/profil`,
+        },
+      });
+      if (error) {
+        return { error: error.message };
+      }
+      return {
+        message:
+          'Onay e-postası başarıyla gönderildi! Lütfen gelen kutunuzu ve spam/önemsiz klasörünüzü kontrol edin.',
+      };
+    } catch (err: unknown) {
+      return { error: err instanceof Error ? err.message : 'E-posta gönderilemedi.' };
     }
   };
 
@@ -543,6 +596,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isConfigured: isSupabaseConfigured,
         signInWithEmail,
         signUpWithEmail,
+        resendConfirmationEmail,
         signInWithGoogle,
         signOut,
         updateProfile,

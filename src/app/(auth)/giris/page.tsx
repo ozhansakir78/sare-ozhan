@@ -20,7 +20,7 @@ import {
 
 export default function GirisPage() {
   const router = useRouter();
-  const { signInWithEmail, signInWithGoogle, resetPasswordForEmail, isConfigured } = useAuth();
+  const { signInWithEmail, signInWithGoogle, resetPasswordForEmail, resendConfirmationEmail, isConfigured } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -46,12 +46,9 @@ export default function GirisPage() {
     setResendLoading(true);
     setResendSuccess(false);
     try {
-      const { error: resendErr } = await (await import('@/lib/supabase')).supabase.auth.resend({
-        type: 'signup',
-        email: email.trim(),
-      });
-      if (resendErr) {
-        setError(`Onay e-postası gönderilemedi: ${resendErr.message}`);
+      const res = await resendConfirmationEmail(email.trim());
+      if (res.error) {
+        setError(`Onay e-postası gönderilemedi: ${res.error}`);
       } else {
         setResendSuccess(true);
       }

@@ -9,15 +9,26 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');
-  const next = requestUrl.searchParams.get('next') ?? '/';
+  const token_hash = requestUrl.searchParams.get('token_hash');
+  const type = requestUrl.searchParams.get('type') as
+    | 'signup'
+    | 'email'
+    | 'recovery'
+    | 'invite'
+    | null;
+  const next = requestUrl.searchParams.get('next') ?? '/profil';
 
-  if (code && isSupabaseConfigured) {
+  if (isSupabaseConfigured) {
     try {
-      await supabase.auth.exchangeCodeForSession(code);
+      if (code) {
+        await supabase.auth.exchangeCodeForSession(code);
+      } else if (token_hash && type) {
+        await supabase.auth.verifyOtp({ token_hash, type });
+      }
     } catch (error) {
-      console.error('OAuth Callback oturum takas hatası:', error);
+      console.error('Auth Callback doğrulama hatası:', error);
       return NextResponse.redirect(
-        new URL(`/giris?error=${encodeURIComponent('Giriş doğrulaması başarısız oldu.')}`, requestUrl.origin)
+        new URL(`/giris?error=${encodeURIComponent('E-posta doğrulama süresi dolmuş veya geçersiz.')}`, requestUrl.origin)
       );
     }
   }
