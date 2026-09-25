@@ -59,6 +59,8 @@ export default function ProfilPage() {
 
   // Form State
   const [displayName, setDisplayName] = useState('');
+  const [nickname, setNickname] = useState('');
+  const [targetCity, setTargetCity] = useState('');
   const [targetSchool, setTargetSchool] = useState('');
   const [targetUniversity, setTargetUniversity] = useState('');
   const [targetDepartment, setTargetDepartment] = useState('');
@@ -155,6 +157,8 @@ export default function ProfilPage() {
   useEffect(() => {
     if (profile) {
       setDisplayName(profile.display_name || '');
+      setNickname(profile.nickname || '');
+      setTargetCity(profile.target_city || '');
       setTargetSchool(profile.target_high_school || '');
       setTargetUniversity(profile.target_university || '');
       setTargetDepartment(profile.target_department || '');
@@ -165,6 +169,8 @@ export default function ProfilPage() {
       }
     } else if (user?.email) {
       setDisplayName(user.email.split('@')[0]);
+      if (user.user_metadata?.nickname) setNickname(user.user_metadata.nickname);
+      if (user.user_metadata?.target_city) setTargetCity(user.user_metadata.target_city);
     }
   }, [profile, user, isLise1]);
 
@@ -186,6 +192,8 @@ export default function ProfilPage() {
 
     const res = await updateProfile({
       display_name: displayName.trim(),
+      nickname: nickname.trim() || undefined,
+      target_city: targetCity.trim() || undefined,
       target_high_school: targetSchool.trim() || undefined,
       target_university: isLise1 ? (targetUniversity.trim() || undefined) : undefined,
       target_department: isLise1 ? (targetDepartment.trim() || undefined) : undefined,
@@ -625,19 +633,60 @@ export default function ProfilPage() {
             )}
 
             <form onSubmit={handleSaveProfile} className="mt-5 space-y-4">
-              {/* Ad Soyad */}
+              {/* Ad Soyad & Liderlik Lakabı (Nickname) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Ad Soyad
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    placeholder="Ahmet Yılmaz"
+                    className="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-900 transition focus:border-indigo-500 focus:bg-white focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                  />
+                  <p className="mt-1 text-[10px] text-slate-400">
+                    Sistemde kayıtlı adınız
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                    <span>Liderlik Lakabı (Nickname)</span>
+                    <span className="text-[9px] font-bold text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/80 px-1.5 py-0.5 rounded-md">
+                      Sıralamada Görünür 🏆
+                    </span>
+                  </label>
+                  <input
+                    type="text"
+                    value={nickname}
+                    onChange={(e) => setNickname(e.target.value)}
+                    placeholder="Örn: LgsBükücü, FizikDehası..."
+                    className="mt-1.5 w-full rounded-xl border border-amber-300/80 bg-amber-50/30 px-3.5 py-2.5 text-xs font-medium text-slate-900 transition focus:border-amber-500 focus:bg-white focus:outline-none dark:border-amber-700/60 dark:bg-amber-950/20 dark:text-white"
+                  />
+                  <p className="mt-1 text-[10px] text-slate-500 dark:text-slate-400">
+                    Sıralama tablosunda isminiz yerine bu takma ad görünür
+                  </p>
+                </div>
+              </div>
+
+              {/* Şehir (İl) */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Ad Soyad
+                  Şehir (İl)
                 </label>
                 <input
                   type="text"
-                  required
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                  placeholder="Ahmet Yılmaz"
+                  value={targetCity}
+                  onChange={(e) => setTargetCity(e.target.value)}
+                  placeholder="Örn: İstanbul, Ankara, İzmir..."
                   className="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-900 transition focus:border-indigo-500 focus:bg-white focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                 />
+                <p className="mt-1 text-[10px] text-slate-400">
+                  Liderlik tablosunda il sıralamanızı takip etmenizi sağlar
+                </p>
               </div>
 
               {/* 9. Sınıf Öğrencisi için Mevcut Lise Göstergesi */}

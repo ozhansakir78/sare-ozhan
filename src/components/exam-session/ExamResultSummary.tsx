@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { OnlineExam, OnlineExamResult, QuestionResultDetail } from '@/types/online-exam';
 import type { WrongQuestionItem } from '@/types/question';
 import type { LgsCourseKey } from '@/types/exam';
@@ -9,6 +9,8 @@ import { saveStudentExamToStorage } from '@/lib/exam-storage';
 import { addLeaderboardEntry } from '@/lib/leaderboard-storage';
 import { recordStreakActivity } from '@/lib/streak-storage';
 import { SocraticAssistantModal } from '@/components/question/SocraticAssistantModal';
+import { useAuth } from '@/components/auth/AuthProvider';
+import { useGradeTier } from '@/lib/grade-tier';
 import {
   CheckCircle2,
   XCircle,
@@ -23,6 +25,8 @@ import {
   Clock,
   TrendingUp,
   Award,
+  Rocket,
+  Edit3,
 } from 'lucide-react';
 import Link from 'next/link';
 import { WhatsAppShareButton } from '@/components/share/WhatsAppShareButton';
@@ -38,17 +42,64 @@ export function ExamResultSummary({
   result,
   onRestartExam,
 }: ExamResultSummaryProps) {
+  const { user, profile, updateProfile } = useAuth();
+  const { isLise1 } = useGradeTier();
+
   const [activeTab, setActiveTab] = useState<'all' | 'wrong_or_empty' | 'correct'>('all');
   const [expandedQuestionIds, setExpandedQuestionIds] = useState<Set<string>>(new Set());
   const [isSavedToWrongNotebook, setIsSavedToWrongNotebook] = useState<boolean>(false);
   const [isSavedToHistory, setIsSavedToHistory] = useState<boolean>(false);
   const [activeSocraticQuestion, setActiveSocraticQuestion] = useState<WrongQuestionItem | null>(null);
 
-  // Liderlik Tablosu Ekleme State'i
+  // Liderlik Tablosu Ekleme State'i (Kişisel Bilgilerden Otomatik Doldurulur)
   const [nickname, setNickname] = useState<string>('');
   const [targetSchool, setTargetSchool] = useState<string>('');
   const [city, setCity] = useState<string>('');
   const [isSavedToLeaderboard, setIsSavedToLeaderboard] = useState<boolean>(false);
+  const [isEditingLeaderboard, setIsEditingLeaderboard] = useState<boolean>(false);
+
+  // Giriş yapılan hesaptan, profilden veya son kayıttan otomatik ön doldurma
+  useEffect(() => {
+    let initialNickname = '';
+    let initialTarget = '';
+    let initialCity = '';
+
+    if (typeof window !== 'undefined') {
+      try {
+        initialNickname = localStorage.getItem('sinavkocu_last_leaderboard_nickname') || '';
+        initialTarget = localStorage.getItem('sinavkocu_last_leaderboard_target') || '';
+        initialCity = localStorage.getItem('sinavkocu_last_leaderboard_city') || '';
+      } catch {}
+    }
+
+    if (profile?.nickname) {
+      initialNickname = profile.nickname;
+    } else if (!initialNickname && profile?.display_name) {
+      initialNickname = profile.display_name;
+    } else if (!initialNickname && user?.email) {
+      initialNickname = user.email.split('@')[0];
+    }
+
+    if (isLise1) {
+      if (profile?.target_university) {
+        initialTarget = `${profile.target_university}${profile.target_department ? ` (${profile.target_department.split('(')[0].trim()})` : ''}`;
+      } else if (profile?.target_high_school && !initialTarget) {
+        initialTarget = profile.target_high_school;
+      }
+    } else {
+      if (profile?.target_high_school) {
+        initialTarget = profile.target_high_school;
+      }
+    }
+
+    if (profile?.target_city) {
+      initialCity = profile.target_city;
+    }
+
+    if (initialNickname) setNickname(initialNickname);
+    if (initialTarget) setTargetSchool(initialTarget);
+    if (initialCity) setCity(initialCity);
+  }, [profile, user, isLise1]);
 
   // Yanlış veya boş soruları tespit et
   const wrongOrEmptyQuestions = result.questionDetails.filter((d) => !d.isCorrect);
@@ -218,8 +269,8 @@ export function ExamResultSummary({
   };
 
   // Liderlik Tablosuna Kaydet
-  const handleSaveToLeaderboard = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSaveToLeaderboard = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!nickname.trim() || isSavedToLeaderboard) return;
 
     const calculatedScore = Number((200 + (result.netScore / result.totalQuestions) * 300).toFixed(2));
@@ -236,7 +287,28 @@ export function ExamResultSummary({
       targetSchool: targetSchool.trim() || undefined,
     });
 
+    // Son kullanılan bilgileri yerel hafızaya kaydet
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('sinavkocu_last_leaderboard_nickname', nickname.trim());
+        if (targetSchool.trim()) localStorage.setItem('sinavkocu_last_leaderboard_target', targetSchool.trim());
+        if (city.trim()) localStorage.setItem('sinavkocu_last_leaderboard_city', city.trim());
+      } catch {}
+    }
+
+    // Profilde yoksa veya kullanıcı oturum açmışsa profil bilgileriyle de eşitle
+    if (user && updateProfile) {
+      updateProfile({
+        nickname: nickname.trim(),
+        target_city: city.trim() || undefined,
+        ...(isLise1
+          ? (targetSchool.trim() ? { target_university: targetSchool.trim() } : {})
+          : (targetSchool.trim() ? { target_high_school: targetSchool.trim() } : {})),
+      }).catch(() => {});
+    }
+
     setIsSavedToLeaderboard(true);
+    setIsEditingLeaderboard(false);
   };
 
   // Bir soru için Sokratik Asistan'ı aç
@@ -491,50 +563,120 @@ export function ExamResultSummary({
         </div>
 
         {isSavedToLeaderboard ? (
-          <div className="mt-4 flex items-center justify-between rounded-2xl bg-emerald-50 p-4 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+          <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-2xl bg-emerald-50 p-4 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800">
+            <div className="flex items-center gap-2.5">
+              <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
               <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300">
                 Tebrikler <strong>{nickname}</strong>! Skorun Türkiye Liderlik Tablosuna başarıyla eklendi.
               </span>
             </div>
             <Link
               href="/liderlik-tablosu"
-              className="rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow hover:bg-emerald-700 transition"
+              className="rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow hover:bg-emerald-700 transition shrink-0"
             >
-              Sıralamadaki Yerimi Gör
+              Sıralamadaki Yerimi Gör 🏆
             </Link>
           </div>
+        ) : nickname && !isEditingLeaderboard ? (
+          /* Hazır Profil ile Tek Tıkla Kaydet Kartı (Tekrar giriş gerekmez) */
+          <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 rounded-2xl bg-amber-500/10 p-4 dark:bg-amber-950/30 border border-amber-300/80 dark:border-amber-800/80">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-black text-amber-950 dark:text-amber-200">
+                  👤 Liderlik Lakabı: <span className="underline decoration-amber-500 decoration-2">{nickname}</span>
+                </span>
+                <span className="text-[10px] bg-amber-200/70 text-amber-900 dark:bg-amber-900/60 dark:text-amber-300 px-2 py-0.5 rounded-full font-bold">
+                  Profilinden Hazır Geldi ✓
+                </span>
+              </div>
+              <div className="text-xs text-slate-600 dark:text-slate-300 flex flex-wrap items-center gap-x-4 gap-y-1">
+                <span>🎯 <strong>Hedef:</strong> {targetSchool || (isLise1 ? 'Hedef Üniversite Belirtilmedi' : 'Hedef Lise Belirtilmedi')}</span>
+                <span>📍 <strong>Şehir:</strong> {city || 'Türkiye Geneli'}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => handleSaveToLeaderboard()}
+                className="rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 px-4 py-2 text-xs font-bold text-white shadow-md transition cursor-pointer flex items-center gap-1.5"
+              >
+                <Rocket className="h-3.5 w-3.5" />
+                <span>Tek Tıkla Sıralamaya Ekle 🚀</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsEditingLeaderboard(true)}
+                className="rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition cursor-pointer"
+                title="Bilgileri Değiştir"
+              >
+                <Edit3 className="h-3.5 w-3.5 inline mr-1" />
+                <span>Düzenle</span>
+              </button>
+            </div>
+          </div>
         ) : (
-          <form onSubmit={handleSaveToLeaderboard} className="mt-4 grid grid-cols-1 sm:grid-cols-4 gap-2.5">
-            <input
-              type="text"
-              required
-              placeholder="Öğrenci Lakabı (Örn: LgsBükücü)"
-              value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
-              className="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-medium text-slate-800 placeholder-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
-            />
-            <input
-              type="text"
-              placeholder="Hedef Lise (Örn: Fen Lisesi)"
-              value={targetSchool}
-              onChange={(e) => setTargetSchool(e.target.value)}
-              className="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-medium text-slate-800 placeholder-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
-            />
-            <input
-              type="text"
-              placeholder="Şehir (Örn: Ankara)"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              className="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-medium text-slate-800 placeholder-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
-            />
-            <button
-              type="submit"
-              className="rounded-xl bg-amber-600 px-4 py-2 text-xs font-bold text-white shadow hover:bg-amber-700 transition cursor-pointer"
-            >
-              Listeye Kaydet 🚀
-            </button>
+          /* Elle Giriş / Düzenleme Formu (Tüm kutucuklar önceden doldurulmuş gelir) */
+          <form onSubmit={handleSaveToLeaderboard} className="mt-4 space-y-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <div>
+                <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1">
+                  Öğrenci Lakabı / Takma Ad (Nickname)
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Örn: LgsBükücü, FizikDehası..."
+                  value={nickname}
+                  onChange={(e) => setNickname(e.target.value)}
+                  className="w-full rounded-xl border border-amber-300/80 bg-white px-3.5 py-2 text-xs font-medium text-slate-800 placeholder-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1">
+                  {isLise1 ? 'Hedef Üniversite / Bölüm' : 'Hedef Lise'}
+                </label>
+                <input
+                  type="text"
+                  placeholder={isLise1 ? 'Örn: Boğaziçi Üniversitesi' : 'Örn: Kabataş Erkek Lisesi'}
+                  value={targetSchool}
+                  onChange={(e) => setTargetSchool(e.target.value)}
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-medium text-slate-800 placeholder-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1">
+                  Şehir (İl)
+                </label>
+                <input
+                  type="text"
+                  placeholder="Örn: Ankara, İstanbul..."
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-medium text-slate-800 placeholder-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-1">
+              {isEditingLeaderboard && (
+                <button
+                  type="button"
+                  onClick={() => setIsEditingLeaderboard(false)}
+                  className="rounded-xl border border-slate-300 dark:border-slate-700 px-3.5 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 transition cursor-pointer"
+                >
+                  Vazgeç
+                </button>
+              )}
+              <button
+                type="submit"
+                className="rounded-xl bg-amber-600 hover:bg-amber-700 px-5 py-2 text-xs font-bold text-white shadow transition cursor-pointer"
+              >
+                Listeye Kaydet 🚀
+              </button>
+            </div>
           </form>
         )}
       </div>

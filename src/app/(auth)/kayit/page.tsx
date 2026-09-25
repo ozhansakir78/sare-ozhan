@@ -24,6 +24,7 @@ export default function KayitPage() {
   const { signUpWithEmail, signInWithGoogle } = useAuth();
 
   const [displayName, setDisplayName] = useState('');
+  const [nickname, setNickname] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -47,6 +48,7 @@ export default function KayitPage() {
     setLoading(true);
     const res = await signUpWithEmail(email, password, displayName, selectedSchool, {
       gradeLevel,
+      nickname: nickname.trim() || undefined,
       targetCity: selectedCity,
       targetDistrict: selectedDistrict,
       targetUniversity: gradeLevel === '9' ? selectedSchool : undefined,
@@ -188,23 +190,46 @@ export default function KayitPage() {
             </div>
           </div>
 
-          {/* Ad Soyad */}
-          <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-              Ad Soyad
-            </label>
-            <div className="relative mt-1.5">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
-                <User className="h-4 w-4" />
-              </span>
-              <input
-                type="text"
-                required
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                placeholder="Ahmet Yılmaz"
-                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pr-4 pl-9 text-xs text-slate-900 transition focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-              />
+          {/* Ad Soyad & Takma Ad (Nickname) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                Ad Soyad
+              </label>
+              <div className="relative mt-1.5">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                  <User className="h-4 w-4" />
+                </span>
+                <input
+                  type="text"
+                  required
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  placeholder="Ahmet Yılmaz"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pr-4 pl-9 text-xs text-slate-900 transition focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                <span>Liderlik Lakabı</span>
+                <span className="text-[10px] text-amber-600 dark:text-amber-400 font-semibold">
+                  İsteğe Bağlı
+                </span>
+              </label>
+              <div className="relative mt-1.5">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-500 text-xs">
+                  🏆
+                </span>
+                <input
+                  type="text"
+                  value={nickname}
+                  onChange={(e) => setNickname(e.target.value)}
+                  placeholder="Örn: LgsBükücü"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pr-4 pl-9 text-xs text-slate-900 transition focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-500/20 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                />
+              </div>
             </div>
           </div>
 

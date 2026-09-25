@@ -210,6 +210,7 @@ export type UserProfile = {
   id: string;
   email: string | null;
   display_name: string | null;
+  nickname?: string | null;
   grade_level?: string | null; // '8' | '9'
   target_city?: string | null;
   target_district?: string | null;
@@ -229,6 +230,7 @@ export type UserProfileInsert = {
   id: string;
   email?: string | null;
   display_name?: string | null;
+  nickname?: string | null;
   grade_level?: string | null;
   target_city?: string | null;
   target_district?: string | null;
@@ -248,6 +250,7 @@ export type UserProfileUpdate = {
   id?: string;
   email?: string | null;
   display_name?: string | null;
+  nickname?: string | null;
   grade_level?: string | null;
   target_city?: string | null;
   target_district?: string | null;

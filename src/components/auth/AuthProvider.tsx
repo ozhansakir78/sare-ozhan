@@ -11,6 +11,7 @@ import { setActiveTier } from '@/lib/grade-tier';
 
 export interface SignUpExtraOptions {
   gradeLevel?: '8' | '9' | string;
+  nickname?: string;
   targetCity?: string;
   targetDistrict?: string;
   targetUniversity?: string;
@@ -89,6 +90,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (data) {
         const userProf = data as UserProfile;
+        const local = getLocalProfile();
+        if (!userProf.nickname && local?.nickname) {
+          userProf.nickname = local.nickname;
+        }
         setProfile(userProf);
         saveLocalProfile(userProf);
         if (userProf.grade_level === '9') {
@@ -304,6 +309,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const targetDistrict = extraOptions?.targetDistrict || null;
     const targetUniversity = extraOptions?.targetUniversity || null;
     const targetDepartment = extraOptions?.targetDepartment || null;
+    const nickname = extraOptions?.nickname?.trim() || null;
 
     // Seçilen kademeye anında geçiş yap
     if (gradeLevel === '9') {
@@ -318,6 +324,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         id: 'local-user-' + Date.now(),
         email,
         display_name: displayName || email.split('@')[0],
+        nickname: nickname,
         grade_level: gradeLevel,
         target_city: targetCity,
         target_district: targetDistrict,
@@ -372,6 +379,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           emailRedirectTo: `${origin}/auth/callback?next=/profil`,
           data: {
             full_name: displayName,
+            nickname: nickname,
             grade_level: gradeLevel,
           },
         },
@@ -416,6 +424,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           id: data.user.id,
           email: normalizedEmail,
           display_name: displayName || normalizedEmail.split('@')[0],
+          nickname: nickname,
           grade_level: gradeLevel,
           target_city: targetCity,
           target_district: targetDistrict,
@@ -441,6 +450,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           ...initialProfile,
           email: initialProfile.email ?? null,
           display_name: initialProfile.display_name ?? null,
+          nickname: initialProfile.nickname ?? nickname,
           grade_level: initialProfile.grade_level ?? gradeLevel,
           target_city: initialProfile.target_city ?? targetCity,
           target_district: initialProfile.target_district ?? targetDistrict,
@@ -633,11 +643,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     if (isSupabaseConfigured && user) {
       try {
+        // Auth user metadata senkronizasyonu
+        const metaUpdates: Record<string, any> = {};
+        if (sanitizedUpdates.nickname !== undefined) metaUpdates.nickname = sanitizedUpdates.nickname;
+        if (sanitizedUpdates.display_name !== undefined) metaUpdates.full_name = sanitizedUpdates.display_name;
+        if (sanitizedUpdates.target_city !== undefined) metaUpdates.target_city = sanitizedUpdates.target_city;
+
+        if (Object.keys(metaUpdates).length > 0) {
+          try {
+            await supabase.auth.updateUser({ data: metaUpdates });
+          } catch (mErr) {
+            console.warn('Metadata güncelleme uyarısı:', mErr);
+          }
+        }
+
+        const dbUpdates = { ...sanitizedUpdates };
         const { error } = await supabase
           .from('user_profiles')
-          .update(sanitizedUpdates)
+          .update(dbUpdates)
           .eq('id', user.id);
-        if (error) return { error: error.message };
+
+        if (error) {
+          // Eğer veritabanında 'nickname' kolonu henüz eklenmemişse, onu çıkarıp tekrar dene
+          if (error.message?.includes('nickname') || (error as any).code === 'PGRST204') {
+            delete (dbUpdates as any).nickname;
+            const { error: retryError } = await supabase
+              .from('user_profiles')
+              .update(dbUpdates)
+              .eq('id', user.id);
+            if (retryError) return { error: retryError.message };
+          } else {
+            return { error: error.message };
+          }
+        }
       } catch (err: unknown) {
         console.error('Profil güncelleme hatası:', err);
       }
