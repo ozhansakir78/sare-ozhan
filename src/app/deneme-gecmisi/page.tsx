@@ -13,6 +13,7 @@ import {
 import type { SavedStudentExam } from '@/types/exam';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { AuthGuard } from '@/components/auth/AuthGuard';
+import { pullCloudDataToLocal, syncLocalDataToCloud } from '@/lib/cloud-sync';
 import {
   TrendingUp,
   Award,
@@ -30,13 +31,34 @@ import {
 import { WhatsAppShareButton } from '@/components/share/WhatsAppShareButton';
 
 export default function DenemeGecmisiPage() {
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
   const [exams, setExams] = useState<SavedStudentExam[]>([]);
   const [selectedExamId, setSelectedExamId] = useState<string | null>(null);
 
   useEffect(() => {
-    setExams(getStoredExams());
-  }, []);
+    const update = () => setExams(getStoredExams());
+    update();
+
+    if (user?.id) {
+      syncLocalDataToCloud(user.id).then(() => {
+        pullCloudDataToLocal(user.id).then(update);
+      });
+    }
+
+    const handleFocus = () => {
+      update();
+      if (user?.id) {
+        pullCloudDataToLocal(user.id).then(update);
+      }
+    };
+
+    window.addEventListener('cloud_synced', update);
+    window.addEventListener('focus', handleFocus);
+    return () => {
+      window.removeEventListener('cloud_synced', update);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [user?.id]);
 
   const trends = calculateExamTrends(exams);
   const targetScore = profile?.target_score || 460;

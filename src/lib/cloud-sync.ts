@@ -42,62 +42,114 @@ export async function syncLocalDataToCloud(userId: string): Promise<SyncResult> 
     const localExams = getStoredExams().filter(
       (e) => !e.id?.startsWith('sample-') && !SAMPLE_TITLES.includes(e.examTitle)
     );
-    for (const exam of localExams) {
-      // Bulutta aynı tarih ve isimde kayıt var mı kontrol et
-      const { data: existing } = await supabase
+    if (localExams.length > 0) {
+      const { data: cloudExams } = await supabase
         .from('student_exams')
-        .select('id')
-        .eq('user_id', userId)
-        .eq('exam_title', exam.examTitle)
-        .eq('exam_date', exam.examDate)
-        .maybeSingle();
+        .select('id, exam_title, exam_date')
+        .eq('user_id', userId);
 
-      if (!existing) {
-        const { error } = await supabase.from('student_exams').insert({
-          user_id: userId,
-          exam_title: exam.examTitle,
-          exam_date: exam.examDate,
-          total_score: exam.totalScore,
-          calculated_percentile: exam.calculatedPercentile,
-          total_correct: exam.totalCorrect,
-          total_incorrect: exam.totalIncorrect,
-          total_empty: exam.totalEmpty,
-          total_net: exam.totalNet,
-          courses_json: exam.courses,
-        } as any);
+      const existingExams = cloudExams || [];
+      for (const exam of localExams) {
+        const exists = existingExams.some(
+          (ce) => ce.exam_title === exam.examTitle && ce.exam_date === exam.examDate
+        );
 
-        if (!error) {
-          examsSynced++;
+        if (!exists) {
+          const { error } = await supabase.from('student_exams').insert({
+            user_id: userId,
+            exam_title: exam.examTitle,
+            exam_date: exam.examDate,
+            total_score: exam.totalScore,
+            calculated_percentile: exam.calculatedPercentile,
+            total_correct: exam.totalCorrect,
+            total_incorrect: exam.totalIncorrect,
+            total_empty: exam.totalEmpty,
+            total_net: exam.totalNet,
+            courses_json: exam.courses,
+          } as any);
+
+          if (!error) {
+            examsSynced++;
+          }
         }
       }
     }
 
     // 2. Yerel yanlış soruları al ve buluta aktar
     const localQuestions = getStoredQuestions();
-    for (const q of localQuestions) {
-      if (!q.imageUrl || q.imageUrl.trim() === '') continue;
-      const { data: existing } = await supabase
+    if (localQuestions.length > 0) {
+      // Buluttaki mevcut soruları tek bir hafif sorguyla çek (image_url query string'e ASLA sokulmaz)
+      const { data: cloudQuestions } = await supabase
         .from('wrong_questions')
-        .select('id')
-        .eq('user_id', userId)
-        .eq('image_url', q.imageUrl)
-        .maybeSingle();
+        .select('id, course_key, topic_name, student_note, created_at')
+        .eq('user_id', userId);
 
-      if (!existing) {
-        const { error } = await supabase.from('wrong_questions').insert({
-          user_id: userId,
-          course_key: q.courseKey,
-          course_name: q.courseName,
-          topic_name: q.topicName,
-          image_url: q.imageUrl,
-          student_note: q.studentNote || null,
-          ai_hint_history: q.aiHintHistory || [],
-          is_resolved: q.isResolved || false,
-        } as any);
+      const existingCloudItems = cloudQuestions || [];
 
-        if (!error) {
-          questionsSynced++;
+      for (const q of localQuestions) {
+        // Zaten bulutta var mı kontrol et (id veya konu/ders ve yakın zaman eşleşmesi)
+        const alreadyInCloud = existingCloudItems.some(
+          (cq) =>
+            cq.id === q.id ||
+            (cq.topic_name === q.topicName &&
+              cq.course_key === q.courseKey &&
+              Math.abs(new Date(cq.created_at).getTime() - new Date(q.createdAt).getTime()) < 300000)
+        );
+
+        if (!alreadyInCloud) {
+          let finalUrl = q.imageUrl || '';
+
+          // Eğer görsel base64 ise Supabase Storage'a yüklemeyi dene
+          if (finalUrl.startsWith('data:')) {
+            try {
+              const res = await fetch(finalUrl);
+              const blob = await res.blob();
+              const filePath = `${userId}/${Date.now()}_${Math.random().toString(36).substring(2, 7)}.webp`;
+              const { error: upErr } = await supabase.storage
+                .from('question-images')
+                .upload(filePath, blob, { contentType: 'image/webp', upsert: true });
+
+              if (!upErr) {
+                const { data: pubData } = supabase.storage.from('question-images').getPublicUrl(filePath);
+                if (pubData?.publicUrl) {
+                  finalUrl = pubData.publicUrl;
+                  q.imageUrl = finalUrl;
+                }
+              }
+            } catch (err) {
+              console.warn('Storage upload fallback:', err);
+            }
+          }
+
+          const { data: inserted, error: insertError } = await supabase
+            .from('wrong_questions')
+            .insert({
+              user_id: userId,
+              course_key: q.courseKey,
+              course_name: q.courseName,
+              topic_name: q.topicName,
+              image_url: finalUrl,
+              student_note: q.studentNote || null,
+              ai_hint_history: q.aiHintHistory || [],
+              is_resolved: q.isResolved || false,
+            } as any)
+            .select('id')
+            .maybeSingle();
+
+          if (!insertError) {
+            if (inserted?.id) {
+              q.id = inserted.id;
+            }
+            questionsSynced++;
+          }
         }
+      }
+
+      // Güncellenmiş görsel URL'leri ve ID'leri yerel depolamaya geri yaz
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('lgs_wrong_questions_v1', JSON.stringify(localQuestions));
+        } catch {}
       }
     }
 
@@ -164,6 +216,9 @@ export async function pullCloudDataToLocal(userId: string): Promise<void> {
           hasNewExams = true;
         }
       }
+      if (hasNewExams && typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('cloud_synced'));
+      }
     }
 
     // 2. Buluttaki yanlış soruları çek
@@ -179,7 +234,11 @@ export async function pullCloudDataToLocal(userId: string): Promise<void> {
       for (const cq of cloudQuestions) {
         if (SAMPLE_TOPICS.includes((cq as any).topic_name)) continue;
         const exists = localQuestions.some(
-          (lq) => lq.id === cq.id || (lq.imageUrl && lq.imageUrl === cq.image_url)
+          (lq) =>
+            lq.id === cq.id ||
+            (lq.topicName === (cq as any).topic_name &&
+              lq.courseKey === (cq as any).course_key &&
+              Math.abs(new Date(lq.createdAt).getTime() - new Date(cq.created_at).getTime()) < 300000)
         );
         if (!exists) {
           localQuestions.unshift({
@@ -199,6 +258,7 @@ export async function pullCloudDataToLocal(userId: string): Promise<void> {
       }
       if (hasNewQuestions && typeof window !== 'undefined') {
         localStorage.setItem('lgs_wrong_questions_v1', JSON.stringify(localQuestions));
+        window.dispatchEvent(new Event('cloud_synced'));
       }
     }
   } catch (error) {

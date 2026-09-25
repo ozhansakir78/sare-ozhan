@@ -64,29 +64,40 @@ export default function ProfilPage() {
   useEffect(() => {
     setMounted(true);
 
-    // Denemeleri yükle
-    const storedExams = getStoredExams();
-    setExams(storedExams);
+    const updateStats = () => {
+      // Denemeleri yükle
+      const storedExams = getStoredExams();
+      setExams(storedExams);
 
-    // Yanlış defteri sayısını al
-    const questions = getStoredQuestions();
-    setWrongQuestionsCount(questions.length);
+      // Yanlış defteri sayısını al
+      const questions = getStoredQuestions();
+      setWrongQuestionsCount(questions.length);
 
-    // Seri bilgisini al
-    setStreak(getStreakData());
+      // Seri bilgisini al
+      setStreak(getStreakData());
 
-    // Sıralamayı hesapla
-    const leaderboard = getLeaderboardEntries('all-time');
-    if (storedExams.length > 0) {
-      const best = Math.max(...storedExams.map((e) => e.totalScore));
-      const higherCount = leaderboard.filter((e) => e.score > best).length;
-      setUserRank(higherCount + 1);
-    } else {
-      const myIdx = leaderboard.findIndex((e) => e.isCurrentUser);
-      if (myIdx !== -1) {
-        setUserRank(myIdx + 1);
+      // Sıralamayı hesapla
+      const leaderboard = getLeaderboardEntries('all-time');
+      if (storedExams.length > 0) {
+        const best = Math.max(...storedExams.map((e) => e.totalScore));
+        const higherCount = leaderboard.filter((e) => e.score > best).length;
+        setUserRank(higherCount + 1);
+      } else {
+        const myIdx = leaderboard.findIndex((e) => e.isCurrentUser);
+        if (myIdx !== -1) {
+          setUserRank(myIdx + 1);
+        }
       }
-    }
+    };
+
+    updateStats();
+
+    window.addEventListener('cloud_synced', updateStats);
+    window.addEventListener('focus', updateStats);
+    return () => {
+      window.removeEventListener('cloud_synced', updateStats);
+      window.removeEventListener('focus', updateStats);
+    };
   }, []);
 
   // Profil verilerini form state'ine senkronize et
