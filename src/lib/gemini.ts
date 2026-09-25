@@ -3,8 +3,13 @@
  * SınavKoçu.ai LGS Asistanı, Sokratik Çözümleyici ve Konu Sınıflandırıcısı
  */
 
-export const GEMINI_PRIMARY_MODEL = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
-export const GEMINI_FALLBACK_MODEL = 'gemini-flash-latest';
+export const GEMINI_PRIMARY_MODEL = process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite';
+export const GEMINI_FALLBACK_MODELS = [
+  'gemini-3.1-flash-lite',
+  'gemini-flash-lite-latest',
+  'gemini-flash-latest',
+  'gemini-3.8-flash',
+];
 
 export function getGeminiApiKey(): string | undefined {
   return process.env.GEMINI_API_KEY || process.env.AI_API_KEY;
@@ -44,7 +49,7 @@ export async function callGeminiApi(options: GeminiCallOptions): Promise<{
     return { error: 'Gemini API anahtarı bulunamadı.' };
   }
 
-  const modelsToTry = [GEMINI_PRIMARY_MODEL, GEMINI_FALLBACK_MODEL];
+  const modelsToTry = [GEMINI_PRIMARY_MODEL, ...GEMINI_FALLBACK_MODELS.filter((m) => m !== GEMINI_PRIMARY_MODEL)];
 
   for (const model of modelsToTry) {
     try {
