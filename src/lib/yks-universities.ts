@@ -154,6 +154,104 @@ export const YKS_TOP_UNIVERSITIES: YksUniversityTarget[] = [
     badge: '⭐ Teknopark ve Yazılım Gücü',
     description: 'Davutpaşa, İstanbul. Türkiye\'nin en büyük teknoparkında sanayiyle iç içe mühendislik.',
   },
+  {
+    id: 'ankara-hukuk',
+    name: 'Ankara Üniversitesi',
+    department: 'Hukuk Fakültesi',
+    city: 'Ankara',
+    type: 'devlet',
+    scoreType: 'EA',
+    minScore: 512.4,
+    minRank: 1850,
+    targetObp: 95.0,
+    idealTytNet: 94,
+    badge: '⚖️ Cumhuriyetin İlk Hukuk Fakültesi',
+    description: 'Cebeci, Ankara. Türkiye\'nin en saygın hakim, savcı ve avukat yetiştiren tarihi fakültesi.',
+  },
+  {
+    id: 'ege-tip',
+    name: 'Ege Üniversitesi',
+    department: 'Tıp Fakültesi',
+    city: 'İzmir',
+    type: 'devlet',
+    scoreType: 'SAY',
+    minScore: 532.6,
+    minRank: 3200,
+    targetObp: 96.5,
+    idealTytNet: 100,
+    badge: '🌿 Ege\'nin Sağlık Üssü',
+    description: 'Bornova, İzmir. Güçlü akademik kadro ve uluslararası akredite tıp eğitimi.',
+  },
+  {
+    id: 'gazi-tip',
+    name: 'Gazi Üniversitesi',
+    department: 'Tıp Fakültesi',
+    city: 'Ankara',
+    type: 'devlet',
+    scoreType: 'SAY',
+    minScore: 530.8,
+    minRank: 3600,
+    targetObp: 96.0,
+    idealTytNet: 98,
+    badge: '🏛️ Başkentin Köklü Hekimliği',
+    description: 'Beşevler, Ankara. Modern hastane kompleksi ve kapsamlı cerrahi vaka eğitimi.',
+  },
+  {
+    id: 'deu-ceng',
+    name: 'Dokuz Eylül Üniversitesi',
+    department: 'Bilgisayar Mühendisliği (İngilizce)',
+    city: 'İzmir',
+    type: 'devlet',
+    scoreType: 'SAY',
+    minScore: 515.2,
+    minRank: 9500,
+    targetObp: 93.5,
+    idealTytNet: 92,
+    badge: '💻 Ege Yazılım Koridoru',
+    description: 'Tınaztepe, Buca, İzmir. Bilişim ve yapay zekâ projelerinde öncü merkez.',
+  },
+  {
+    id: 'akdeniz-tip',
+    name: 'Akdeniz Üniversitesi',
+    department: 'Tıp Fakültesi',
+    city: 'Antalya',
+    type: 'devlet',
+    scoreType: 'SAY',
+    minScore: 526.4,
+    minRank: 4500,
+    targetObp: 95.5,
+    idealTytNet: 96,
+    badge: '🏆 Organ Nakli ve Cerrahi Lideri',
+    description: 'Konyaaltı, Antalya. Dünyaca ünlü kompozit doku ve organ nakli başarıları.',
+  },
+  {
+    id: 'cukurova-tip',
+    name: 'Çukurova Üniversitesi',
+    department: 'Tıp Fakültesi (Balcalı)',
+    city: 'Adana',
+    type: 'devlet',
+    scoreType: 'SAY',
+    minScore: 523.1,
+    minRank: 5200,
+    targetObp: 95.0,
+    idealTytNet: 95,
+    badge: '🏥 Güneyin Bölge Hastanesi',
+    description: 'Sarıçam, Adana. Balcalı kampüsü ve geniş klinik staj olanakları.',
+  },
+  {
+    id: 'uludag-tip',
+    name: 'Bursa Uludağ Üniversitesi',
+    department: 'Tıp Fakültesi',
+    city: 'Bursa',
+    type: 'devlet',
+    scoreType: 'SAY',
+    minScore: 525.0,
+    minRank: 4800,
+    targetObp: 95.2,
+    idealTytNet: 95,
+    badge: '🌲 Marmara Sağlık Merkezi',
+    description: 'Görükle, Nilüfer, Bursa. Güney Marmara\'nın en büyük araştırma hastanesi.',
+  },
 ];
 
 export interface TargetUniversityGap {
@@ -206,3 +304,45 @@ export function searchUniversities(query: string): YksUniversityTarget[] {
       u.scoreType.toLowerCase().includes(q)
   );
 }
+
+/**
+ * Şehre göre filtrelenmiş benzersiz üniversite isimlerini döner
+ */
+export function getDistinctUniversities(city?: string): { name: string; city: string }[] {
+  let list = YKS_TOP_UNIVERSITIES;
+  if (city && city.trim() !== '' && city !== 'Tüm Şehirler') {
+    const cClean = city.trim().toLowerCase();
+    list = list.filter((u) => u.city.toLowerCase() === cClean);
+  }
+
+  const map = new Map<string, string>();
+  for (const item of list) {
+    if (!map.has(item.name)) {
+      map.set(item.name, item.city);
+    }
+  }
+
+  return Array.from(map.entries())
+    .map(([name, itemCity]) => ({ name, city: itemCity }))
+    .sort((a, b) => a.name.localeCompare(b.name, 'tr'));
+}
+
+/**
+ * Seçilen üniversitenin program ve bölümlerini döner
+ */
+export function getDepartmentsByUniversity(universityName: string): YksUniversityTarget[] {
+  if (!universityName) return [];
+  const uClean = universityName.trim().toLowerCase();
+  return YKS_TOP_UNIVERSITIES.filter((u) => u.name.toLowerCase() === uClean).sort(
+    (a, b) => b.minScore - a.minScore
+  );
+}
+
+/**
+ * Sistemde üniversitesi bulunan şehirler
+ */
+export function getCitiesWithUniversities(): string[] {
+  const cities = Array.from(new Set(YKS_TOP_UNIVERSITIES.map((u) => u.city)));
+  return cities.sort((a, b) => a.localeCompare(b, 'tr'));
+}
+

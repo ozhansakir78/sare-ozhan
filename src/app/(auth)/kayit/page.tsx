@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthProvider';
-import { SchoolAutocompleteInput } from '@/components/school/SchoolAutocompleteInput';
+import { HierarchicalTargetSelector } from '@/components/school/HierarchicalTargetSelector';
 import {
   GraduationCap,
   Mail,
@@ -27,7 +27,11 @@ export default function KayitPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [targetSchool, setTargetSchool] = useState('');
+  const [gradeLevel, setGradeLevel] = useState<'8' | '9'>('8');
+  const [selectedCity, setSelectedCity] = useState('');
+  const [selectedDistrict, setSelectedDistrict] = useState('');
+  const [selectedSchool, setSelectedSchool] = useState('');
+  const [selectedDepartment, setSelectedDepartment] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -41,7 +45,13 @@ export default function KayitPage() {
     }
 
     setLoading(true);
-    const res = await signUpWithEmail(email, password, displayName, targetSchool);
+    const res = await signUpWithEmail(email, password, displayName, selectedSchool, {
+      gradeLevel,
+      targetCity: selectedCity,
+      targetDistrict: selectedDistrict,
+      targetUniversity: gradeLevel === '9' ? selectedSchool : undefined,
+      targetDepartment: gradeLevel === '9' ? selectedDepartment : undefined,
+    });
     setLoading(false);
 
     if (res.error) {
@@ -71,7 +81,7 @@ export default function KayitPage() {
         </span>
       </Link>
 
-      <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-xl dark:border-slate-800 dark:bg-slate-900 sm:p-8">
+      <div className="w-full max-w-xl rounded-3xl border border-slate-200 bg-white p-6 shadow-xl dark:border-slate-800 dark:bg-slate-900 sm:p-8">
         <div className="text-center">
           <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
             <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
@@ -92,7 +102,59 @@ export default function KayitPage() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-3.5">
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          {/* Sınıf & Hazırlık Hedefi Seçimi */}
+          <div>
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+              Sınıfınız &amp; Hazırlık Hedefiniz
+            </label>
+            <div className="grid grid-cols-2 gap-2.5">
+              <button
+                type="button"
+                onClick={() => {
+                  setGradeLevel('8');
+                  setSelectedSchool('');
+                  setSelectedDepartment('');
+                }}
+                className={`flex items-center gap-2.5 rounded-2xl border p-3 text-left transition cursor-pointer ${
+                  gradeLevel === '8'
+                    ? 'border-indigo-600 bg-indigo-50/80 text-indigo-900 shadow-sm dark:bg-indigo-950/60 dark:text-indigo-200 dark:border-indigo-500 ring-2 ring-indigo-500/20'
+                    : 'border-slate-200 bg-slate-50/50 text-slate-600 hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-800/50 dark:text-slate-400'
+                }`}
+              >
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-xs">
+                  🎯
+                </div>
+                <div>
+                  <div className="text-xs font-black">8. Sınıf (LGS)</div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400">Liseye Geçiş Hazırlığı</div>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setGradeLevel('9');
+                  setSelectedSchool('');
+                  setSelectedDepartment('');
+                }}
+                className={`flex items-center gap-2.5 rounded-2xl border p-3 text-left transition cursor-pointer ${
+                  gradeLevel === '9'
+                    ? 'border-emerald-600 bg-emerald-50/80 text-emerald-900 shadow-sm dark:bg-emerald-950/60 dark:text-emerald-200 dark:border-emerald-500 ring-2 ring-emerald-500/20'
+                    : 'border-slate-200 bg-slate-50/50 text-slate-600 hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-800/50 dark:text-slate-400'
+                }`}
+              >
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-xs">
+                  🏛️
+                </div>
+                <div>
+                  <div className="text-xs font-black">9. Sınıf (Lise 1)</div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400">MEB Yazılı &amp; YKS Temel</div>
+                </div>
+              </button>
+            </div>
+          </div>
+
           {/* Ad Soyad */}
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
@@ -162,18 +224,27 @@ export default function KayitPage() {
             </div>
           </div>
 
-          {/* Hedef Okul (Akıllı Önerili Seçim - Lise & Üniversite) */}
-          <SchoolAutocompleteInput
-            value={targetSchool}
-            onChange={(val) => setTargetSchool(val)}
-            label="Hedef Okul"
-            placeholder="Örn: Kabataş Erkek Lisesi, Boğaziçi Üniversitesi, ODTÜ..."
+          {/* Hiyerarşik Hedef Seçici (İl / İlçe / Lise veya Üniversite / Bölüm) */}
+          <HierarchicalTargetSelector
+            gradeLevel={gradeLevel}
+            selectedCity={selectedCity}
+            onCityChange={setSelectedCity}
+            selectedDistrict={selectedDistrict}
+            onDistrictChange={setSelectedDistrict}
+            selectedSchool={selectedSchool}
+            onSchoolChange={(sch) => setSelectedSchool(sch)}
+            selectedDepartment={selectedDepartment}
+            onDepartmentChange={setSelectedDepartment}
           />
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 py-3 text-xs font-bold text-white shadow-md shadow-emerald-500/25 transition hover:from-emerald-700 hover:to-teal-700 focus:outline-none cursor-pointer disabled:opacity-60"
+            className={`w-full flex items-center justify-center gap-2 rounded-xl py-3 text-xs font-bold text-white shadow-md transition focus:outline-none cursor-pointer disabled:opacity-60 ${
+              gradeLevel === '9'
+                ? 'bg-gradient-to-r from-emerald-600 to-teal-600 shadow-emerald-500/25 hover:from-emerald-700 hover:to-teal-700'
+                : 'bg-gradient-to-r from-indigo-600 to-violet-600 shadow-indigo-500/25 hover:from-indigo-700 hover:to-violet-700'
+            }`}
           >
             <span>{loading ? 'Hesap Oluşturuluyor...' : 'Ücretsiz Kayıt Ol'}</span>
             <ArrowRight className="h-3.5 w-3.5" />

@@ -7,6 +7,15 @@ import type { UserProfile, UserProfileInsert, UserProfileUpdate } from '@/types/
 import { getQuotaStatus, consumeQuota as consumeLocalQuota } from '@/lib/quota';
 import { syncLocalDataToCloud, pullCloudDataToLocal } from '@/lib/cloud-sync';
 import { normalizeSchoolName } from '@/lib/lgs-high-schools';
+import { setActiveTier } from '@/lib/grade-tier';
+
+export interface SignUpExtraOptions {
+  gradeLevel?: '8' | '9' | string;
+  targetCity?: string;
+  targetDistrict?: string;
+  targetUniversity?: string;
+  targetDepartment?: string;
+}
 
 interface AuthContextType {
   user: User | null;
@@ -19,7 +28,8 @@ interface AuthContextType {
     email: string,
     password: string,
     displayName?: string,
-    targetSchool?: string
+    targetSchool?: string,
+    extraOptions?: SignUpExtraOptions
   ) => Promise<{ error?: string }>;
   signInWithGoogle: () => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
@@ -77,8 +87,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .single();
 
       if (data) {
-        setProfile(data as UserProfile);
-        saveLocalProfile(data as UserProfile);
+        const userProf = data as UserProfile;
+        setProfile(userProf);
+        saveLocalProfile(userProf);
+        if (userProf.grade_level === '9') {
+          setActiveTier('lise1');
+        } else if (userProf.grade_level === '8') {
+          setActiveTier('lgs');
+        }
       } else if (error && error.code === 'PGRST116') {
         // Profil henüz oluşmamışsa manuel oluştur
         const newProfile: UserProfileInsert = {
@@ -108,7 +124,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.warn('Profil getirme uyarısı:', e);
       // Yerel profil ile devam et
       const local = getLocalProfile();
-      if (local) setProfile(local);
+      if (local) {
+        setProfile(local);
+        if (local.grade_level === '9') {
+          setActiveTier('lise1');
+        } else if (local.grade_level === '8') {
+          setActiveTier('lgs');
+        }
+      }
     }
   }, []);
 
@@ -117,7 +140,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!isSupabaseConfigured) {
       // Çevrimdışı / Yerel mod
       const local = getLocalProfile();
-      if (local) setProfile(local);
+      if (local) {
+        setProfile(local);
+        if (local.grade_level === '9') {
+          setActiveTier('lise1');
+        } else if (local.grade_level === '8') {
+          setActiveTier('lgs');
+        }
+      }
       setIsLoading(false);
       return;
     }
@@ -234,9 +264,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     email: string,
     password: string,
     displayName?: string,
-    targetSchool?: string
+    targetSchool?: string,
+    extraOptions?: SignUpExtraOptions
   ): Promise<{ error?: string }> => {
     const cleanSchool = targetSchool ? normalizeSchoolName(targetSchool) : null;
+    const gradeLevel = extraOptions?.gradeLevel || '8';
+    const targetCity = extraOptions?.targetCity || null;
+    const targetDistrict = extraOptions?.targetDistrict || null;
+    const targetUniversity = extraOptions?.targetUniversity || null;
+    const targetDepartment = extraOptions?.targetDepartment || null;
+
+    // Seçilen kademeye anında geçiş yap
+    if (gradeLevel === '9') {
+      setActiveTier('lise1');
+    } else {
+      setActiveTier('lgs');
+    }
 
     if (!isSupabaseConfigured) {
       // Yerel mod simülasyonu
@@ -244,8 +287,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         id: 'local-user-' + Date.now(),
         email,
         display_name: displayName || email.split('@')[0],
+        grade_level: gradeLevel,
+        target_city: targetCity,
+        target_district: targetDistrict,
         target_high_school: cleanSchool,
         target_score: null,
+        target_university: targetUniversity,
+        target_department: targetDepartment,
         is_pro: false,
         pro_expires_at: null,
         daily_quota_used: 0,
@@ -265,6 +313,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         options: {
           data: {
             full_name: displayName,
+            grade_level: gradeLevel,
           },
         },
       });
@@ -282,8 +331,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           id: data.user.id,
           email,
           display_name: displayName || email.split('@')[0],
+          grade_level: gradeLevel,
+          target_city: targetCity,
+          target_district: targetDistrict,
           target_high_school: cleanSchool,
           target_score: null,
+          target_university: targetUniversity,
+          target_department: targetDepartment,
           is_pro: false,
           pro_expires_at: null,
           daily_quota_used: 0,
@@ -298,8 +352,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           ...initialProfile,
           email: initialProfile.email ?? null,
           display_name: initialProfile.display_name ?? null,
-          target_high_school: initialProfile.target_high_school ?? null,
+          grade_level: initialProfile.grade_level ?? gradeLevel,
+          target_city: initialProfile.target_city ?? targetCity,
+          target_district: initialProfile.target_district ?? targetDistrict,
+          target_high_school: initialProfile.target_high_school ?? cleanSchool,
           target_score: initialProfile.target_score ?? null,
+          target_university: initialProfile.target_university ?? targetUniversity,
+          target_department: initialProfile.target_department ?? targetDepartment,
           is_pro: initialProfile.is_pro ?? false,
           pro_expires_at: initialProfile.pro_expires_at ?? null,
           daily_quota_used: initialProfile.daily_quota_used ?? 0,
@@ -319,8 +378,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           id: 'local-user-' + Date.now(),
           email,
           display_name: displayName || email.split('@')[0],
+          grade_level: gradeLevel,
+          target_city: targetCity,
+          target_district: targetDistrict,
           target_high_school: cleanSchool,
           target_score: null,
+          target_university: targetUniversity,
+          target_department: targetDepartment,
           is_pro: false,
           pro_expires_at: null,
           daily_quota_used: 0,

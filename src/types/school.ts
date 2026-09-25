@@ -1,9 +1,10 @@
-﻿export type HighSchoolType = 'fen' | 'anadolu' | 'sosyal_bilimler';
+export type HighSchoolType = 'fen' | 'anadolu' | 'sosyal_bilimler';
 
 export interface LgsHighSchool {
   id: string;
   name: string;
   city: string;
+  district?: string;
   type: HighSchoolType;
   minScore: number;
   minPercentile: number;

@@ -301,12 +301,59 @@ export interface ActiveChallengeInfo {
 }
 
 /**
- * Bugünün gününe ve MEB takvimine göre aktif haftalık etkinliği hesaplar.
+ * Bugünün gününe, kademesine (LGS veya Lise 1) ve MEB takvimine göre aktif haftalık etkinliği hesaplar.
  */
-export function getActiveChallengeForToday(now = new Date()): ActiveChallengeInfo {
+export function getActiveChallengeForToday(now = new Date(), tier: 'lgs' | 'lise1' = 'lgs'): ActiveChallengeInfo {
   const day = now.getDay(); // 0 = Sunday, 1 = Monday, 2 = Tuesday, 4 = Thursday...
   const week = getCurrentSchoolWeek(now);
 
+  // --- 9. SINIF (LİSE 1) ETKİNLİKLERİ ---
+  if (tier === 'lise1') {
+    if (day === 0) {
+      // Pazar: MEB Ortak Yazılı Provası
+      return {
+        type: 'sunday-live',
+        title: '9. Sınıf MEB 1. Dönem Ortak Yazılı Prova Sınavı',
+        badge: '🔥 BUGÜN CANLI YAZILI PROVASI',
+        courseHighlight: 'Matematik & Türk Dili ve Edebiyatı (100 Puanlık Senaryo)',
+        description: 'MEB yeni ölçme yönetmeliğine ve 9. sınıf ortak yazılı sınav senaryolarına tam uyumlu canlı prova.',
+        questionCount: 10,
+        durationMinutes: 40,
+        slug: 'meb-9-matematik-1-donem-1-yazili',
+        targetTopics: ['Mantık ve Önermeler', 'Edebiyat: İletişim Ögeleri', 'Fizik Bilimine Giriş'],
+      };
+    }
+
+    if (day === 2 || day === 3) {
+      // Salı / Çarşamba: Sayısal Yazılı Kampı
+      return {
+        type: 'tuesday-stem',
+        title: '9. Sınıf Sayısal Yazılı Meydan Okuması (Matematik & Fen)',
+        badge: '⚡ SALI SAYISAL YAZILI KAMPI',
+        courseHighlight: 'Matematik (Mantık-Kümeler) + Fizik / Kimya / Biyoloji',
+        description: 'MEB 1. Dönem Ortak Yazılı sayısal kazanımlarını pekiştir, YKS temelini sağlamlaştır!',
+        questionCount: 10,
+        durationMinutes: 40,
+        slug: 'meb-9-matematik-1-donem-1-yazili',
+        targetTopics: ['Önermeler ve Bileşik Önermeler', 'Kümelerde Kesişim ve Birleşim', 'Madde ve Özkütle'],
+      };
+    }
+
+    // Perşembe ve diğer günler: Edebiyat 70 Barajı & Sosyal Kampı
+    return {
+      type: 'thursday-verbal',
+      title: '9. Sınıf Edebiyat (70 Barajı) & Tarih/Coğrafya Kampı',
+      badge: '📚 EDEBİYAT 70 BARAJI KAMPI',
+      courseHighlight: 'Türk Dili ve Edebiyatı (Baraj Dersi) + Tarih + Coğrafya',
+      description: 'MEB sınıf geçme yönetmeliğine göre 9. sınıf Edebiyat 70.00 barajına özel hazırlık taraması.',
+      questionCount: 10,
+      durationMinutes: 35,
+      slug: 'meb-9-edebiyat-1-donem-1-yazili',
+      targetTopics: ['İletişim ve Dilin İşlevleri', 'Tarih Bilimine Giriş', 'Doğa ve İnsan'],
+    };
+  }
+
+  // --- 8. SINIF (LGS) ETKİNLİKLERİ ---
   if (day === 0) {
     // Pazar Günü: Canlı Büyük LGS Denemesi
     return {

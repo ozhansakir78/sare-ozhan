@@ -5,6 +5,7 @@ export const LGS_HIGH_SCHOOLS: LgsHighSchool[] = [
     id: 'galatasaray',
     name: 'Galatasaray Lisesi',
     city: 'İstanbul',
+    district: 'Beyoğlu',
     type: 'anadolu',
     minScore: 494.85,
     minPercentile: 0.04,
@@ -16,6 +17,7 @@ export const LGS_HIGH_SCHOOLS: LgsHighSchool[] = [
     id: 'istanbul-erkek',
     name: 'İstanbul Erkek Lisesi',
     city: 'İstanbul',
+    district: 'Fatih',
     type: 'anadolu',
     minScore: 493.42,
     minPercentile: 0.07,
@@ -27,17 +29,19 @@ export const LGS_HIGH_SCHOOLS: LgsHighSchool[] = [
     id: 'kabatas-erkek',
     name: 'Kabataş Erkek Lisesi',
     city: 'İstanbul',
+    district: 'Beşiktaş',
     type: 'anadolu',
     minScore: 492.15,
     minPercentile: 0.11,
     quota: 180,
     badge: '🌟 Boğazın İncisi & Prestij',
-    description: 'Ortaköy, İstanbul. İngilizce ve Almanca bölümleriyle akademik ve sosyal alanda zirve okul.',
+    description: 'Ortaköy, Beşiktaş, İstanbul. İngilizce ve Almanca bölümleriyle akademik ve sosyal alanda zirve okul.',
   },
   {
     id: 'ankara-fen',
     name: 'Ankara Fen Lisesi',
     city: 'Ankara',
+    district: 'Çankaya',
     type: 'fen',
     minScore: 491.50,
     minPercentile: 0.15,
@@ -49,6 +53,7 @@ export const LGS_HIGH_SCHOOLS: LgsHighSchool[] = [
     id: 'ataturk-fen-istanbul',
     name: 'İstanbul Atatürk Fen Lisesi',
     city: 'İstanbul',
+    district: 'Kadıköy',
     type: 'fen',
     minScore: 490.25,
     minPercentile: 0.22,
@@ -60,6 +65,7 @@ export const LGS_HIGH_SCHOOLS: LgsHighSchool[] = [
     id: 'izmir-fen',
     name: 'İzmir Fen Lisesi',
     city: 'İzmir',
+    district: 'Bornova',
     type: 'fen',
     minScore: 489.80,
     minPercentile: 0.26,
@@ -71,6 +77,7 @@ export const LGS_HIGH_SCHOOLS: LgsHighSchool[] = [
     id: 'cagaloglu-anadolu',
     name: 'Cağaloğlu Anadolu Lisesi',
     city: 'İstanbul',
+    district: 'Fatih',
     type: 'anadolu',
     minScore: 488.10,
     minPercentile: 0.38,
@@ -82,6 +89,7 @@ export const LGS_HIGH_SCHOOLS: LgsHighSchool[] = [
     id: 'kadikoy-anadolu',
     name: 'Kadıköy Anadolu Lisesi (KAL)',
     city: 'İstanbul',
+    district: 'Kadıköy',
     type: 'anadolu',
     minScore: 486.40,
     minPercentile: 0.52,
@@ -93,6 +101,7 @@ export const LGS_HIGH_SCHOOLS: LgsHighSchool[] = [
     id: 'bursa-tofas-fen',
     name: 'Tofaş Fen Lisesi',
     city: 'Bursa',
+    district: 'Nilüfer',
     type: 'fen',
     minScore: 485.60,
     minPercentile: 0.61,
@@ -104,6 +113,7 @@ export const LGS_HIGH_SCHOOLS: LgsHighSchool[] = [
     id: 'bornova-anadolu',
     name: 'Bornova Anadolu Lisesi (BAL)',
     city: 'İzmir',
+    district: 'Bornova',
     type: 'anadolu',
     minScore: 484.20,
     minPercentile: 0.74,
@@ -115,6 +125,7 @@ export const LGS_HIGH_SCHOOLS: LgsHighSchool[] = [
     id: 'antalya-yusuf-ziya-fen',
     name: 'Yusuf Ziya Öner Fen Lisesi',
     city: 'Antalya',
+    district: 'Döşemealtı',
     type: 'fen',
     minScore: 482.90,
     minPercentile: 0.88,
@@ -126,6 +137,7 @@ export const LGS_HIGH_SCHOOLS: LgsHighSchool[] = [
     id: 'adana-fen',
     name: 'Adana Fen Lisesi',
     city: 'Adana',
+    district: 'Çukurova',
     type: 'fen',
     minScore: 481.30,
     minPercentile: 1.05,
@@ -137,6 +149,7 @@ export const LGS_HIGH_SCHOOLS: LgsHighSchool[] = [
     id: 'gaziantep-vehbi-dincerler-fen',
     name: 'Vehbi Dinçerler Fen Lisesi',
     city: 'Gaziantep',
+    district: 'Şehitkamil',
     type: 'fen',
     minScore: 478.40,
     minPercentile: 1.35,
@@ -148,6 +161,7 @@ export const LGS_HIGH_SCHOOLS: LgsHighSchool[] = [
     id: 'eskisehir-fatih-fen',
     name: 'Eskişehir Fatih Fen Lisesi',
     city: 'Eskişehir',
+    district: 'Odunpazarı',
     type: 'fen',
     minScore: 477.10,
     minPercentile: 1.48,
@@ -159,6 +173,7 @@ export const LGS_HIGH_SCHOOLS: LgsHighSchool[] = [
     id: 'vefa-lisesi',
     name: 'Vefa Lisesi',
     city: 'İstanbul',
+    district: 'Fatih',
     type: 'anadolu',
     minScore: 475.60,
     minPercentile: 1.68,
@@ -170,12 +185,85 @@ export const LGS_HIGH_SCHOOLS: LgsHighSchool[] = [
     id: 'samsun-garip-zeycan-fen',
     name: 'Garip Zeycan Yıldırım Fen Lisesi',
     city: 'Samsun',
+    district: 'Atakum',
     type: 'fen',
     minScore: 472.80,
     minPercentile: 1.95,
     quota: 120,
     badge: '⚓ Karadeniz\'in Lider Fen Lisesi',
     description: 'Atakum, Samsun. Karadeniz kıyısında olimpik bilim çalışmaları.',
+  },
+  {
+    id: 'kocaeli-fen',
+    name: 'Kocaeli Fen Lisesi',
+    city: 'Kocaeli',
+    district: 'İzmit',
+    type: 'fen',
+    minScore: 476.30,
+    minPercentile: 1.55,
+    quota: 120,
+    badge: '🔬 Sanayinin Bilim Öncüsü',
+    description: 'İzmit, Kocaeli. Sanayi ve teknoloji kentine yakışır güçlü fen altyapısı.',
+  },
+  {
+    id: 'konya-meram-fen',
+    name: 'Konya Meram Fen Lisesi',
+    city: 'Konya',
+    district: 'Meram',
+    type: 'fen',
+    minScore: 479.20,
+    minPercentile: 1.20,
+    quota: 120,
+    badge: '🌾 İç Anadolu Zirvesi',
+    description: 'Meram, Konya. YKS dereceleri ve bilim olimpiyatı madalyaları.',
+  },
+  {
+    id: 'trabzon-fen',
+    name: 'Trabzon Merkez Fen Lisesi',
+    city: 'Trabzon',
+    district: 'Ortahisar',
+    type: 'fen',
+    minScore: 471.50,
+    minPercentile: 2.10,
+    quota: 120,
+    badge: '🌲 Doğu Karadeniz Bilim Merkezi',
+    description: 'Ortahisar, Trabzon. Köklü eğitim kadrosu ve yüksek üniversite yerleşimi.',
+  },
+  {
+    id: 'denizli-erbakir-fen',
+    name: 'Erbakır Fen Lisesi',
+    city: 'Denizli',
+    district: 'Merkezefendi',
+    type: 'fen',
+    minScore: 478.10,
+    minPercentile: 1.38,
+    quota: 120,
+    badge: '⚙️ Ege\'nin Parlayan Yıldızı',
+    description: 'Merkezefendi, Denizli. Mühendislik ve tıp fakültelerine yüksek yerleştirme.',
+  },
+  {
+    id: 'diyarbakir-rekabet-fen',
+    name: 'Rekabet Kurumu Cumhuriyet Fen Lisesi',
+    city: 'Diyarbakır',
+    district: 'Yenişehir',
+    type: 'fen',
+    minScore: 473.40,
+    minPercentile: 1.85,
+    quota: 120,
+    badge: '☀️ Bölgenin Tıp Fabrikası',
+    description: 'Yenişehir, Diyarbakır. Güneydoğu Anadolu\'nun en köklü ve başarılı fen lisesi.',
+  },
+  {
+    id: 'balikesir-sirri-yircali-anadolu',
+    name: 'Sırrı Yırcalı Anadolu Lisesi (SYAL)',
+    city: 'Balıkesir',
+    district: 'Karesi',
+    type: 'anadolu',
+    minScore: 468.90,
+    minPercentile: 2.45,
+    quota: 150,
+    badge: '🎓 Güney Marmara Klasiği',
+    description: 'Karesi, Balıkesir. Çift yabancı dil ve uluslararası başarı projeleri.',
   },
 ];
 
@@ -324,3 +412,28 @@ export function searchHighSchools(query: string): LgsHighSchool[] {
     return sName.includes(cleanQuery) || sCity.includes(cleanQuery);
   });
 }
+
+/**
+ * Şehir ve/veya ilçeye göre liseleri filtreler
+ */
+export function getHighSchoolsByLocation(city?: string, district?: string): LgsHighSchool[] {
+  let list = LGS_HIGH_SCHOOLS;
+  if (city && city.trim() !== '') {
+    const cClean = city.trim().toLocaleLowerCase('tr-TR');
+    list = list.filter((s) => s.city.toLocaleLowerCase('tr-TR') === cClean);
+  }
+  if (district && district.trim() !== '' && district !== 'Tüm İlçeler' && district !== 'Merkez') {
+    const dClean = district.trim().toLocaleLowerCase('tr-TR');
+    list = list.filter((s) => s.district && s.district.toLocaleLowerCase('tr-TR') === dClean);
+  }
+  return list;
+}
+
+/**
+ * Sistemde lisesi kayıtlı olan şehirlerin listesini döner
+ */
+export function getCitiesWithHighSchools(): string[] {
+  const cities = Array.from(new Set(LGS_HIGH_SCHOOLS.map((s) => s.city)));
+  return cities.sort((a, b) => a.localeCompare(b, 'tr'));
+}
+

@@ -210,8 +210,13 @@ export type UserProfile = {
   id: string;
   email: string | null;
   display_name: string | null;
+  grade_level?: string | null; // '8' | '9'
+  target_city?: string | null;
+  target_district?: string | null;
   target_high_school: string | null;
   target_score: number | null;
+  target_university?: string | null;
+  target_department?: string | null;
   is_pro: boolean;
   pro_expires_at: string | null;
   daily_quota_used: number;
@@ -224,8 +229,13 @@ export type UserProfileInsert = {
   id: string;
   email?: string | null;
   display_name?: string | null;
+  grade_level?: string | null;
+  target_city?: string | null;
+  target_district?: string | null;
   target_high_school?: string | null;
   target_score?: number | null;
+  target_university?: string | null;
+  target_department?: string | null;
   is_pro?: boolean;
   pro_expires_at?: string | null;
   daily_quota_used?: number;
@@ -238,8 +248,13 @@ export type UserProfileUpdate = {
   id?: string;
   email?: string | null;
   display_name?: string | null;
+  grade_level?: string | null;
+  target_city?: string | null;
+  target_district?: string | null;
   target_high_school?: string | null;
   target_score?: number | null;
+  target_university?: string | null;
+  target_department?: string | null;
   is_pro?: boolean;
   pro_expires_at?: string | null;
   daily_quota_used?: number;
