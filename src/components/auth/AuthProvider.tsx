@@ -359,6 +359,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (error.message?.toLowerCase().includes('failed to fetch')) {
           throw error;
         }
+        const lower = error.message?.toLowerCase() || '';
+        if (lower.includes('rate limit') || lower.includes('security purposes')) {
+          return {
+            error:
+              'Supabase e-posta kotası aşıldı (Email rate limit exceeded). Supabase ücretsiz dahili e-posta servisi saatte sadece 3-4 e-posta gönderebilmektedir. Lütfen Supabase panelinden "Confirm email" seçeneğini kapatın veya SMTP bağlayın.',
+          };
+        }
         return { error: error.message };
       }
 

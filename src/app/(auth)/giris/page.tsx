@@ -307,7 +307,12 @@ export default function GirisPage() {
                     : 'border border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-300'
                 }`}
               >
-                {forgotMessage.text}
+                <div>{forgotMessage.text}</div>
+                {forgotMessage.isError && (forgotMessage.text.includes('rate limit') || forgotMessage.text.includes('limiti aşıldı')) && (
+                  <p className="mt-2 text-[11px] font-normal text-rose-700 dark:text-rose-300">
+                    💡 <strong>Hızlı Çözüm:</strong> Supabase Dashboard ➔ Authentication ➔ Users bölümünden kullanıcınızı bulup doğrudan şifrenizi belirleyebilir veya birkaç dakika sonra tekrar deneyebilirsiniz.
+                  </p>
+                )}
               </div>
             )}
 

@@ -183,10 +183,10 @@ export default function KayitPage() {
         </div>
 
         {error && (
-          <div className="mt-5 rounded-2xl border border-rose-200 bg-rose-50/80 p-3.5 text-xs font-medium text-rose-800 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-300 space-y-2">
-            <div className="flex items-center gap-2">
-              <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" />
-              <span>{error}</span>
+          <div className="mt-5 rounded-2xl border border-rose-200 bg-rose-50/80 p-3.5 text-xs font-medium text-rose-800 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-300 space-y-2.5">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="h-4 w-4 shrink-0 text-rose-600 mt-0.5" />
+              <span className="font-semibold leading-relaxed">{error}</span>
             </div>
             {error.includes('zaten kayıtlı') && (
               <div className="pt-2 border-t border-rose-200 dark:border-rose-900/60 flex items-center gap-2">
@@ -196,6 +196,27 @@ export default function KayitPage() {
                 >
                   Giriş Yap Sayfasına Git →
                 </Link>
+              </div>
+            )}
+            {(error.includes('kotası aşıldı') || error.includes('rate limit')) && (
+              <div className="pt-2 border-t border-rose-200/80 text-[11px] space-y-1.5 dark:border-rose-900/60">
+                <p className="font-bold text-rose-900 dark:text-rose-200">
+                  💡 Bu sorun neden yaşanıyor ve nasıl çözülür?
+                </p>
+                <p className="text-slate-600 dark:text-slate-300">
+                  Supabase'in varsayılan e-posta servisinde spam koruması için <strong>saatte 3-4 mail</strong> sınırı vardır. Birkaç deneme yapıldığında bu kota dolar.
+                </p>
+                <div className="rounded-lg bg-white/80 p-2.5 dark:bg-slate-800/80 border border-rose-200/60 dark:border-slate-700">
+                  <span className="font-bold text-slate-800 dark:text-slate-100">1 Dakikalık Çözüm:</span>
+                  <ol className="list-decimal pl-4 mt-1 space-y-0.5 text-slate-600 dark:text-slate-300">
+                    <li><a href="https://supabase.com/dashboard" target="_blank" rel="noreferrer" className="text-indigo-600 underline font-semibold">Supabase Dashboard</a> projenizi açın.</li>
+                    <li>Sol menüden <strong>Authentication ➔ Providers ➔ Email</strong> sekmesine gidin.</li>
+                    <li><strong>"Confirm email"</strong> seçeneğini kapatıp <strong>Save</strong> butonuna basın.</li>
+                  </ol>
+                  <p className="mt-1.5 text-[10px] text-slate-500">
+                    Kapatıldığında tüm öğrenciler hiç beklemeden anında kayıt olabilir ve sisteme hemen giriş yapabilir.
+                  </p>
+                </div>
               </div>
             )}
           </div>
