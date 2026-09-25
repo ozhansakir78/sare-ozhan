@@ -479,6 +479,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         },
       });
       if (error) {
+        const lower = error.message?.toLowerCase() || '';
+        if (lower.includes('rate limit') || lower.includes('security purposes')) {
+          return {
+            error:
+              'E-posta gönderim limiti aşıldı. Supabase güvenlik koruması nedeniyle kısa sürede çok fazla e-posta talep edildi. Lütfen 10-15 dakika bekleyip tekrar deneyin.',
+          };
+        }
         return { error: error.message };
       }
       return {
@@ -526,7 +533,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/auth/callback?next=/profil`,
       });
-      if (error) return { error: error.message };
+      if (error) {
+        const lower = error.message?.toLowerCase() || '';
+        if (lower.includes('rate limit') || lower.includes('security purposes')) {
+          return {
+            error:
+              'E-posta gönderim limiti aşıldı (Email rate limit exceeded). Supabase varsayılan e-posta sunucusunun saatlik güvenlik kotası doldu. Lütfen 10-15 dakika bekleyip tekrar deneyin veya Supabase Dashboard > Authentication > Users ekranından doğrudan şifrenizi belirleyin.',
+          };
+        }
+        return { error: error.message };
+      }
       return { message: 'Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.' };
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Şifre sıfırlama isteği iletilemedi.';
