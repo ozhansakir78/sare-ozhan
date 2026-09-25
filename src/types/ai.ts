@@ -11,6 +11,7 @@ export interface SolveApiRequest {
   topicName: string;
   studentNote?: string;
   userMessage?: string;
+  mode?: 'hint' | 'full_solve';
   conversationHistory?: {
     role: 'user' | 'assistant';
     content: string;

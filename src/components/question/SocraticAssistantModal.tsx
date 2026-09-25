@@ -6,6 +6,7 @@ import type { ChatMessage, SolveApiRequest, SolveApiResponse } from '@/types/ai'
 import { updateStoredQuestionStatus } from '@/lib/question-storage';
 import { getQuotaStatus, consumeQuota } from '@/lib/quota';
 import { ProUpgradeModal } from '@/components/subscription/ProUpgradeModal';
+import { FormattedMessage } from '@/components/ui/FormattedMessage';
 import {
   Sparkles,
   X,
@@ -73,7 +74,7 @@ export function SocraticAssistantModal({
     const initialGreeting: ChatMessage = {
       id: 'm-init',
       role: 'assistant',
-      content: `Merhaba! ${question.courseName} dersindeki "${question.topicName}" sorusunu birlikte inceleyelim. 🎯\n\nBu soruda harika bir ipucu gizli. Soru kökünde senden ilk olarak tam olarak neyi bulmanı istiyor? Soruda verilen ilk veriyi fark ettin mi?`,
+      content: `Merhaba! ${question.courseName} dersindeki "${question.topicName}" sorusunu birlikte inceleyelim. 🎯\n\nBu soruda adım adım rehberlik almak için **"💡 İpucu Al"** butonuna, sorunun tam çözümünü ve nihai cevabını görmek için **"🎯 Soruyu Çöz"** butonuna tıklayabilirsin.`,
       createdAt: new Date().toISOString(),
     };
     setMessages([initialGreeting]);
@@ -94,7 +95,7 @@ export function SocraticAssistantModal({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
 
-  const handleSendMessage = async (textToSend?: string) => {
+  const handleSendMessage = async (textToSend?: string, mode?: 'hint' | 'full_solve') => {
     const messageContent = (textToSend || inputText).trim();
     if (!messageContent || isLoading) return;
 
@@ -127,6 +128,7 @@ export function SocraticAssistantModal({
         courseName: question.courseName,
         topicName: question.topicName,
         studentNote: enrichedStudentNote,
+        mode: mode || (messageContent.toLowerCase().includes('soruyu çöz') || messageContent.toLowerCase().includes('tamamen çöz') ? 'full_solve' : 'hint'),
         conversationHistory: newHistory.map((m) => ({
           role: m.role,
           content: m.content,
@@ -165,7 +167,7 @@ export function SocraticAssistantModal({
         id: 'err-' + Date.now(),
         role: 'assistant',
         content:
-          'Bağlantı sırasında küçük bir aksaklık oldu. Fakat merak etme! Sorudaki ilk adıma odaklanarak verilen sayıların bölenlerini veya grafiğin yönünü bir kez daha inceleyebilirsin.',
+          'Bağlantı sırasında küçük bir aksaklık oldu. Fakat merak etme! Sorudaki ilk adıma odaklanarak verilen sayıların bölenlerini veya işlem önceliğini bir kez daha inceleyebilirsin.',
         createdAt: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -216,17 +218,40 @@ export function SocraticAssistantModal({
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Üst Çubuk Hızlı Aksiyonları: İpucu Al ve Soruyu Çöz */}
+            <button
+              type="button"
+              disabled={isLoading}
+              onClick={() => handleSendMessage('Bu soru için bana bir sonraki ipucunu verir misin?', 'hint')}
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-amber-300/80 bg-amber-50 hover:bg-amber-100 text-amber-800 dark:border-amber-800 dark:bg-amber-950/60 dark:text-amber-200 px-3 py-1.5 text-xs font-bold transition shadow-2xs cursor-pointer disabled:opacity-50"
+              title="Cevabı vermeden adım adım ipucu al"
+            >
+              <Lightbulb className="h-3.5 w-3.5 text-amber-500" />
+              <span>İpucu Al</span>
+            </button>
+
+            <button
+              type="button"
+              disabled={isLoading}
+              onClick={() => handleSendMessage('Lütfen sorunun tüm adımlarını ve nihai cevabını eksiksiz çöz.', 'full_solve')}
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white px-3 py-1.5 text-xs font-bold transition shadow-xs cursor-pointer disabled:opacity-50"
+              title="Sorunun tam ve ayrıntılı çözümünü gör"
+            >
+              <Sparkles className="h-3.5 w-3.5 text-amber-200" />
+              <span>Soruyu Çöz</span>
+            </button>
+
             {status !== 'resolved' ? (
               <button
                 type="button"
                 onClick={handleMarkAsResolved}
-                className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-1.5 text-xs font-bold text-emerald-700 transition hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 cursor-pointer"
+                className="hidden md:inline-flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700 transition hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 cursor-pointer"
               >
                 <CheckCircle2 className="h-3.5 w-3.5" />
-                Öğrendim Olarak İşaretle
+                Öğrendim
               </button>
             ) : (
-              <span className="hidden sm:inline-flex items-center gap-1 rounded-xl bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">
+              <span className="hidden md:inline-flex items-center gap-1 rounded-xl bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">
                 <Check className="h-3.5 w-3.5" /> Çözüldü
               </span>
             )}
@@ -250,23 +275,23 @@ export function SocraticAssistantModal({
               <button
                 type="button"
                 onClick={() => handleZoom('in')}
-                className="rounded-lg p-1.5 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
-                title="Büyüt"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 cursor-pointer"
+                title="Yakınlaştır"
               >
                 <ZoomIn className="h-4 w-4" />
               </button>
               <button
                 type="button"
                 onClick={() => handleZoom('out')}
-                className="rounded-lg p-1.5 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
-                title="Küçült"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 cursor-pointer"
+                title="Uzaklaştır"
               >
                 <ZoomOut className="h-4 w-4" />
               </button>
               <button
                 type="button"
                 onClick={() => handleZoom('reset')}
-                className="rounded-lg p-1.5 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 cursor-pointer"
                 title="Sıfırla"
               >
                 <RotateCcw className="h-4 w-4" />
@@ -276,14 +301,21 @@ export function SocraticAssistantModal({
             {/* Görsel Alanı */}
             <div className="flex flex-1 items-center justify-center overflow-auto p-4">
               <div
-                className="transition-transform duration-200 ease-out"
+                className="transition-transform duration-200 origin-center"
                 style={{ transform: `scale(${zoomLevel})` }}
               >
-                <img
-                  src={question.imageUrl}
-                  alt={question.topicName}
-                  className="max-h-[70vh] max-w-full rounded-2xl object-contain shadow-md"
-                />
+                {question.imageUrl ? (
+                  <img
+                    src={question.imageUrl}
+                    alt="Soru Görseli"
+                    className="max-h-[60vh] max-w-full rounded-2xl object-contain shadow-md"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-slate-400">
+                    <AlertTriangle className="h-12 w-12 stroke-[1.5]" />
+                    <p className="mt-2 text-xs">Görsel bulunamadı</p>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -323,13 +355,17 @@ export function SocraticAssistantModal({
                     )}
 
                     <div
-                      className={`max-w-[85%] rounded-2xl p-4 text-xs sm:text-sm leading-relaxed whitespace-pre-wrap ${
+                      className={`max-w-[85%] rounded-2xl p-4 text-xs sm:text-sm leading-relaxed ${
                         isAssistant
                           ? 'border border-slate-200 bg-slate-50 text-slate-800 dark:border-slate-800 dark:bg-slate-800/60 dark:text-slate-200'
                           : 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-sm'
                       }`}
                     >
-                      {msg.content}
+                      {isAssistant ? (
+                        <FormattedMessage content={msg.content} />
+                      ) : (
+                        <div className="whitespace-pre-wrap">{msg.content}</div>
+                      )}
 
                       {isAssistant && (
                         <div className="mt-3 flex items-center justify-end border-t border-slate-200/50 pt-2 dark:border-slate-700/50">
@@ -373,7 +409,7 @@ export function SocraticAssistantModal({
                     <span className="h-2 w-2 rounded-full bg-indigo-600 animate-bounce" />
                     <span className="h-2 w-2 rounded-full bg-indigo-600 animate-bounce [animation-delay:0.2s]" />
                     <span className="h-2 w-2 rounded-full bg-indigo-600 animate-bounce [animation-delay:0.4s]" />
-                    <span className="ml-2 font-medium">Sokratik Koç düşünüyor...</span>
+                    <span className="ml-2 font-medium">Soru Koçu çözümü hazırlıyor...</span>
                   </div>
                 </div>
               )}
@@ -381,35 +417,51 @@ export function SocraticAssistantModal({
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Hızlı Eylem Çipleri (Quick Action Chips) */}
-            <div className="border-t border-slate-100 bg-slate-50/50 p-2.5 dark:border-slate-800 dark:bg-slate-900/50">
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+            {/* Hızlı Eylem Çipleri (Quick Action Bar: İpucu Al & Soruyu Çöz) */}
+            <div className="border-t border-slate-100 bg-slate-50/70 p-2.5 dark:border-slate-800 dark:bg-slate-900/60">
+              <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                {/* 1. İpucu Al */}
                 <button
                   type="button"
                   disabled={isLoading}
-                  onClick={() => handleSendMessage('İlk adımı anlayamadım, ipucu verir misin?')}
-                  className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 shadow-xs hover:bg-indigo-50 hover:text-indigo-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 whitespace-nowrap cursor-pointer"
+                  onClick={() => handleSendMessage('Bu soru için bana bir sonraki ipucunu verir misin?', 'hint')}
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-900 shadow-2xs hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-950/60 dark:text-amber-200 whitespace-nowrap cursor-pointer transition"
                 >
-                  <Lightbulb className="h-3.5 w-3.5 text-amber-500" />
-                  İlk adımı anlayamadım
+                  <Lightbulb className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                  <span>💡 İpucu Al</span>
                 </button>
+
+                {/* 2. Soruyu Çöz */}
+                <button
+                  type="button"
+                  disabled={isLoading}
+                  onClick={() => handleSendMessage('Lütfen sorunun tüm adımlarını ve nihai cevabını eksiksiz çöz.', 'full_solve')}
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-3 py-1.5 text-xs font-bold text-white shadow-xs hover:from-emerald-700 hover:to-teal-700 whitespace-nowrap cursor-pointer transition"
+                >
+                  <Sparkles className="h-3.5 w-3.5 text-amber-200" />
+                  <span>🎯 Soruyu Çöz</span>
+                </button>
+
+                {/* 3. Şıkları Eledim */}
                 <button
                   type="button"
                   disabled={isLoading}
                   onClick={() => handleSendMessage('Şıkları ikiye indirdim ama aralarında kararsız kaldım.')}
-                  className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 shadow-xs hover:bg-indigo-50 hover:text-indigo-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 whitespace-nowrap cursor-pointer"
+                  className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 shadow-2xs hover:bg-indigo-50 hover:text-indigo-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 whitespace-nowrap cursor-pointer"
                 >
                   <HelpCircle className="h-3.5 w-3.5 text-indigo-500" />
-                  Şıkları eledim ama kararsızım
+                  <span>Şıkları eledim</span>
                 </button>
+
+                {/* 4. Çözümü Anladım */}
                 <button
                   type="button"
                   disabled={isLoading}
                   onClick={() => handleSendMessage('Sorunun mantığını tam olarak anladım, teşekkür ederim!')}
-                  className="inline-flex items-center gap-1 rounded-xl border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 text-xs font-bold text-emerald-700 shadow-xs hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 whitespace-nowrap cursor-pointer"
+                  className="inline-flex items-center gap-1 rounded-xl border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 text-xs font-bold text-emerald-700 shadow-2xs hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 whitespace-nowrap cursor-pointer"
                 >
                   <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-                  Çözümü anladım!
+                  <span>Çözümü anladım!</span>
                 </button>
               </div>
             </div>
@@ -448,36 +500,33 @@ export function SocraticAssistantModal({
       {isCelebrationOpen && (
         <div className="fixed inset-0 z-60 flex items-center justify-center bg-slate-950/70 p-4">
           <div className="w-full max-w-sm rounded-3xl border border-emerald-300 bg-white p-6 text-center shadow-2xl dark:border-emerald-800 dark:bg-slate-900 animate-in zoom-in-95 duration-200">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400">
               <CheckCircle2 className="h-8 w-8" />
             </div>
-            <h4 className="mt-4 text-lg font-black text-slate-900 dark:text-white">
-              Tebrikler, Bir Eksiği Kapattın! 🎉
-            </h4>
-            <p className="mt-2 text-xs text-slate-600 dark:text-slate-300">
-              Bu sorunun mantığını kavradın ve soru Yanlış Defteri&apos;nde{' '}
-              <strong>&ldquo;Öğrenildi&rdquo;</strong> olarak işaretlendi.
+            <h3 className="mt-4 text-lg font-black text-slate-900 dark:text-white">
+              Tebrikler, Eksik Kapatıldı! 🎉
+            </h3>
+            <p className="mt-2 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+              Bu sorunun mantığını kavradın. Soruyu Yanlış Defteri&apos;nde başarıyla &quot;Çözüldü&quot; durumuna getirdin.
             </p>
             <button
               type="button"
-              onClick={() => {
-                setIsCelebrationOpen(false);
-                onClose();
-              }}
-              className="mt-6 w-full rounded-xl bg-emerald-600 py-2.5 text-xs font-bold text-white shadow hover:bg-emerald-700 cursor-pointer"
+              onClick={() => setIsCelebrationOpen(false)}
+              className="mt-5 w-full rounded-xl bg-emerald-600 py-2.5 text-xs font-bold text-white transition hover:bg-emerald-700 cursor-pointer"
             >
-              Yanlış Defteri&apos;ne Dön
+              Harika, Devam Et!
             </button>
           </div>
         </div>
       )}
 
-      {/* Pro Abonelik Satış Modalı (Kota Dolduğunda) */}
-      <ProUpgradeModal
-        isOpen={isProModalOpen}
-        onClose={() => setIsProModalOpen(false)}
-        reason="quota_exhausted"
-      />
+      {/* Pro Abonelik Modalı */}
+      {isProModalOpen && (
+        <ProUpgradeModal
+          isOpen={isProModalOpen}
+          onClose={() => setIsProModalOpen(false)}
+        />
+      )}
     </div>
   );
 }
