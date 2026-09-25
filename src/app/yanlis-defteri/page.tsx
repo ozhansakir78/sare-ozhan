@@ -104,7 +104,13 @@ export default function YanlisDefteriPage() {
     }
   };
 
-  const handleOpenAiAssistant = (question: WrongQuestionItem) => {
+  const [assistantInitialMode, setAssistantInitialMode] = useState<'hint' | 'full_solve'>('hint');
+
+  const handleOpenAiAssistant = (
+    question: WrongQuestionItem,
+    initialMode: 'hint' | 'full_solve' = 'hint'
+  ) => {
+    setAssistantInitialMode(initialMode);
     setActiveModalQuestion(question);
   };
 
@@ -248,6 +254,7 @@ export default function YanlisDefteriPage() {
       {activeModalQuestion && (
         <SocraticAssistantModal
           question={activeModalQuestion}
+          initialMode={assistantInitialMode}
           onClose={() => setActiveModalQuestion(null)}
           onQuestionUpdated={handleQuestionUpdated}
         />

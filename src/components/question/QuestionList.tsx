@@ -22,7 +22,7 @@ interface QuestionListProps {
   questions: WrongQuestionItem[];
   onStatusChange: (id: string, newStatus: QuestionStatus) => void;
   onDelete: (id: string) => void;
-  onOpenAiAssistant?: (question: WrongQuestionItem) => void;
+  onOpenAiAssistant?: (question: WrongQuestionItem, initialMode?: 'hint' | 'full_solve') => void;
   onOpenUploader?: () => void;
 }
 

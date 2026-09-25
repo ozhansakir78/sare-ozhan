@@ -21,7 +21,7 @@ interface QuestionCardProps {
   question: WrongQuestionItem;
   onStatusChange: (id: string, newStatus: QuestionStatus) => void;
   onDelete: (id: string) => void;
-  onOpenAiAssistant?: (question: WrongQuestionItem) => void;
+  onOpenAiAssistant?: (question: WrongQuestionItem, initialMode?: 'hint' | 'full_solve') => void;
 }
 
 const ERROR_REASON_OPTIONS: { key: ErrorReason; label: string; icon: string; activeClass: string }[] = [
@@ -223,21 +223,36 @@ export function QuestionCard({
 
         {/* Kart Aksiyon Butonları */}
         <div className="mt-4 space-y-2 border-t border-slate-100 pt-4 dark:border-slate-800">
-          {/* AI Çözüm Butonu */}
-          <button
-            type="button"
-            onClick={() => {
-              if (onOpenAiAssistant) {
-                onOpenAiAssistant(question);
-              } else {
-                alert(`"${topicName}" sorusu için Sokratik AI Soru Çözüm Asistanı 4. Aşamada tam entegre edilecek.`);
-              }
-            }}
-            className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-3.5 py-2.5 text-xs font-bold text-white shadow-sm transition hover:from-indigo-700 hover:to-violet-700 focus:outline-none cursor-pointer"
-          >
-            <Sparkles className="h-3.5 w-3.5 text-amber-300" />
-            <span>Sokratik İpucu Al (AI)</span>
-          </button>
+          {/* AI Çözüm & İpucu Butonları (İkili Buton) */}
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                if (onOpenAiAssistant) {
+                  onOpenAiAssistant(question, 'hint');
+                }
+              }}
+              className="flex items-center justify-center gap-1.5 rounded-xl border border-amber-300/80 bg-amber-50 hover:bg-amber-100 text-amber-900 dark:border-amber-800 dark:bg-amber-950/60 dark:text-amber-200 py-2.5 px-2 text-xs font-bold transition shadow-2xs cursor-pointer active:scale-98"
+              title="Adım adım Sokratik ipucu al"
+            >
+              <Lightbulb className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+              <span className="truncate">İpucu Al (AI)</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                if (onOpenAiAssistant) {
+                  onOpenAiAssistant(question, 'full_solve');
+                }
+              }}
+              className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white py-2.5 px-2 text-xs font-bold transition shadow-sm cursor-pointer active:scale-98"
+              title="Sorunun tam çözümünü ve nihai cevabını gör"
+            >
+              <Sparkles className="h-3.5 w-3.5 text-amber-200 shrink-0" />
+              <span className="truncate">Soruyu Çöz (AI)</span>
+            </button>
+          </div>
 
           {/* Konu Hap Notu Butonu */}
           <button

@@ -29,12 +29,14 @@ import { speechService } from '@/lib/speech-service';
 
 interface SocraticAssistantModalProps {
   question: WrongQuestionItem;
+  initialMode?: 'hint' | 'full_solve';
   onClose: () => void;
   onQuestionUpdated?: (updated: WrongQuestionItem) => void;
 }
 
 export function SocraticAssistantModal({
   question,
+  initialMode = 'hint',
   onClose,
   onQuestionUpdated,
 }: SocraticAssistantModalProps) {
@@ -69,15 +71,26 @@ export function SocraticAssistantModal({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
-  // Modal açıldığında ilk Sokratik soruyu başlat
+  // Modal açıldığında ilk Sokratik soruyu veya doğrudan tam çözümü başlat
   useEffect(() => {
-    const initialGreeting: ChatMessage = {
-      id: 'm-init',
-      role: 'assistant',
-      content: `Merhaba! ${question.courseName} dersindeki "${question.topicName}" sorusunu birlikte inceleyelim. 🎯\n\nBu soruda adım adım rehberlik almak için **"💡 İpucu Al"** butonuna, sorunun tam çözümünü ve nihai cevabını görmek için **"🎯 Soruyu Çöz"** butonuna tıklayabilirsin.`,
-      createdAt: new Date().toISOString(),
-    };
-    setMessages([initialGreeting]);
+    if (initialMode === 'full_solve') {
+      const initialGreeting: ChatMessage = {
+        id: 'm-init',
+        role: 'assistant',
+        content: `Merhaba! ${question.courseName} dersindeki "${question.topicName}" sorusunun tam ve adım adım çözümünü hazırlıyorum... 🎯`,
+        createdAt: new Date().toISOString(),
+      };
+      setMessages([initialGreeting]);
+      handleSendMessage('Lütfen bu sorunun tüm adımlarını ve nihai cevabını eksiksiz çöz.', 'full_solve');
+    } else {
+      const initialGreeting: ChatMessage = {
+        id: 'm-init',
+        role: 'assistant',
+        content: `Merhaba! ${question.courseName} dersindeki "${question.topicName}" sorusunu birlikte inceleyelim. 🎯\n\nBu soruda adım adım rehberlik almak için **"💡 İpucu Al"** butonuna, sorunun tam çözümünü ve nihai cevabını görmek için **"🎯 Soruyu Çöz"** butonuna tıklayabilirsin.`,
+        createdAt: new Date().toISOString(),
+      };
+      setMessages([initialGreeting]);
+    }
 
     // Durumu otomatik olarak 'hinted' (İpucu Alındı) yap
     if (question.status === 'unresolved') {
@@ -88,7 +101,7 @@ export function SocraticAssistantModal({
         if (onQuestionUpdated) onQuestionUpdated(found);
       }
     }
-  }, [question]);
+  }, [question, initialMode]);
 
   // Yeni mesaj geldiğinde alta kaydır
   useEffect(() => {
