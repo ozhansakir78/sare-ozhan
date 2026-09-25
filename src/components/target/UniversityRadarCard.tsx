@@ -8,6 +8,7 @@ import {
   analyzeUniversityTargetGap,
 } from '@/lib/yks-universities';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { getStoredLise1TermAverage } from '@/lib/lise1-grade-storage';
 import {
   GraduationCap,
   Target,
@@ -18,51 +19,77 @@ import {
   BookOpen,
   School,
   ArrowRight,
+  Calculator,
 } from 'lucide-react';
 
 interface UniversityRadarCardProps {
-  currentTermAverage?: number;
+  currentTermAverage?: number | null;
+  selectedTargetUni?: string;
   onTargetChange?: (target: YksUniversityTarget) => void;
 }
 
 export function UniversityRadarCard({
-  currentTermAverage = 88.5,
+  currentTermAverage: propAverage,
+  selectedTargetUni,
   onTargetChange,
 }: UniversityRadarCardProps) {
   const { profile, user, updateProfile } = useAuth();
 
+  const [termAverage, setTermAverage] = useState<number | null>(() => {
+    if (propAverage !== undefined) return propAverage;
+    return getStoredLise1TermAverage(user?.id);
+  });
+
   const [selectedTargetId, setSelectedTargetId] = useState<string>(() => {
-    if (profile?.target_university) {
+    const uniName = selectedTargetUni || profile?.target_university;
+    if (uniName) {
       const found = YKS_TOP_UNIVERSITIES.find(
         (u) =>
-          u.name.toLowerCase() === profile.target_university?.toLowerCase() ||
-          u.id === profile.target_university ||
-          profile.target_university?.toLowerCase().includes(u.name.toLowerCase())
+          u.name.toLowerCase() === uniName.toLowerCase() ||
+          u.id === uniName ||
+          uniName.toLowerCase().includes(u.name.toLowerCase())
       );
       if (found) return found.id;
     }
     return 'boun-ceng';
   });
 
-  // Profil değiştiğinde hedefi senkronize et
+  // Not güncellemelerini dinle
   useEffect(() => {
-    if (profile?.target_university) {
+    const updateAvg = () => {
+      if (propAverage !== undefined) {
+        setTermAverage(propAverage);
+      } else {
+        setTermAverage(getStoredLise1TermAverage(user?.id));
+      }
+    };
+
+    updateAvg();
+    window.addEventListener('lise1_grades_updated', updateAvg);
+    return () => window.removeEventListener('lise1_grades_updated', updateAvg);
+  }, [propAverage, user?.id]);
+
+  // Profil veya prop değiştiğinde hedefi senkronize et
+  useEffect(() => {
+    const uniName = selectedTargetUni || profile?.target_university;
+    if (uniName) {
       const found = YKS_TOP_UNIVERSITIES.find(
         (u) =>
-          u.name.toLowerCase() === profile.target_university?.toLowerCase() ||
-          u.id === profile.target_university ||
-          profile.target_university?.toLowerCase().includes(u.name.toLowerCase())
+          u.name.toLowerCase() === uniName.toLowerCase() ||
+          u.id === uniName ||
+          uniName.toLowerCase().includes(u.name.toLowerCase())
       );
       if (found && found.id !== selectedTargetId) {
         setSelectedTargetId(found.id);
       }
     }
-  }, [profile?.target_university]);
+  }, [selectedTargetUni, profile?.target_university, selectedTargetId]);
 
   const selectedTarget =
     YKS_TOP_UNIVERSITIES.find((u) => u.id === selectedTargetId) || YKS_TOP_UNIVERSITIES[0];
 
-  const gapAnalysis = analyzeUniversityTargetGap(selectedTarget.id, currentTermAverage);
+  const hasGrades = termAverage !== null && termAverage > 0;
+  const gapAnalysis = hasGrades ? analyzeUniversityTargetGap(selectedTarget.id, termAverage) : null;
 
   const handleTargetChange = (targetId: string) => {
     setSelectedTargetId(targetId);
@@ -95,7 +122,7 @@ export function UniversityRadarCard({
           </h3>
         </div>
 
-        {/* Seçici Açılır Menü (Taşmayı önleyen ve sınırlandırılmış konteyner) */}
+        {/* Seçici Açılır Menü */}
         <div className="flex items-center gap-2 w-full sm:w-auto min-w-0">
           <label htmlFor="uni-select" className="text-xs font-bold text-slate-500 dark:text-slate-400 shrink-0 whitespace-nowrap">
             Hedef Seç:
@@ -158,13 +185,15 @@ export function UniversityRadarCard({
           {/* Öğrencinin Mevcut Durumu */}
           <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-800/80 text-center">
             <span className="text-[10px] font-bold text-slate-400">Senin Dönem Notun</span>
-            <div className="text-lg font-black text-emerald-600 dark:text-emerald-400">
-              {currentTermAverage} / 100
+            <div className={`text-lg font-black ${hasGrades ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'}`}>
+              {hasGrades ? `${termAverage?.toFixed(1)} / 100` : '— / 100'}
             </div>
-            <span className="text-[10px] text-emerald-500 font-semibold">
-              {currentTermAverage >= selectedTarget.targetObp
-                ? 'Hedef Bandındasın 🎯'
-                : `${(selectedTarget.targetObp - currentTermAverage).toFixed(1)} puan fark var`}
+            <span className={`text-[10px] font-semibold ${hasGrades ? 'text-emerald-500' : 'text-slate-400'}`}>
+              {hasGrades
+                ? termAverage! >= selectedTarget.targetObp
+                  ? 'Hedef Bandındasın 🎯'
+                  : `${(selectedTarget.targetObp - termAverage!).toFixed(1)} puan fark var`
+                : 'Henüz Not Girilmedi'}
             </span>
           </div>
 
@@ -178,19 +207,27 @@ export function UniversityRadarCard({
           </div>
         </div>
 
-        {/* Durum Mesajı */}
-        {gapAnalysis && (
-          <div className="rounded-xl bg-slate-100 p-3 text-xs text-slate-700 dark:bg-slate-800/90 dark:text-slate-300 flex items-center justify-between">
+        {/* Durum / Koç Mesajı */}
+        <div className="rounded-xl bg-slate-100 p-3 text-xs text-slate-700 dark:bg-slate-800/90 dark:text-slate-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+          {hasGrades && gapAnalysis ? (
             <span>💡 <strong>Koç Tavsiyesi:</strong> {gapAnalysis.statusMessage}</span>
-            <Link
-              href="/lise1-konulari"
-              className="inline-flex items-center gap-1 font-bold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 shrink-0 ml-2"
-            >
-              <span>Konuları İncele</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
-          </div>
-        )}
+          ) : (
+            <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
+              <Calculator className="h-4 w-4 text-emerald-500 shrink-0" />
+              <span>
+                Not Hesapla modülünden 1. ve 2. yazılı notlarını kaydettiğinde, hedefindeki üniversite ile arandaki OBP puan farkı burada otomatik analiz edilecektir.
+              </span>
+            </span>
+          )}
+
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1 font-bold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 shrink-0"
+          >
+            <span>{hasGrades ? 'Konuları İncele' : 'Notlarını Hesapla'}</span>
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
       </div>
     </div>
   );

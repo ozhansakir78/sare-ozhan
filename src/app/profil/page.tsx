@@ -187,8 +187,8 @@ export default function ProfilPage() {
     const res = await updateProfile({
       display_name: displayName.trim(),
       target_high_school: targetSchool.trim() || undefined,
-      target_university: isLise1 ? (targetUniversity.trim() || targetSchool.trim()) : undefined,
-      target_department: isLise1 ? targetDepartment.trim() : undefined,
+      target_university: isLise1 ? (targetUniversity.trim() || undefined) : undefined,
+      target_department: isLise1 ? (targetDepartment.trim() || undefined) : undefined,
       target_score: targetScore,
     });
 
@@ -458,6 +458,7 @@ export default function ProfilPage() {
           {isLise1 ? (
             <div className="lg:col-span-7">
               <UniversityRadarCard
+                selectedTargetUni={targetUniversity}
                 onTargetChange={(target) => {
                   setTargetUniversity(target.name);
                   setTargetDepartment(target.department);
@@ -639,21 +640,33 @@ export default function ProfilPage() {
                 />
               </div>
 
+              {/* 9. Sınıf Öğrencisi için Mevcut Lise Göstergesi */}
+              {isLise1 && targetSchool && (
+                <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 text-xs">
+                  <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+                    <School className="h-4 w-4 text-indigo-500 shrink-0" />
+                    <span>Okuduğun Lise: <strong className="text-slate-900 dark:text-white font-bold">{targetSchool}</strong></span>
+                  </div>
+                  <span className="text-[10px] text-slate-400 font-semibold">9. Sınıf</span>
+                </div>
+              )}
+
               {/* Hedef Seçimi (LGS için Lise, 9. Sınıf için Üniversite/Bölüm) */}
               <SchoolAutocompleteInput
+                mode={isLise1 ? 'uni' : 'lise'}
                 value={
                   isLise1
                     ? targetUniversity
                       ? `${targetUniversity}${targetDepartment ? ` (${targetDepartment.split('(')[0].trim()})` : ''}`
-                      : targetSchool
+                      : ''
                     : targetSchool
                 }
                 onChange={(schoolOrUniName, minScore) => {
                   if (isLise1) {
                     const matchedUni = YKS_TOP_UNIVERSITIES.find(
                       (u) =>
-                        `${u.name} (${u.department})` === schoolOrUniName ||
-                        u.name === schoolOrUniName ||
+                        `${u.name} (${u.department})`.toLowerCase() === schoolOrUniName.toLowerCase() ||
+                        u.name.toLowerCase() === schoolOrUniName.toLowerCase() ||
                         schoolOrUniName.toLowerCase().includes(u.name.toLowerCase())
                     );
                     if (matchedUni) {

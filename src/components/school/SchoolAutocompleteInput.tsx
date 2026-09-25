@@ -13,6 +13,7 @@ interface SchoolAutocompleteInputProps {
   label?: string;
   required?: boolean;
   className?: string;
+  mode?: 'lise' | 'uni' | 'all';
 }
 
 export interface TargetSchoolMatch {
@@ -51,17 +52,26 @@ export function SchoolAutocompleteInput({
   label = 'Hedef Okul (Lise / Üniversite)',
   required = false,
   className = '',
+  mode = 'all',
 }: SchoolAutocompleteInputProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'all' | 'lise' | 'uni'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'lise' | 'uni'>(
+    mode === 'uni' ? 'uni' : mode === 'lise' ? 'lise' : 'all'
+  );
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (mode === 'uni') setActiveTab('uni');
+    else if (mode === 'lise') setActiveTab('lise');
+    else setActiveTab('all');
+  }, [mode]);
 
   // Değer değiştikçe eşleşen hem lise hem üniversiteleri filtrele
   const matches = useMemo<TargetSchoolMatch[]>(() => {
     const list: TargetSchoolMatch[] = [];
 
     // 1. Liseler (LGS)
-    if (activeTab === 'all' || activeTab === 'lise') {
+    if (mode !== 'uni' && (activeTab === 'all' || activeTab === 'lise')) {
       const highSchools = searchHighSchools(value);
       for (const s of highSchools) {
         list.push({
@@ -78,7 +88,7 @@ export function SchoolAutocompleteInput({
     }
 
     // 2. Üniversiteler (YKS)
-    if (activeTab === 'all' || activeTab === 'uni') {
+    if (mode !== 'lise' && (activeTab === 'all' || activeTab === 'uni')) {
       const unis = searchUniversities(value);
       for (const u of unis) {
         list.push({
@@ -95,7 +105,7 @@ export function SchoolAutocompleteInput({
     }
 
     return list;
-  }, [value, activeTab]);
+  }, [value, activeTab, mode]);
 
   // Dışarı tıklandığında menüyü kapat
   useEffect(() => {
@@ -104,10 +114,21 @@ export function SchoolAutocompleteInput({
         if (isOpen) {
           setIsOpen(false);
           if (value.trim()) {
-            const normalized = normalizeSchoolName(value);
-            if (normalized !== value) {
-              const matched = LGS_HIGH_SCHOOLS.find((s) => s.name === normalized);
-              onChange(normalized, matched ? Math.round(matched.minScore) : undefined);
+            if (mode === 'lise') {
+              const normalized = normalizeSchoolName(value);
+              if (normalized !== value) {
+                const matched = LGS_HIGH_SCHOOLS.find((s) => s.name === normalized);
+                onChange(normalized, matched ? Math.round(matched.minScore) : undefined);
+              }
+            } else if (mode === 'uni') {
+              const matched = YKS_TOP_UNIVERSITIES.find(
+                (u) =>
+                  `${u.name} (${u.department})`.toLowerCase() === value.toLowerCase() ||
+                  u.name.toLowerCase() === value.toLowerCase()
+              );
+              if (matched) {
+                onChange(`${matched.name} (${matched.department})`, matched.minScore);
+              }
             }
           }
         }
@@ -116,7 +137,7 @@ export function SchoolAutocompleteInput({
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isOpen, value, onChange]);
+  }, [isOpen, value, onChange, mode]);
 
   const handleSelect = (item: TargetSchoolMatch) => {
     onChange(item.fullName, item.minScore);
@@ -125,10 +146,12 @@ export function SchoolAutocompleteInput({
 
   const handleBlur = () => {
     if (value.trim()) {
-      const normalized = normalizeSchoolName(value);
-      if (normalized !== value) {
-        const matched = LGS_HIGH_SCHOOLS.find((s) => s.name === normalized);
-        onChange(normalized, matched ? Math.round(matched.minScore) : undefined);
+      if (mode === 'lise') {
+        const normalized = normalizeSchoolName(value);
+        if (normalized !== value) {
+          const matched = LGS_HIGH_SCHOOLS.find((s) => s.name === normalized);
+          onChange(normalized, matched ? Math.round(matched.minScore) : undefined);
+        }
       }
     }
   };
@@ -141,7 +164,9 @@ export function SchoolAutocompleteInput({
             {label}
           </label>
           <span className="text-[10px] text-slate-400 font-medium hidden sm:inline">
-            Yazdıkça Türkiye&apos;nin en iyi okulları önerilir
+            {mode === 'uni'
+              ? "Yazdıkça Türkiye'nin en iyi üniversite ve bölümleri önerilir"
+              : "Yazdıkça Türkiye'nin en iyi okulları önerilir"}
           </span>
         </div>
       )}
@@ -149,7 +174,11 @@ export function SchoolAutocompleteInput({
       {/* Input Kutusu */}
       <div className="relative">
         <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
-          <School className="h-4 w-4" />
+          {mode === 'uni' ? (
+            <GraduationCap className="h-4 w-4 text-emerald-500" />
+          ) : (
+            <School className="h-4 w-4 text-indigo-500" />
+          )}
         </span>
         <input
           type="text"
@@ -175,54 +204,56 @@ export function SchoolAutocompleteInput({
       {/* Açılır Öneri Listesi (Dropdown) */}
       {isOpen && matches.length > 0 && (
         <div className="absolute left-0 right-0 top-full mt-1.5 max-h-64 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl z-50 dark:border-slate-700 dark:bg-slate-900 animate-in fade-in zoom-in-95 duration-150">
-          {/* Kategori Filtresi (Tümü / Lise / Üniversite) */}
-          <div className="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-1.5 dark:border-slate-800 text-[10px]">
-            <span className="font-bold uppercase text-slate-400">Önerilen Hedefler</span>
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  setActiveTab('all');
-                }}
-                className={`px-2 py-0.5 rounded-md font-bold transition cursor-pointer ${
-                  activeTab === 'all'
-                    ? 'bg-indigo-600 text-white'
-                    : 'text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
-                }`}
-              >
-                Tümü
-              </button>
-              <button
-                type="button"
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  setActiveTab('lise');
-                }}
-                className={`px-2 py-0.5 rounded-md font-bold transition cursor-pointer ${
-                  activeTab === 'lise'
-                    ? 'bg-amber-600 text-white'
-                    : 'text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
-                }`}
-              >
-                🏫 Liseler
-              </button>
-              <button
-                type="button"
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  setActiveTab('uni');
-                }}
-                className={`px-2 py-0.5 rounded-md font-bold transition cursor-pointer ${
-                  activeTab === 'uni'
-                    ? 'bg-emerald-600 text-white'
-                    : 'text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
-                }`}
-              >
-                🎓 Üniversiteler
-              </button>
+          {/* Kategori Filtresi (Yalnızca 'all' modunda göster) */}
+          {mode === 'all' && (
+            <div className="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-1.5 dark:border-slate-800 text-[10px]">
+              <span className="font-bold uppercase text-slate-400">Önerilen Hedefler</span>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    setActiveTab('all');
+                  }}
+                  className={`px-2 py-0.5 rounded-md font-bold transition cursor-pointer ${
+                    activeTab === 'all'
+                      ? 'bg-indigo-600 text-white'
+                      : 'text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  Tümü
+                </button>
+                <button
+                  type="button"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    setActiveTab('lise');
+                  }}
+                  className={`px-2 py-0.5 rounded-md font-bold transition cursor-pointer ${
+                    activeTab === 'lise'
+                      ? 'bg-amber-600 text-white'
+                      : 'text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  🏫 Liseler
+                </button>
+                <button
+                  type="button"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    setActiveTab('uni');
+                  }}
+                  className={`px-2 py-0.5 rounded-md font-bold transition cursor-pointer ${
+                    activeTab === 'uni'
+                      ? 'bg-emerald-600 text-white'
+                      : 'text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  🎓 Üniversiteler
+                </button>
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="space-y-0.5">
             {matches.map((item) => (
@@ -270,52 +301,61 @@ export function SchoolAutocompleteInput({
 
       {/* Hızlı Seçim Kısayolları (Popular Chips) */}
       <div className="mt-2.5 space-y-1.5">
-        {/* Lise Seçenekleri */}
-        <div className="flex flex-wrap items-center gap-1">
-          <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1 mr-1">
-            🏫 Lise:
-          </span>
-          {POPULAR_HIGH_SCHOOLS.map((schoolName) => (
-            <button
-              key={schoolName}
-              type="button"
-              onClick={() => {
-                const matched = LGS_HIGH_SCHOOLS.find((s) => s.name === schoolName);
-                onChange(schoolName, matched ? Math.round(matched.minScore) : undefined);
-              }}
-              className={`rounded-lg border px-2 py-0.5 text-[10px] font-semibold transition cursor-pointer ${
-                value === schoolName
-                  ? 'border-amber-500 bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-200'
-                  : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-800/80 dark:text-slate-400'
-              }`}
-            >
-              {schoolName.split(' ')[0]}
-            </button>
-          ))}
-        </div>
+        {/* Lise Seçenekleri (Sadece 'lise' veya 'all' modunda görünür) */}
+        {mode !== 'uni' && (
+          <div className="flex flex-wrap items-center gap-1">
+            <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1 mr-1">
+              🏫 Lise:
+            </span>
+            {POPULAR_HIGH_SCHOOLS.map((schoolName) => (
+              <button
+                key={schoolName}
+                type="button"
+                onClick={() => {
+                  const matched = LGS_HIGH_SCHOOLS.find((s) => s.name === schoolName);
+                  onChange(schoolName, matched ? Math.round(matched.minScore) : undefined);
+                }}
+                className={`rounded-lg border px-2 py-0.5 text-[10px] font-semibold transition cursor-pointer ${
+                  value === schoolName
+                    ? 'border-amber-500 bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-200'
+                    : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-800/80 dark:text-slate-400'
+                }`}
+              >
+                {schoolName.split(' ')[0]}
+              </button>
+            ))}
+          </div>
+        )}
 
-        {/* Üniversite Seçenekleri */}
-        <div className="flex flex-wrap items-center gap-1">
-          <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 mr-1">
-            🎓 Üniversite:
-          </span>
-          {POPULAR_UNIVERSITIES.map((uniName) => (
-            <button
-              key={uniName}
-              type="button"
-              onClick={() => {
-                onChange(uniName);
-              }}
-              className={`rounded-lg border px-2 py-0.5 text-[10px] font-semibold transition cursor-pointer ${
-                value === uniName
-                  ? 'border-emerald-500 bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200'
-                  : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-800/80 dark:text-slate-400'
-              }`}
-            >
-              {uniName.split(' ')[0]}
-            </button>
-          ))}
-        </div>
+        {/* Üniversite Seçenekleri (Sadece 'uni' veya 'all' modunda görünür) */}
+        {mode !== 'lise' && (
+          <div className="flex flex-wrap items-center gap-1">
+            <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 mr-1">
+              🎓 Üniversite:
+            </span>
+            {POPULAR_UNIVERSITIES.map((uniName) => {
+              const shortName = uniName.split('(')[0].trim().split(' ')[0];
+              const isSelected = value.toLowerCase().includes(shortName.toLowerCase());
+              return (
+                <button
+                  key={uniName}
+                  type="button"
+                  onClick={() => {
+                    const matched = YKS_TOP_UNIVERSITIES.find((u) => `${u.name} (${u.department})` === uniName);
+                    onChange(uniName, matched ? matched.minScore : undefined);
+                  }}
+                  className={`rounded-lg border px-2 py-0.5 text-[10px] font-semibold transition cursor-pointer ${
+                    isSelected
+                      ? 'border-emerald-500 bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200 shadow-2xs font-bold'
+                      : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-800/80 dark:text-slate-400'
+                  }`}
+                >
+                  {shortName}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
