@@ -38,11 +38,13 @@ import {
   BrainCircuit,
   Compass,
   GraduationCap,
+  RefreshCw,
 } from 'lucide-react';
+import { syncLocalDataToCloud, pullCloudDataToLocal } from '@/lib/cloud-sync';
 
 export default function ProfilPage() {
   const router = useRouter();
-  const { profile, user, updateProfile, signOut, isPro } = useAuth();
+  const { profile, user, updateProfile, refreshProfile, signOut, isPro } = useAuth();
   const { isLise1 } = useGradeTier();
 
   const [mounted, setMounted] = useState(false);
@@ -50,6 +52,10 @@ export default function ProfilPage() {
   const [wrongQuestionsCount, setWrongQuestionsCount] = useState(0);
   const [streak, setStreak] = useState<StreakData>(DEFAULT_STREAK);
   const [userRank, setUserRank] = useState<number | null>(null);
+
+  // Senkronizasyon durumu
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncFeedback, setSyncFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   // Form State
   const [displayName, setDisplayName] = useState('');
@@ -61,44 +67,89 @@ export default function ProfilPage() {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
+  const updateStats = () => {
+    // Denemeleri yükle
+    const storedExams = getStoredExams();
+    setExams(storedExams);
+
+    // Yanlış defteri sayısını al
+    const questions = getStoredQuestions();
+    setWrongQuestionsCount(questions.length);
+
+    // Seri bilgisini al
+    setStreak(getStreakData());
+
+    // Sıralamayı hesapla
+    const leaderboard = getLeaderboardEntries('all-time');
+    if (storedExams.length > 0) {
+      const best = Math.max(...storedExams.map((e) => e.totalScore));
+      const higherCount = leaderboard.filter((e) => e.score > best).length;
+      setUserRank(higherCount + 1);
+    } else {
+      const myIdx = leaderboard.findIndex((e) => e.isCurrentUser);
+      if (myIdx !== -1) {
+        setUserRank(myIdx + 1);
+      }
+    }
+  };
+
   useEffect(() => {
     setMounted(true);
 
-    const updateStats = () => {
-      // Denemeleri yükle
-      const storedExams = getStoredExams();
-      setExams(storedExams);
-
-      // Yanlış defteri sayısını al
-      const questions = getStoredQuestions();
-      setWrongQuestionsCount(questions.length);
-
-      // Seri bilgisini al
-      setStreak(getStreakData());
-
-      // Sıralamayı hesapla
-      const leaderboard = getLeaderboardEntries('all-time');
-      if (storedExams.length > 0) {
-        const best = Math.max(...storedExams.map((e) => e.totalScore));
-        const higherCount = leaderboard.filter((e) => e.score > best).length;
-        setUserRank(higherCount + 1);
-      } else {
-        const myIdx = leaderboard.findIndex((e) => e.isCurrentUser);
-        if (myIdx !== -1) {
-          setUserRank(myIdx + 1);
+    const runAutoSync = async () => {
+      updateStats();
+      if (user?.id) {
+        try {
+          await refreshProfile();
+          await syncLocalDataToCloud(user.id);
+          await pullCloudDataToLocal(user.id);
+          updateStats();
+        } catch (e) {
+          console.warn('Profil oto senkronizasyon:', e);
         }
       }
     };
 
-    updateStats();
+    runAutoSync();
+
+    const handleFocus = () => {
+      runAutoSync();
+    };
 
     window.addEventListener('cloud_synced', updateStats);
-    window.addEventListener('focus', updateStats);
+    window.addEventListener('focus', handleFocus);
     return () => {
       window.removeEventListener('cloud_synced', updateStats);
-      window.removeEventListener('focus', updateStats);
+      window.removeEventListener('focus', handleFocus);
     };
-  }, []);
+  }, [user?.id]);
+
+  const handleManualSync = async () => {
+    if (!user?.id) return;
+    setIsSyncing(true);
+    setSyncFeedback(null);
+    try {
+      const res = await syncLocalDataToCloud(user.id);
+      await pullCloudDataToLocal(user.id);
+      await refreshProfile();
+      const updatedQ = getStoredQuestions();
+      const updatedE = getStoredExams();
+      setWrongQuestionsCount(updatedQ.length);
+      setExams(updatedE);
+      setSyncFeedback({
+        type: 'success',
+        text: `Eşitleme Tamamlandı! Bulutta ${updatedQ.length} yanlış soru ve ${updatedE.length} deneme hazır.`,
+      });
+      setTimeout(() => setSyncFeedback(null), 5000);
+    } catch {
+      setSyncFeedback({
+        type: 'error',
+        text: 'Eşitleme sırasında bir hata oluştu.',
+      });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   // Profil verilerini form state'ine senkronize et
   useEffect(() => {
@@ -239,7 +290,7 @@ export default function ProfilPage() {
                       <GraduationCap className="h-4 w-4 shrink-0 text-emerald-400" />{' '}
                       {targetUniversity
                         ? `${targetUniversity}${targetDepartment ? ` · ${targetDepartment.split('(')[0].trim()}` : ''}`
-                        : targetSchool || 'Hedef Üniversite Belirlenmedi'}
+                        : 'Hedef Üniversite Belirlenmedi'}
                     </span>
                   ) : (
                     <span className="text-amber-300 font-semibold flex items-center gap-1">
@@ -272,23 +323,48 @@ export default function ProfilPage() {
             </div>
 
             {/* Sağ: Aksiyon Butonları */}
-            <div className="flex flex-wrap items-center gap-2.5">
-              <Link
-                href="/deneme-coz"
-                className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 px-3.5 py-2 text-xs font-bold text-white shadow-md transition cursor-pointer"
-              >
-                <span>Hemen Deneme Çöz</span>
-                <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
+            <div className="flex flex-col items-start sm:items-end gap-2">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <button
+                  type="button"
+                  onClick={handleManualSync}
+                  disabled={isSyncing}
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-400/40 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 hover:text-white px-3.5 py-2 text-xs font-bold transition cursor-pointer shadow-sm disabled:opacity-50"
+                  title="Mobil ve PC arasındaki soru ve denemeleri bulutla eşitler"
+                >
+                  <RefreshCw className={`h-3.5 w-3.5 ${isSyncing ? 'animate-spin text-emerald-300' : ''}`} />
+                  <span>{isSyncing ? 'Eşitleniyor...' : 'Bulutla Eşitle'}</span>
+                </button>
 
-              <button
-                type="button"
-                onClick={handleSignOut}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 px-3.5 py-2 text-xs font-semibold text-slate-200 hover:text-white transition cursor-pointer"
-              >
-                <LogOut className="h-3.5 w-3.5" />
-                <span>Çıkış</span>
-              </button>
+                <Link
+                  href="/deneme-coz"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 px-3.5 py-2 text-xs font-bold text-white shadow-md transition cursor-pointer"
+                >
+                  <span>Hemen Deneme Çöz</span>
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 px-3.5 py-2 text-xs font-semibold text-slate-200 hover:text-white transition cursor-pointer"
+                >
+                  <LogOut className="h-3.5 w-3.5" />
+                  <span>Çıkış</span>
+                </button>
+              </div>
+
+              {syncFeedback && (
+                <div
+                  className={`text-[11px] font-bold px-3 py-1 rounded-lg border animate-in fade-in ${
+                    syncFeedback.type === 'success'
+                      ? 'bg-emerald-950/80 border-emerald-500/40 text-emerald-300'
+                      : 'bg-rose-950/80 border-rose-500/40 text-rose-300'
+                  }`}
+                >
+                  {syncFeedback.text}
+                </div>
+              )}
             </div>
           </div>
         </div>

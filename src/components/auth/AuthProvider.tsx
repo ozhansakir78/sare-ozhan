@@ -470,6 +470,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
           } catch {}
         }
+
+        // Yereldeki mevcut soru ve denemeleri anında buluta aktar
+        try {
+          await syncLocalDataToCloud(data.user.id);
+          await pullCloudDataToLocal(data.user.id);
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new Event('cloud_synced'));
+          }
+        } catch (syncErr) {
+          console.warn('Kayıt sonrası senkronizasyon:', syncErr);
+        }
       }
       return {};
     } catch (err: unknown) {

@@ -5,6 +5,8 @@ import type { WrongQuestionItem, QuestionStatus } from '@/types/question';
 import type { LgsCourseKey } from '@/types/exam';
 import { QuestionCard } from '@/components/question/QuestionCard';
 import { LGS_COURSE_OPTIONS } from '@/lib/lgs-topics';
+import { LISE1_COURSE_OPTIONS } from '@/lib/lise1-topics';
+import { useGradeTier } from '@/lib/grade-tier';
 import {
   Search,
   Filter,
@@ -31,7 +33,10 @@ export function QuestionList({
   onOpenAiAssistant,
   onOpenUploader,
 }: QuestionListProps) {
-  const [selectedCourse, setSelectedCourse] = useState<LgsCourseKey | 'all'>('all');
+  const { isLise1 } = useGradeTier();
+  const courseOptions = isLise1 ? LISE1_COURSE_OPTIONS : LGS_COURSE_OPTIONS;
+
+  const [selectedCourse, setSelectedCourse] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<QuestionStatus | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
@@ -139,7 +144,7 @@ export function QuestionList({
           >
             Tüm Dersler
           </button>
-          {LGS_COURSE_OPTIONS.map((c) => (
+          {courseOptions.map((c) => (
             <button
               key={c.key}
               type="button"

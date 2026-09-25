@@ -34,13 +34,9 @@ export async function syncLocalDataToCloud(userId: string): Promise<SyncResult> 
   const SAMPLE_TOPICS = ['Çarpanlar ve Katlar (EBOB - EKOK)', 'Mevsimler ve İklim', 'Fiilimsiler (Eylemsiler)', 'Üslü İfadeler'];
 
   try {
-    // Varsa kullanıcının veritabanındaki eski mock deneme ve soruları kalıcı temizle
-    await supabase.from('student_exams').delete().eq('user_id', userId).in('exam_title', SAMPLE_TITLES);
-    await supabase.from('wrong_questions').delete().eq('user_id', userId).in('topic_name', SAMPLE_TOPICS);
-
     // 1. Yerel denemeleri al ve buluta aktar
     const localExams = getStoredExams().filter(
-      (e) => !e.id?.startsWith('sample-') && !SAMPLE_TITLES.includes(e.examTitle)
+      (e) => !e.id?.startsWith('sample-')
     );
     if (localExams.length > 0) {
       const { data: cloudExams } = await supabase
@@ -70,15 +66,19 @@ export async function syncLocalDataToCloud(userId: string): Promise<SyncResult> 
 
           if (!error) {
             examsSynced++;
+          } else {
+            console.error('Deneme bulut yükleme hatası:', error);
           }
         }
       }
     }
 
     // 2. Yerel yanlış soruları al ve buluta aktar
-    const localQuestions = getStoredQuestions();
+    const localQuestions = getStoredQuestions().filter(
+      (q) => !q.id?.startsWith('sample-')
+    );
     if (localQuestions.length > 0) {
-      // Buluttaki mevcut soruları tek bir hafif sorguyla çek (image_url query string'e ASLA sokulmaz)
+      // Buluttaki mevcut soruları tek bir hafif sorguyla çek
       const { data: cloudQuestions } = await supabase
         .from('wrong_questions')
         .select('id, course_key, topic_name, student_note, created_at')
@@ -87,29 +87,33 @@ export async function syncLocalDataToCloud(userId: string): Promise<SyncResult> 
       const existingCloudItems = cloudQuestions || [];
 
       for (const q of localQuestions) {
-        // Zaten bulutta var mı kontrol et (id veya konu/ders ve yakın zaman eşleşmesi)
+        // Zaten bulutta var mı kontrol et
         const alreadyInCloud = existingCloudItems.some(
           (cq) =>
             cq.id === q.id ||
             (cq.topic_name === q.topicName &&
               cq.course_key === q.courseKey &&
-              Math.abs(new Date(cq.created_at).getTime() - new Date(q.createdAt).getTime()) < 300000)
+              cq.student_note === (q.studentNote || null) &&
+              Boolean(q.studentNote)) ||
+            (cq.topic_name === q.topicName &&
+              cq.course_key === q.courseKey &&
+              Math.abs(new Date(cq.created_at).getTime() - new Date(q.createdAt).getTime()) < 15000)
         );
 
         if (!alreadyInCloud) {
           let finalUrl = q.imageUrl || '';
 
-          // Eğer görsel base64 ise Supabase Storage'a yüklemeyi dene
+          // Eğer görsel base64 ise ve Storage mevcutsa Supabase Storage'a yüklemeyi dene
           if (finalUrl.startsWith('data:')) {
             try {
               const res = await fetch(finalUrl);
               const blob = await res.blob();
               const filePath = `${userId}/${Date.now()}_${Math.random().toString(36).substring(2, 7)}.webp`;
-              const { error: upErr } = await supabase.storage
+              const { data: upData, error: upErr } = await supabase.storage
                 .from('question-images')
                 .upload(filePath, blob, { contentType: 'image/webp', upsert: true });
 
-              if (!upErr) {
+              if (!upErr && upData) {
                 const { data: pubData } = supabase.storage.from('question-images').getPublicUrl(filePath);
                 if (pubData?.publicUrl) {
                   finalUrl = pubData.publicUrl;
@@ -117,7 +121,7 @@ export async function syncLocalDataToCloud(userId: string): Promise<SyncResult> 
                 }
               }
             } catch (err) {
-              console.warn('Storage upload fallback:', err);
+              console.warn('Storage upload fallback (base64 saklanıyor):', err);
             }
           }
 
@@ -125,10 +129,10 @@ export async function syncLocalDataToCloud(userId: string): Promise<SyncResult> 
             .from('wrong_questions')
             .insert({
               user_id: userId,
-              course_key: q.courseKey,
-              course_name: q.courseName,
-              topic_name: q.topicName,
-              image_url: finalUrl,
+              course_key: q.courseKey || 'genel',
+              course_name: q.courseName || 'Genel',
+              topic_name: q.topicName || 'Genel Konu',
+              image_url: finalUrl || 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800',
               student_note: q.studentNote || null,
               ai_hint_history: q.aiHintHistory || [],
               is_resolved: q.isResolved || false,
@@ -136,7 +140,9 @@ export async function syncLocalDataToCloud(userId: string): Promise<SyncResult> 
             .select('id')
             .maybeSingle();
 
-          if (!insertError) {
+          if (insertError) {
+            console.error('Supabase wrong_questions yükleme hatası:', insertError);
+          } else {
             if (inserted?.id) {
               q.id = inserted.id;
             }
@@ -177,22 +183,17 @@ export async function pullCloudDataToLocal(userId: string): Promise<void> {
   if (!isSupabaseConfigured || !userId) return;
 
   try {
-    const SAMPLE_TITLES = ['Özdebir Türkiye Geneli LGS-1', 'TÖDER LGS Genel Deneme Sınavı', 'Okul Sonu Değerlendirme Denemesi'];
-    const SAMPLE_TOPICS = ['Çarpanlar ve Katlar (EBOB - EKOK)', 'Mevsimler ve İklim', 'Fiilimsiler (Eylemsiler)', 'Üslü İfadeler'];
-
     // 1. Buluttaki denemeleri çek
     const { data: cloudExams } = await supabase
       .from('student_exams')
       .select('*')
       .eq('user_id', userId)
-      .not('exam_title', 'in', `(${SAMPLE_TITLES.map((t) => `"${t}"`).join(',')})`)
       .order('exam_date', { ascending: false });
 
     if (cloudExams && cloudExams.length > 0) {
       const localExams = getStoredExams();
       let hasNewExams = false;
       for (const ce of cloudExams) {
-        if (SAMPLE_TITLES.includes(ce.exam_title)) continue;
         const exists = localExams.some(
           (le) => le.examTitle === ce.exam_title && le.examDate === ce.exam_date
         );
@@ -221,7 +222,7 @@ export async function pullCloudDataToLocal(userId: string): Promise<void> {
       }
     }
 
-    // 2. Buluttaki yanlış soruları çek
+    // 2. Buluttaki yanlış soruları çek (Gerçek öğrenci soruları ASLA filtreyle atılamaz)
     const { data: cloudQuestions } = await supabase
       .from('wrong_questions')
       .select('*')
@@ -232,13 +233,16 @@ export async function pullCloudDataToLocal(userId: string): Promise<void> {
       const localQuestions = getStoredQuestions();
       let hasNewQuestions = false;
       for (const cq of cloudQuestions) {
-        if (SAMPLE_TOPICS.includes((cq as any).topic_name)) continue;
         const exists = localQuestions.some(
           (lq) =>
             lq.id === cq.id ||
             (lq.topicName === (cq as any).topic_name &&
               lq.courseKey === (cq as any).course_key &&
-              Math.abs(new Date(lq.createdAt).getTime() - new Date(cq.created_at).getTime()) < 300000)
+              lq.studentNote === ((cq as any).student_note || undefined) &&
+              Boolean(lq.studentNote)) ||
+            (lq.topicName === (cq as any).topic_name &&
+              lq.courseKey === (cq as any).course_key &&
+              Math.abs(new Date(lq.createdAt).getTime() - new Date(cq.created_at).getTime()) < 15000)
         );
         if (!exists) {
           localQuestions.unshift({
