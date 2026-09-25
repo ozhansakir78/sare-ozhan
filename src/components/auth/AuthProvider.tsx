@@ -337,6 +337,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return {};
     }
 
+    const normalizedEmail = email.trim().toLowerCase();
+
+    // 1. Mükerrer Kayıt Kontrolü (Veritabanında bu mail var mı?)
+    if (isSupabaseConfigured) {
+      try {
+        const { data: existingProfile } = await supabase
+          .from('user_profiles')
+          .select('id, email')
+          .eq('email', normalizedEmail)
+          .maybeSingle();
+
+        if (existingProfile) {
+          return {
+            error:
+              'Bu e-posta adresi zaten kayıtlıdır. Lütfen Giriş Yap sayfasından oturum açınız veya şifrenizi sıfırlayınız.',
+          };
+        }
+      } catch (err) {
+        console.warn('Mükerrer e-posta kontrolü:', err);
+      }
+    }
+
     try {
       const origin =
         typeof window !== 'undefined'
@@ -344,7 +366,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           : 'https://sare-ozhan.vercel.app';
 
       const { data, error } = await supabase.auth.signUp({
-        email: email.trim(),
+        email: normalizedEmail,
         password,
         options: {
           emailRedirectTo: `${origin}/auth/callback?next=/profil`,
@@ -355,21 +377,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         },
       });
 
-      if (error) {
-        if (error.message?.toLowerCase().includes('failed to fetch')) {
-          throw error;
-        }
-        const lower = error.message?.toLowerCase() || '';
-        if (lower.includes('rate limit') || lower.includes('security purposes')) {
-          return {
-            error:
-              'Supabase e-posta kotası aşıldı (Email rate limit exceeded). Supabase ücretsiz dahili e-posta servisi saatte sadece 3-4 e-posta gönderebilmektedir. Lütfen Supabase panelinden "Confirm email" seçeneğini kapatın veya SMTP bağlayın.',
-          };
-        }
-        return { error: error.message };
-      }
-
-      // Supabase'de e-posta onay zorunluluğu varken aynı maille tekrar kayıt olunursa identities boş dizi döner
+      // 2. Supabase Kimlik Denetimi ile Mükerrer Kontrolü (identities boş dizi dönerse)
       if (
         data?.user &&
         Array.isArray(data.user.identities) &&
@@ -377,8 +385,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       ) {
         return {
           error:
-            'Bu e-posta adresi zaten kayıtlıdır. Lütfen Giriş Yapın veya şifrenizi unuttuysanız şifre sıfırlama talebinde bulunun.',
+            'Bu e-posta adresi zaten kayıtlıdır. Lütfen Giriş Yap sayfasından oturum açınız veya şifrenizi sıfırlayınız.',
         };
+      }
+
+      if (error) {
+        if (error.message?.toLowerCase().includes('failed to fetch')) {
+          throw error;
+        }
+        const lower = error.message?.toLowerCase() || '';
+        if (lower.includes('already registered') || lower.includes('already exists') || lower.includes('unique constraint')) {
+          return {
+            error:
+              'Bu e-posta adresi zaten kayıtlıdır. Lütfen Giriş Yap sayfasından oturum açınız.',
+          };
+        }
+        if (lower.includes('rate limit') || lower.includes('security purposes')) {
+          return {
+            error:
+              'E-posta gönderim kotası aşıldı. Lütfen Supabase Dashboard > Authentication > Providers > Email altından "Confirm email" seçeneğini KAPATIN, böylece e-posta limitine takılmadan anında kayıt olunur.',
+          };
+        }
+        return { error: error.message };
       }
 
       if (data.user) {
@@ -386,8 +414,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Profili kaydet
         const initialProfile: UserProfileInsert = {
           id: data.user.id,
-          email,
-          display_name: displayName || email.split('@')[0],
+          email: normalizedEmail,
+          display_name: displayName || normalizedEmail.split('@')[0],
           grade_level: gradeLevel,
           target_city: targetCity,
           target_district: targetDistrict,
@@ -430,10 +458,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setProfile(fullProfile);
         saveLocalProfile(fullProfile);
 
+        // Oturumu hemen otomatik aç
         if (!data.session) {
-          return {
-            confirmationRequired: true,
-          };
+          try {
+            const { data: signData } = await supabase.auth.signInWithPassword({
+              email: normalizedEmail,
+              password,
+            });
+            if (signData?.user) {
+              setUser(signData.user);
+            }
+          } catch {}
         }
       }
       return {};
