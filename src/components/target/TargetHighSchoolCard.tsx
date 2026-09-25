@@ -10,6 +10,8 @@ import {
   analyzeTargetGap,
 } from '@/lib/lgs-high-schools';
 import { getStoredExams } from '@/lib/exam-storage';
+import { useAuth } from '@/components/auth/AuthProvider';
+import { pullCloudDataToLocal } from '@/lib/cloud-sync';
 import {
   School,
   Target,
@@ -24,6 +26,7 @@ import {
 } from 'lucide-react';
 
 export function TargetHighSchoolCard() {
+  const { user, profile, updateProfile } = useAuth();
   const [selectedSchool, setSelectedSchool] = useState<LgsHighSchool | null>(() => getSelectedTargetSchool());
   const [currentScore, setCurrentScore] = useState<number>(0);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -36,20 +39,63 @@ export function TargetHighSchoolCard() {
   // Şehir listesi
   const cities = ['Tümü', ...Array.from(new Set(allSchools.map((s) => s.city)))];
 
-  // Öğrencinin son deneme skorunu al
+  // Profildeki hedef liseyi öncelikli al
   useEffect(() => {
-    const exams = getStoredExams();
-    if (exams && exams.length > 0) {
-      const latest = exams[0];
-      setCurrentScore(latest.totalScore);
+    if (profile?.target_high_school) {
+      const found = allSchools.find(
+        (s) =>
+          s.name.toLowerCase() === profile.target_high_school?.toLowerCase() ||
+          s.id === profile.target_high_school
+      );
+      if (found) {
+        setSelectedSchool(found);
+        setSelectedTargetSchool(found.id);
+      }
     }
-  }, []);
+  }, [profile?.target_high_school]);
+
+  // Öğrencinin son deneme skorunu al ve buluttan eşitle
+  useEffect(() => {
+    const updateExams = () => {
+      const exams = getStoredExams();
+      if (exams && exams.length > 0) {
+        setCurrentScore(exams[0].totalScore);
+      }
+    };
+    updateExams();
+
+    if (user?.id) {
+      pullCloudDataToLocal(user.id).then(() => {
+        updateExams();
+      });
+    }
+
+    const handleFocus = () => {
+      if (user?.id) {
+        pullCloudDataToLocal(user.id).then(() => {
+          updateExams();
+        });
+      }
+    };
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleFocus);
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleFocus);
+    };
+  }, [user?.id]);
 
   // Hedef değiştiğinde güncelle
   const handleSelectSchool = (school: LgsHighSchool) => {
     setSelectedSchool(school);
     setSelectedTargetSchool(school.id);
     setIsModalOpen(false);
+    if (user?.id) {
+      updateProfile({
+        target_high_school: school.name,
+        target_score: school.minScore,
+      });
+    }
   };
 
   const analysis = selectedSchool ? analyzeTargetGap(selectedSchool, currentScore) : null;

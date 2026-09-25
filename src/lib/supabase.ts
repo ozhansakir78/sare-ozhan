@@ -1,20 +1,18 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/database';
 
-const rawSupabaseUrl =
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder-project.supabase.co';
+const DEFAULT_SUPABASE_URL = 'https://llvwrzdjcpvnzoqfxjeg.supabase.co';
+const DEFAULT_SUPABASE_ANON_KEY = 'sb_publishable_zFul6a9an8RBGbIOhqpENg_yXLF-2sM';
+
+const rawSupabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || DEFAULT_SUPABASE_URL;
 const supabaseUrl = rawSupabaseUrl.replace(/\/rest\/v1\/?$/, '').replace(/\/+$/, '');
-const supabaseAnonKey =
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || DEFAULT_SUPABASE_ANON_KEY;
 
 export const isSupabaseConfigured = Boolean(
-  process.env.NEXT_PUBLIC_SUPABASE_URL &&
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY &&
-    !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder') &&
-    !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('your-project') &&
-    !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('example.com') &&
-    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.includes('your-anon-key') &&
-    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.includes('placeholder')
+  supabaseUrl &&
+    supabaseAnonKey &&
+    !supabaseUrl.includes('placeholder') &&
+    !supabaseAnonKey.includes('placeholder')
 );
 
 if (!isSupabaseConfigured && process.env.NODE_ENV === 'development') {

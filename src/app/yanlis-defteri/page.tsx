@@ -14,6 +14,8 @@ import { QuestionList } from '@/components/question/QuestionList';
 import { SocraticAssistantModal } from '@/components/question/SocraticAssistantModal';
 import { ErrorDiagnosisBanner } from '@/components/question/ErrorDiagnosisBanner';
 import { AuthGuard } from '@/components/auth/AuthGuard';
+import { useAuth } from '@/components/auth/AuthProvider';
+import { pullCloudDataToLocal, syncLocalDataToCloud } from '@/lib/cloud-sync';
 import {
   Plus,
   Camera,
@@ -21,18 +23,52 @@ import {
   CheckCircle2,
   HelpCircle,
   FolderOpen,
+  RefreshCw,
 } from 'lucide-react';
 
 export default function YanlisDefteriPage() {
+  const { user } = useAuth();
   const [questions, setQuestions] = useState<WrongQuestionItem[]>([]);
   const [isUploaderOpen, setIsUploaderOpen] = useState<boolean>(false);
   const [activeModalQuestion, setActiveModalQuestion] = useState<WrongQuestionItem | null>(null);
+  const [isSyncing, setIsSyncing] = useState<boolean>(false);
+
+  const refreshFromCloud = async () => {
+    if (!user?.id) return;
+    setIsSyncing(true);
+    try {
+      await syncLocalDataToCloud(user.id);
+      await pullCloudDataToLocal(user.id);
+      setQuestions(getStoredQuestions());
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   useEffect(() => {
-    // İstemci tarafında yerel soruları yükle
+    // 1. Önce hızlı render için yerel soruları yükle
     const stored = getStoredQuestions();
     setQuestions(stored);
-  }, []);
+
+    // 2. Kullanıcı oturum açmışsa buluttan çek
+    if (user?.id) {
+      refreshFromCloud();
+    }
+
+    // 3. Pencereye/sekmeye odaklanıldığında (örn: mobilden soru ekleyip PC'ye dönüldüğünde) anında eşitle
+    const handleFocus = () => {
+      if (user?.id) {
+        refreshFromCloud();
+      }
+    };
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleFocus);
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleFocus);
+    };
+  }, [user?.id]);
 
   const stats = calculateQuestionStats(questions);
 
@@ -78,23 +114,36 @@ export default function YanlisDefteriPage() {
               </p>
             </div>
 
-            <button
-              type="button"
-              onClick={() => setIsUploaderOpen((prev) => !prev)}
-              className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-2.5 text-xs font-bold text-white shadow-md shadow-indigo-500/20 transition hover:from-indigo-700 hover:to-violet-700 cursor-pointer self-start sm:self-auto active:scale-95"
-            >
-              {isUploaderOpen ? (
-                <>
-                  <Plus className="h-4 w-4 rotate-45 transition-transform" />
-                  <span>Yüklemeyi Kapat</span>
-                </>
-              ) : (
-                <>
-                  <Camera className="h-4 w-4" />
-                  <span>Fotoğraf Çek / Soru Ekle</span>
-                </>
-              )}
-            </button>
+            <div className="flex items-center gap-2 self-start sm:self-auto">
+              <button
+                type="button"
+                onClick={refreshFromCloud}
+                disabled={isSyncing}
+                title="Bulutla Eşitle (Telefon ve PC senkronizasyonu)"
+                className="inline-flex items-center gap-1.5 rounded-2xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-700 shadow-2xs hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-200 transition cursor-pointer"
+              >
+                <RefreshCw className={`h-3.5 w-3.5 text-indigo-600 ${isSyncing ? 'animate-spin' : ''}`} />
+                <span className="hidden sm:inline">{isSyncing ? 'Eşitleniyor...' : 'Bulutla Eşitle'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsUploaderOpen((prev) => !prev)}
+                className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-2.5 text-xs font-bold text-white shadow-md shadow-indigo-500/20 transition hover:from-indigo-700 hover:to-violet-700 cursor-pointer active:scale-95"
+              >
+                {isUploaderOpen ? (
+                  <>
+                    <Plus className="h-4 w-4 rotate-45 transition-transform" />
+                    <span>Yüklemeyi Kapat</span>
+                  </>
+                ) : (
+                  <>
+                    <Camera className="h-4 w-4" />
+                    <span>Fotoğraf Çek / Soru Ekle</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
 
           {/* 4 Mini İstatistik Kutusu */}

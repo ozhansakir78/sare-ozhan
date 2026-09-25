@@ -75,11 +75,12 @@ export async function syncLocalDataToCloud(userId: string): Promise<SyncResult> 
     // 2. Yerel yanlış soruları al ve buluta aktar
     const localQuestions = getStoredQuestions();
     for (const q of localQuestions) {
+      if (!q.imageUrl || q.imageUrl.trim() === '') continue;
       const { data: existing } = await supabase
         .from('wrong_questions')
         .select('id')
         .eq('user_id', userId)
-        .eq('topic_name', q.topicName)
+        .eq('image_url', q.imageUrl)
         .maybeSingle();
 
       if (!existing) {
@@ -137,6 +138,7 @@ export async function pullCloudDataToLocal(userId: string): Promise<void> {
 
     if (cloudExams && cloudExams.length > 0) {
       const localExams = getStoredExams();
+      let hasNewExams = false;
       for (const ce of cloudExams) {
         if (SAMPLE_TITLES.includes(ce.exam_title)) continue;
         const exists = localExams.some(
@@ -159,6 +161,7 @@ export async function pullCloudDataToLocal(userId: string): Promise<void> {
             },
             userId
           );
+          hasNewExams = true;
         }
       }
     }
@@ -172,11 +175,15 @@ export async function pullCloudDataToLocal(userId: string): Promise<void> {
 
     if (cloudQuestions && cloudQuestions.length > 0) {
       const localQuestions = getStoredQuestions();
+      let hasNewQuestions = false;
       for (const cq of cloudQuestions) {
         if (SAMPLE_TOPICS.includes((cq as any).topic_name)) continue;
-        const exists = localQuestions.some((lq) => lq.topicName === (cq as any).topic_name);
+        const exists = localQuestions.some(
+          (lq) => lq.id === cq.id || (lq.imageUrl && lq.imageUrl === cq.image_url)
+        );
         if (!exists) {
-          saveQuestionToStorage({
+          localQuestions.unshift({
+            id: cq.id,
             courseKey: (cq as any).course_key || 'matematik',
             courseName: (cq as any).course_name || 'Matematik',
             topicName: (cq as any).topic_name || 'Genel Konu',
@@ -185,8 +192,13 @@ export async function pullCloudDataToLocal(userId: string): Promise<void> {
             status: cq.is_resolved ? 'resolved' : 'unresolved',
             isResolved: cq.is_resolved,
             aiHintHistory: Array.isArray(cq.ai_hint_history) ? (cq.ai_hint_history as any) : [],
+            createdAt: cq.created_at,
           });
+          hasNewQuestions = true;
         }
+      }
+      if (hasNewQuestions && typeof window !== 'undefined') {
+        localStorage.setItem('lgs_wrong_questions_v1', JSON.stringify(localQuestions));
       }
     }
   } catch (error) {
