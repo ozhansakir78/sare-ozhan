@@ -34,6 +34,34 @@ export default function GirisPage() {
   const [forgotLoading, setForgotLoading] = useState(false);
   const [forgotMessage, setForgotMessage] = useState<{ text: string; isError: boolean } | null>(null);
 
+  // E-posta Onay Tekrar Gönderme
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState(false);
+
+  const handleResendConfirmation = async () => {
+    if (!email) {
+      setError('Lütfen önce yukarıdaki alana e-posta adresinizi giriniz.');
+      return;
+    }
+    setResendLoading(true);
+    setResendSuccess(false);
+    try {
+      const { error: resendErr } = await (await import('@/lib/supabase')).supabase.auth.resend({
+        type: 'signup',
+        email: email.trim(),
+      });
+      if (resendErr) {
+        setError(`Onay e-postası gönderilemedi: ${resendErr.message}`);
+      } else {
+        setResendSuccess(true);
+      }
+    } catch {
+      setError('Onay e-postası gönderilemedi.');
+    } finally {
+      setResendLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -103,9 +131,30 @@ export default function GirisPage() {
         </div>
 
         {error && (
-          <div className="mt-5 flex items-center gap-2 rounded-2xl border border-rose-200 bg-rose-50/80 p-3.5 text-xs font-medium text-rose-800 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-300">
-            <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" />
-            <span>{error}</span>
+          <div className="mt-5 space-y-2">
+            <div className="flex items-start gap-2.5 rounded-2xl border border-rose-200 bg-rose-50/90 p-3.5 text-xs text-rose-900 dark:border-rose-900/50 dark:bg-rose-950/40 dark:text-rose-200">
+              <AlertCircle className="h-4 w-4 shrink-0 text-rose-600 mt-0.5" />
+              <div className="space-y-1.5 flex-1">
+                <span className="font-bold">{error}</span>
+                {error.includes('onaylanmamış') && (
+                  <div className="pt-2 border-t border-rose-200/80 dark:border-rose-900/60 flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleResendConfirmation}
+                      disabled={resendLoading}
+                      className="inline-flex items-center gap-1 rounded-lg bg-rose-600 hover:bg-rose-700 px-3 py-1.5 text-xs font-bold text-white shadow-xs transition cursor-pointer disabled:opacity-50"
+                    >
+                      <span>{resendLoading ? 'Gönderiliyor...' : 'Onay Linkini Tekrar Gönder'}</span>
+                    </button>
+                    {resendSuccess && (
+                      <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300">
+                        ✓ Onay e-postası tekrar iletildi!
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
 

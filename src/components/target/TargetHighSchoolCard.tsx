@@ -78,9 +78,11 @@ export function TargetHighSchoolCard() {
       }
     };
     window.addEventListener('focus', handleFocus);
+    window.addEventListener('cloud_synced', handleFocus);
     document.addEventListener('visibilitychange', handleFocus);
     return () => {
       window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('cloud_synced', handleFocus);
       document.removeEventListener('visibilitychange', handleFocus);
     };
   }, [user?.id]);

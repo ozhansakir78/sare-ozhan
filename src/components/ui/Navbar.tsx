@@ -31,6 +31,9 @@ import {
   ChevronRight,
   User,
   School,
+  Cloud,
+  CloudOff,
+  AlertCircle,
 } from 'lucide-react';
 
 export function Navbar() {
@@ -257,8 +260,16 @@ export function Navbar() {
                     className="flex items-center gap-2 rounded-xl bg-slate-800 border border-slate-700 hover:border-indigo-500/50 px-2.5 py-1.5 text-xs text-slate-200 transition cursor-pointer group shadow-2xs"
                     title="Öğrenci Profil Menüsü"
                   >
-                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-tr from-indigo-600 to-violet-600 text-[10px] font-black text-white shadow-xs group-hover:scale-105 transition">
-                      {(profile?.display_name || user?.email || 'Ö')[0].toUpperCase()}
+                    <div className="relative">
+                      <div className="flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-tr from-indigo-600 to-violet-600 text-[10px] font-black text-white shadow-xs group-hover:scale-105 transition">
+                        {(profile?.display_name || user?.email || 'Ö')[0].toUpperCase()}
+                      </div>
+                      <span
+                        className={`absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full ring-2 ring-slate-800 ${
+                          user ? 'bg-emerald-400' : 'bg-amber-400'
+                        }`}
+                        title={user ? 'Bulut Senkronizasyonu Aktif' : 'Yerel Mod (Buluta Eşitlenmedi)'}
+                      />
                     </div>
                     <span className="font-bold max-w-[95px] truncate">
                       {profile?.display_name || user?.email?.split('@')[0]}
@@ -298,6 +309,32 @@ export function Navbar() {
                           </div>
                         </div>
                       </Link>
+
+                      {/* Bulut Bağlantı Durumu Şeridi */}
+                      <div className="mt-2 px-2.5 py-1.5 rounded-xl border text-[11px] font-semibold flex items-center justify-between gap-1 border-slate-700/80 bg-slate-800/60">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          {user ? (
+                            <>
+                              <span className="h-2 w-2 shrink-0 rounded-full bg-emerald-400 animate-pulse" />
+                              <span className="text-emerald-300 truncate">Bulut Aktif (Cihazlar Eşit)</span>
+                            </>
+                          ) : (
+                            <>
+                              <span className="h-2 w-2 shrink-0 rounded-full bg-amber-400" />
+                              <span className="text-amber-300 truncate">Yerel Mod (Buluta Bağlan)</span>
+                            </>
+                          )}
+                        </div>
+                        {!user && (
+                          <Link
+                            href="/giris"
+                            onClick={() => setIsUserMenuOpen(false)}
+                            className="text-[10px] font-bold text-amber-300 underline hover:text-amber-200 shrink-0"
+                          >
+                            Giriş Yap
+                          </Link>
+                        )}
+                      </div>
 
                       {/* Menü Seçenekleri */}
                       <div className="mt-2 space-y-0.5 border-t border-slate-800 pt-2 text-xs">

@@ -161,8 +161,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (currentUser) {
           fetchProfile(currentUser.id, currentUser.email);
           syncLocalDataToCloud(currentUser.id).then(() => {
-            pullCloudDataToLocal(currentUser.id);
+            pullCloudDataToLocal(currentUser.id).then(() => {
+              if (typeof window !== 'undefined') {
+                window.dispatchEvent(new Event('cloud_synced'));
+              }
+            });
           });
+        } else {
+          // Bulut oturumu yoksa yerel profil varsa yükle (çevrimdışı modu koru)
+          const local = getLocalProfile();
+          if (local) setProfile(local);
         }
         setIsLoading(false);
       })
@@ -182,10 +190,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (currentUser) {
         fetchProfile(currentUser.id, currentUser.email);
         syncLocalDataToCloud(currentUser.id).then(() => {
-          pullCloudDataToLocal(currentUser.id);
+          pullCloudDataToLocal(currentUser.id).then(() => {
+            if (typeof window !== 'undefined') {
+              window.dispatchEvent(new Event('cloud_synced'));
+            }
+          });
         });
       } else {
-        setProfile(null);
+        // Çıkış yapıldığında oturumu kapat
+        const local = getLocalProfile();
+        if (local) setProfile(local);
       }
       setIsLoading(false);
     });
@@ -219,7 +233,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
+        email: email.trim(),
         password,
       });
 
@@ -227,11 +241,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (error.message?.toLowerCase().includes('failed to fetch')) {
           throw error;
         }
+        if (error.message?.toLowerCase().includes('email not confirmed')) {
+          return {
+            error:
+              'E-posta adresiniz henüz onaylanmamış! Lütfen gelen kutunuzdaki onay linkine tıklayın veya Supabase Dashboard > Authentication > Providers > Email altından "Confirm email" ayarını kapatın.',
+          };
+        }
+        if (error.message?.toLowerCase().includes('invalid login credentials')) {
+          return {
+            error: 'E-posta adresi veya şifre hatalı. Lütfen bilgilerinizi kontrol ediniz.',
+          };
+        }
         return { error: error.message };
       }
       if (data.user) {
         setUser(data.user);
         await fetchProfile(data.user.id, data.user.email);
+        await syncLocalDataToCloud(data.user.id);
+        await pullCloudDataToLocal(data.user.id);
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('cloud_synced'));
+        }
       }
       return {};
     } catch (err: unknown) {
@@ -368,6 +398,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         };
         setProfile(fullProfile);
         saveLocalProfile(fullProfile);
+
+        if (!data.session) {
+          return {
+            error:
+              'Kayıt oluşturuldu! Ancak Supabase e-posta onayı bekliyor. Mobil ve PC senkronizasyonu için lütfen gelen kutunuzdaki onay linkine tıklayın veya Supabase Dashboard > Authentication > Providers > Email altından "Confirm email" seçeneğini kapatınız.',
+          };
+        }
       }
       return {};
     } catch (err: unknown) {
