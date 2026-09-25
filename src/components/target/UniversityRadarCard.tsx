@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   YKS_TOP_UNIVERSITIES,
   YksUniversityTarget,
   analyzeUniversityTargetGap,
 } from '@/lib/yks-universities';
+import { useAuth } from '@/components/auth/AuthProvider';
 import {
   GraduationCap,
   Target,
@@ -21,47 +22,98 @@ import {
 
 interface UniversityRadarCardProps {
   currentTermAverage?: number;
+  onTargetChange?: (target: YksUniversityTarget) => void;
 }
 
-export function UniversityRadarCard({ currentTermAverage = 88.5 }: UniversityRadarCardProps) {
-  const [selectedTargetId, setSelectedTargetId] = useState<string>('boun-ceng');
+export function UniversityRadarCard({
+  currentTermAverage = 88.5,
+  onTargetChange,
+}: UniversityRadarCardProps) {
+  const { profile, user, updateProfile } = useAuth();
+
+  const [selectedTargetId, setSelectedTargetId] = useState<string>(() => {
+    if (profile?.target_university) {
+      const found = YKS_TOP_UNIVERSITIES.find(
+        (u) =>
+          u.name.toLowerCase() === profile.target_university?.toLowerCase() ||
+          u.id === profile.target_university ||
+          profile.target_university?.toLowerCase().includes(u.name.toLowerCase())
+      );
+      if (found) return found.id;
+    }
+    return 'boun-ceng';
+  });
+
+  // Profil değiştiğinde hedefi senkronize et
+  useEffect(() => {
+    if (profile?.target_university) {
+      const found = YKS_TOP_UNIVERSITIES.find(
+        (u) =>
+          u.name.toLowerCase() === profile.target_university?.toLowerCase() ||
+          u.id === profile.target_university ||
+          profile.target_university?.toLowerCase().includes(u.name.toLowerCase())
+      );
+      if (found && found.id !== selectedTargetId) {
+        setSelectedTargetId(found.id);
+      }
+    }
+  }, [profile?.target_university]);
 
   const selectedTarget =
     YKS_TOP_UNIVERSITIES.find((u) => u.id === selectedTargetId) || YKS_TOP_UNIVERSITIES[0];
 
   const gapAnalysis = analyzeUniversityTargetGap(selectedTarget.id, currentTermAverage);
 
+  const handleTargetChange = (targetId: string) => {
+    setSelectedTargetId(targetId);
+    const target = YKS_TOP_UNIVERSITIES.find((u) => u.id === targetId);
+    if (target) {
+      if (user?.id) {
+        updateProfile({
+          target_university: target.name,
+          target_department: target.department,
+          target_score: target.minScore,
+        });
+      }
+      if (onTargetChange) {
+        onTargetChange(target);
+      }
+    }
+  };
+
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-6">
+    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-6 overflow-hidden">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4 dark:border-slate-800">
-        <div>
+        <div className="min-w-0">
           <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-1">
-            <Sparkles className="h-3.5 w-3.5" />
+            <Sparkles className="h-3.5 w-3.5 shrink-0" />
             <span>9. Sınıftan YKS Temel Atma Vizyonu</span>
           </div>
-          <h3 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-            <Target className="h-5 w-5 text-indigo-500" />
+          <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+            <Target className="h-5 w-5 text-indigo-500 shrink-0" />
             <span>Hedef Üniversite &amp; Bölüm Radarı</span>
           </h3>
         </div>
 
-        {/* Seçici Açılır Menü */}
-        <div className="flex items-center gap-2">
-          <label htmlFor="uni-select" className="text-xs font-medium text-slate-500 dark:text-slate-400">
+        {/* Seçici Açılır Menü (Taşmayı önleyen ve sınırlandırılmış konteyner) */}
+        <div className="flex items-center gap-2 w-full sm:w-auto min-w-0">
+          <label htmlFor="uni-select" className="text-xs font-bold text-slate-500 dark:text-slate-400 shrink-0 whitespace-nowrap">
             Hedef Seç:
           </label>
-          <select
-            id="uni-select"
-            value={selectedTargetId}
-            onChange={(e) => setSelectedTargetId(e.target.value)}
-            className="rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-800 shadow-2xs focus:border-indigo-500 focus:outline-hidden dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
-          >
-            {YKS_TOP_UNIVERSITIES.map((uni) => (
-              <option key={uni.id} value={uni.id}>
-                {uni.name} — {uni.department.split('(')[0].trim()}
-              </option>
-            ))}
-          </select>
+          <div className="relative min-w-0 flex-1 sm:w-60 md:w-72 max-w-full">
+            <select
+              id="uni-select"
+              value={selectedTargetId}
+              onChange={(e) => handleTargetChange(e.target.value)}
+              className="w-full truncate rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-800 shadow-2xs focus:border-indigo-500 focus:outline-hidden dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 cursor-pointer"
+            >
+              {YKS_TOP_UNIVERSITIES.map((uni) => (
+                <option key={uni.id} value={uni.id}>
+                  {uni.name} — {uni.department.split('(')[0].trim()}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 

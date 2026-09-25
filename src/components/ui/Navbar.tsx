@@ -287,7 +287,11 @@ export function Navbar() {
                             {profile?.display_name || user?.email?.split('@')[0]}
                           </div>
                           <div className="text-[10px] text-indigo-300 truncate">
-                            {profile?.target_high_school || 'Hedef Lise Belirtilmedi'}
+                            {isLise1
+                              ? (profile?.target_university
+                                  ? `${profile.target_university}${profile.target_department ? ` · ${profile.target_department.split('(')[0].trim()}` : ''}`
+                                  : profile?.target_high_school || 'Hedef Üniversite Belirtilmedi')
+                              : (profile?.target_high_school || 'Hedef Lise Belirtilmedi')}
                           </div>
                           <div className="text-[10px] text-slate-400 font-semibold">
                             Profili Görüntüle &rarr;
