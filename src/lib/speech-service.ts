@@ -9,9 +9,11 @@ export interface SpeechOptions {
   onError?: (err?: any) => void;
 }
 
+import { formatMathForSpeech } from '@/lib/math-formatter';
+
 /**
  * Metni robotik telaffuzdan kurtarıp doğal Türkçe konuşma akışına çevirir.
- * Matematiksel sembolleri (², ³, ·, =, +) sesli Türkçe kelimelere dönüştürür.
+ * Matematiksel sembolleri (2^3 -> 2 üzeri 3, 2¹² -> 2 üzeri 12, ·, =, +) sesli Türkçe kelimelere dönüştürür.
  */
 export function prepareTextForTurkishSpeech(raw: string): string {
   if (!raw) return '';
@@ -24,31 +26,16 @@ export function prepareTextForTurkishSpeech(raw: string): string {
     ''
   );
 
-  // 2. Dolar ve LaTeX etiketlerini temizle
-  text = text.replace(/\$\$([\s\S]*?)\$\$/g, '$1');
-  text = text.replace(/\$([^$]+?)\$/g, '$1');
-  text = text.replace(/\\cdot/g, ' çarpı ');
-  text = text.replace(/\\times/g, ' çarpı ');
-  text = text.replace(/\\div/g, ' bölü ');
-  text = text.replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '$1 bölü $2');
+  // 2. Matematik ifadelerini ve üslü sayıları sesli Türkçe konuşma diline çevir
+  text = formatMathForSpeech(text);
 
-  // 3. Matematik sembollerini Türkçe konuşma diline çevir
-  text = text.replace(/²/g, ' kare ');
-  text = text.replace(/³/g, ' küp ');
-  text = text.replace(/\^2/g, ' kare ');
-  text = text.replace(/\^3/g, ' küp ');
-  text = text.replace(/\s*·\s*/g, ' çarpı ');
-  text = text.replace(/\s*=\s*/g, ' eşittir ');
-  text = text.replace(/\s*\+\s*/g, ' artı ');
-  text = text.replace(/\s*-\s*/g, ' eksi ');
-
-  // 4. Markdown işaretlerini ve parantez karmaşasını temizle
+  // 3. Markdown işaretlerini ve parantez karmaşasını temizle
   text = text.replace(/[*_#`~]/g, '');
 
-  // 5. Adım başlıklarını doğal telaffuza hazırla
+  // 4. Adım başlıklarını doğal telaffuza hazırla
   text = text.replace(/(\d+)\.\s*Adım:/gi, '$1. Adım: ');
 
-  // 6. Fazla boşlukları temizle
+  // 5. Fazla boşlukları temizle
   text = text.replace(/\s+/g, ' ').trim();
 
   return text;

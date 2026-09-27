@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { CustomExamGeneratorModal } from '@/components/exam/CustomExamGeneratorModal';
+import { MathText } from '@/components/ui/MathText';
 
 interface TopicDetailModalProps {
   note: TopicStudyNote;
@@ -244,7 +245,7 @@ export function TopicDetailModal({ note, onClose }: TopicDetailModalProps) {
                               : 'border-indigo-100 bg-indigo-50/60 font-mono font-bold text-indigo-900 dark:border-indigo-900/40 dark:bg-indigo-950/40 dark:text-indigo-200'
                           }`}
                         >
-                          {formula}
+                          <MathText text={formula} />
                         </div>
                       ))}
                     </div>
@@ -288,9 +289,9 @@ export function TopicDetailModal({ note, onClose }: TopicDetailModalProps) {
                     <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-black text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 mb-2">
                       🎯 Tipik MEB Soru Kalıbı
                     </span>
-                    <p className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-white leading-relaxed">
-                      {note.exampleQuestion.questionText}
-                    </p>
+                    <div className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-white leading-relaxed">
+                      <MathText text={note.exampleQuestion.questionText} />
+                    </div>
                   </div>
 
                   {/* Adım Adım Çözüm */}
@@ -303,7 +304,7 @@ export function TopicDetailModal({ note, onClose }: TopicDetailModalProps) {
                         key={idx}
                         className="rounded-xl border border-indigo-100 bg-white p-3 text-xs leading-relaxed text-slate-700 dark:border-slate-800 dark:bg-slate-800/60 dark:text-slate-300"
                       >
-                        {step}
+                        <MathText text={step} />
                       </div>
                     ))}
                   </div>
@@ -314,9 +315,9 @@ export function TopicDetailModal({ note, onClose }: TopicDetailModalProps) {
                       <Sparkles className="h-4 w-4 text-amber-600" />
                       <span>Altın Taktik:</span>
                     </div>
-                    <p className="mt-1 text-xs text-amber-900 dark:text-amber-200">
-                      {note.exampleQuestion.keyTakeaway}
-                    </p>
+                    <div className="mt-1 text-xs text-amber-900 dark:text-amber-200">
+                      <MathText text={note.exampleQuestion.keyTakeaway} />
+                    </div>
                   </div>
                 </div>
               ) : (

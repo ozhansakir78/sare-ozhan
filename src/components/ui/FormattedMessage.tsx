@@ -7,54 +7,14 @@ interface FormattedMessageProps {
   className?: string;
 }
 
+import { formatMathText } from '@/lib/math-formatter';
+
 /**
  * LaTeX matematik sembollerini ve gereksiz dolar işaretlerini temizleyip
  * anlaşılır Türkçe matematik ve Unicode formatına dönüştürür.
  */
 export function cleanMathAndLatex(raw: string): string {
-  if (!raw) return '';
-
-  let cleaned = raw;
-
-  // 1. Dolar işaretli LaTeX bloklarını ($...$ ve $$...$$) arındır
-  cleaned = cleaned.replace(/\$\$([\s\S]*?)\$\$/g, '$1');
-  cleaned = cleaned.replace(/\$([^$]+?)\$/g, '$1');
-
-  // 2. LaTeX sembollerini doğal sembollere çevir
-  cleaned = cleaned.replace(/\\cdot/g, ' · ');
-  cleaned = cleaned.replace(/\\times/g, ' × ');
-  cleaned = cleaned.replace(/\\div/g, ' ÷ ');
-  cleaned = cleaned.replace(/\\le(?!a)/g, ' ≤ ');
-  cleaned = cleaned.replace(/\\ge(?!a)/g, ' ≥ ');
-  cleaned = cleaned.replace(/\\ne(?!w)/g, ' ≠ ');
-  cleaned = cleaned.replace(/\\pm/g, ' ± ');
-  cleaned = cleaned.replace(/\\approx/g, ' ≈ ');
-  cleaned = cleaned.replace(/\\sqrt\{([^}]+)\}/g, '√($1)');
-  cleaned = cleaned.replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '($1 / $2)');
-
-  // 3. Basit üs ifadelerini unicode üst simgelere dönüştür: ^0-^9, ^n, ^x
-  const superscripts: Record<string, string> = {
-    '0': '⁰',
-    '1': '¹',
-    '2': '²',
-    '3': '³',
-    '4': '⁴',
-    '5': '⁵',
-    '6': '⁶',
-    '7': '⁷',
-    '8': '⁸',
-    '9': '⁹',
-    'n': 'ⁿ',
-    'x': 'ˣ',
-  };
-
-  // 4^2 -> 4² veya x^3 -> x³
-  cleaned = cleaned.replace(/\^([0-9nx])/g, (_, p1) => superscripts[p1] || `^${p1}`);
-
-  // Çoklu boşlukları toparla
-  cleaned = cleaned.replace(/ {2,}/g, ' ');
-
-  return cleaned;
+  return formatMathText(raw);
 }
 
 /**

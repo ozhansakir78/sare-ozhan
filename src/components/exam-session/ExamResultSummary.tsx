@@ -11,6 +11,8 @@ import { recordStreakActivity } from '@/lib/streak-storage';
 import { SocraticAssistantModal } from '@/components/question/SocraticAssistantModal';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useGradeTier } from '@/lib/grade-tier';
+import { MathText } from '@/components/ui/MathText';
+import { formatMathText } from '@/lib/math-formatter';
 import {
   CheckCircle2,
   XCircle,
@@ -140,11 +142,13 @@ export function ExamResultSummary({
               ]
             : [],
           isOnlineExamQuestion: true,
-          questionText: item.question.questionText,
-          options: item.question.options,
+          questionText: formatMathText(item.question.questionText),
+          options: Object.fromEntries(
+            Object.entries(item.question.options).map(([k, v]) => [k, formatMathText(v)])
+          ) as Record<string, string>,
           correctAnswer: item.question.correctAnswer,
           studentAnswer: item.studentAnswer || 'Boş',
-          solutionExplanation: item.question.explanation,
+          solutionExplanation: formatMathText(item.question.explanation),
           examTitle: exam.title,
         });
         addedCount++;
@@ -321,7 +325,7 @@ export function ExamResultSummary({
       imageUrl:
         detail.question.questionImageUrl ||
         'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&auto=format&fit=crop&q=60',
-      studentNote: `Soru Metni: ${detail.question.questionText}\nBenim Seçtiğim Şık: ${detail.studentAnswer || 'Boş'}\nÖn İpucu: ${detail.question.hintForSocratic || ''}`,
+      studentNote: `Soru Metni: ${formatMathText(detail.question.questionText)}\nBenim Seçtiğim Şık: ${detail.studentAnswer || 'Boş'}\nÖn İpucu: ${formatMathText(detail.question.hintForSocratic || '')}`,
       status: 'unresolved',
       isResolved: false,
       createdAt: new Date().toISOString(),
@@ -859,7 +863,7 @@ export function ExamResultSummary({
                       <span className="font-bold text-slate-900 dark:text-white block mb-1">
                         Soru Metni:
                       </span>
-                      {detail.question.questionText}
+                      <MathText text={detail.question.questionText} />
                     </div>
 
                     {/* Soru Şıkları (A, B, C, D) Vurgulu */}
@@ -882,7 +886,9 @@ export function ExamResultSummary({
                           >
                             <div className="flex items-start gap-2">
                               <span className="font-black shrink-0">{opt})</span>
-                              <span className="leading-snug">{detail.question.options[opt]}</span>
+                              <span className="leading-snug">
+                                <MathText text={detail.question.options[opt]} />
+                              </span>
                             </div>
                             {isCorrectOption && (
                               <span className="shrink-0 rounded-md bg-emerald-600 text-white px-1.5 py-0.5 text-[10px] font-black uppercase">
@@ -904,9 +910,9 @@ export function ExamResultSummary({
                       <div className="flex items-center gap-1.5 text-xs font-black text-emerald-800 dark:text-emerald-300 uppercase tracking-wider mb-1.5">
                         <span>💡 Adım Adım Soru Çözümü &amp; MEB Mantığı</span>
                       </div>
-                      <p className="text-xs leading-relaxed text-emerald-950 dark:text-emerald-100 whitespace-pre-line font-medium">
-                        {detail.question.explanation}
-                      </p>
+                      <div className="text-xs leading-relaxed text-emerald-950 dark:text-emerald-100 whitespace-pre-line font-medium">
+                        <MathText text={detail.question.explanation} />
+                      </div>
                     </div>
                   </div>
                 )}

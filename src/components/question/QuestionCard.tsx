@@ -5,6 +5,7 @@ import type { WrongQuestionItem, QuestionStatus, ErrorReason } from '@/types/que
 import { getStudyNoteByTopicName } from '@/lib/lgs-study-notes';
 import { updateQuestionErrorReason } from '@/lib/question-storage';
 import { TopicDetailModal } from '@/components/study/TopicDetailModal';
+import { MathText } from '@/components/ui/MathText';
 import {
   Sparkles,
   CheckCircle2,
@@ -111,9 +112,9 @@ export function QuestionCard({
             </div>
           </div>
 
-          <p className="text-xs leading-relaxed font-medium text-slate-200 line-clamp-3">
-            {question.questionText}
-          </p>
+          <div className="text-xs leading-relaxed font-medium text-slate-200 line-clamp-3">
+            <MathText text={question.questionText} />
+          </div>
 
           {/* Şıklar ve Cevap Özeti */}
           <div className="mt-2.5 flex flex-wrap items-center gap-1.5 pt-2 border-t border-white/10 text-[10px]">
@@ -178,7 +179,9 @@ export function QuestionCard({
               <div className="flex items-center gap-1 text-[10px] font-semibold text-slate-400 dark:text-slate-500">
                 <MessageSquare className="h-3 w-3" /> Notun:
               </div>
-              <p className="mt-1 line-clamp-2 italic">&ldquo;{studentNote}&rdquo;</p>
+              <div className="mt-1 line-clamp-2 italic">
+                &ldquo;<MathText text={studentNote} />&rdquo;
+              </div>
             </div>
           ) : (
             <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">

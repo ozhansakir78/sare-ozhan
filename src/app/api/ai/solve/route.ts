@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import type { SolveApiRequest, SolveApiResponse } from '@/types/ai';
 import { callGeminiApi } from '@/lib/gemini';
+import { formatMathText } from '@/lib/math-formatter';
 
 const SYSTEM_PROMPT = `Sen öğrencilere (8. Sınıf LGS ve 9. Sınıf Lise 1) rehberlik eden uzman, sıcak, sabırlı ve pedagojik bir Sokratik öğretmen ve soru çözüm koçusun.
 GÖREVİN: Öğrencinin yüklediği soru görselini ve sorusunu dikkatle analiz ederek, öğrencinin soru mantığını kavramasını sağlamak ve öğrencinin talebine göre (İpucu veya Tam Çözüm) rehberlik etmek.
@@ -22,7 +23,7 @@ TEMEL KURALLAR:
    - ASLA LaTeX sembolleri ($ işareti, \\cdot, \\times, \\frac vb.) KULLANMA. Dolar işareti ($) KESİNLİKLE YASAKTIR.
    - Matematik işlemlerini doğrudan doğal, okunaklı Türkçe karakterlerle yaz:
      * '$4 \\cdot 4$' yerine: '4 · 4'
-     * '$4^2$' veya '$2^3$' yerine: '4²' veya '2³' (veya 4^2, 2^3)
+     * Üslü ifadeleri daima Unicode üst simge ile yaz: '4²', '2³', '2¹²', '2⁷', '4⁷', 'x²', '10⁻⁵'. Bilgisayar programlama formatı olan '^' (örn: 2^3, 2^12) KESİNLİKLE KULLANMA!
      * Çarpma için '·' veya 'x', bölme için '÷' veya '/' kullan.
    - Adımları belirginleştirmek için "**1. Adım:**", "**2. Adım:**" gibi kalın başlıklar kullan.
 
@@ -231,11 +232,12 @@ Görselde öğrencinin sorusu yer alıyor. Lütfen soruyu incele ve ${isFullSolv
     });
 
     if (geminiResult.text) {
+      const cleanReply = formatMathText(geminiResult.text);
       const result: SolveApiResponse = {
-        reply: geminiResult.text,
-        message: geminiResult.text,
+        reply: cleanReply,
+        message: cleanReply,
         isMock: false,
-        suggestedAction: isFullSolve || geminiResult.text.includes('Nihai Cevap') ? 'resolve' : 'continue',
+        suggestedAction: isFullSolve || cleanReply.includes('Nihai Cevap') ? 'resolve' : 'continue',
       };
       return NextResponse.json(result);
     }
@@ -248,11 +250,13 @@ Görselde öğrencinin sorusu yer alıyor. Lütfen soruyu incele ve ${isFullSolv
         ? conversationHistory[conversationHistory.length - 1]?.content
         : '');
 
-    const mockReply = generateMockSocraticResponse(
-      courseName,
-      topicName,
-      lastUserMsg,
-      isFullSolve ? 'full_solve' : 'hint'
+    const mockReply = formatMathText(
+      generateMockSocraticResponse(
+        courseName,
+        topicName,
+        lastUserMsg,
+        isFullSolve ? 'full_solve' : 'hint'
+      )
     );
 
     const result: SolveApiResponse = {

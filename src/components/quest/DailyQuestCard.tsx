@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -10,6 +10,7 @@ import {
   DailyQuestState,
 } from '@/lib/daily-quest-engine';
 import { saveQuestionToStorage } from '@/lib/question-storage';
+import { MathText } from '@/components/ui/MathText';
 import {
   Sparkles,
   Flame,
@@ -101,13 +102,13 @@ export function DailyQuestCard() {
       <div className="mt-5 space-y-4">
         {question.contextText && (
           <div className="rounded-2xl bg-white/80 dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700/70 p-4 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-serif">
-            {question.contextText}
+            <MathText text={question.contextText} />
           </div>
         )}
 
-        <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-white leading-relaxed">
-          {question.questionText}
-        </h3>
+        <div className="text-sm sm:text-base font-black text-slate-900 dark:text-white leading-relaxed">
+          <MathText text={question.questionText} />
+        </div>
 
         {/* Şıklar */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
@@ -151,7 +152,9 @@ export function DailyQuestCard() {
                 >
                   {opt.key}
                 </span>
-                <span className="text-xs sm:text-sm font-semibold">{opt.text}</span>
+                <span className="text-xs sm:text-sm font-semibold">
+                  <MathText text={opt.text} />
+                </span>
               </button>
             );
           })}
@@ -165,7 +168,9 @@ export function DailyQuestCard() {
             <Lightbulb className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
             <div>
               <span className="font-black">Sokratik Düşünme İpucu:</span>
-              <p className="mt-0.5 leading-relaxed">{question.socraticHint}</p>
+              <div className="mt-0.5 leading-relaxed">
+                <MathText text={question.socraticHint} />
+              </div>
             </div>
           </div>
         </div>
@@ -220,12 +225,16 @@ export function DailyQuestCard() {
           <div className="space-y-2 text-xs border-t border-slate-200 dark:border-slate-700 pt-3">
             <div className="p-3 rounded-xl bg-indigo-50/80 dark:bg-indigo-950/40 text-indigo-950 dark:text-indigo-200">
               <span className="font-black block mb-1">📘 MEB Çözüm Yolu:</span>
-              <p className="leading-relaxed font-medium">{question.solutionExplanation}</p>
+              <div className="leading-relaxed font-medium">
+                <MathText text={question.solutionExplanation} />
+              </div>
             </div>
 
             <div className="p-3 rounded-xl bg-amber-50/80 dark:bg-amber-950/40 text-amber-950 dark:text-amber-200">
               <span className="font-black block mb-1">⚠️ MEB Çeldirici Tuzağı:</span>
-              <p className="leading-relaxed font-medium">{question.mebTrapNote}</p>
+              <div className="leading-relaxed font-medium">
+                <MathText text={question.mebTrapNote} />
+              </div>
             </div>
           </div>
         </div>

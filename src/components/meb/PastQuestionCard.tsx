@@ -1,8 +1,9 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import { PastQuestion } from '@/lib/meb-past-questions';
 import { saveQuestionToStorage } from '@/lib/question-storage';
+import { MathText } from '@/components/ui/MathText';
 import {
   Sparkles,
   CheckCircle2,
@@ -79,13 +80,13 @@ export function PastQuestionCard({ question }: PastQuestionCardProps) {
       <div className="mt-4 space-y-3">
         {question.contextText && (
           <div className="rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/60 p-3.5 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-serif">
-            {question.contextText}
+            <MathText text={question.contextText} />
           </div>
         )}
 
-        <p className="text-sm sm:text-base font-black text-slate-900 dark:text-white leading-relaxed">
-          {question.questionText}
-        </p>
+        <div className="text-sm sm:text-base font-black text-slate-900 dark:text-white leading-relaxed">
+          <MathText text={question.questionText} />
+        </div>
 
         {/* Seçenekler */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
@@ -128,7 +129,9 @@ export function PastQuestionCard({ question }: PastQuestionCardProps) {
                 >
                   {opt.key}
                 </span>
-                <span className="text-xs sm:text-sm font-semibold">{opt.text}</span>
+                <span className="text-xs sm:text-sm font-semibold">
+                  <MathText text={opt.text} />
+                </span>
               </button>
             );
           })}

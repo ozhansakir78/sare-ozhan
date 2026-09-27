@@ -16,6 +16,7 @@ import {
   VolumeX,
 } from 'lucide-react';
 import { speechService } from '@/lib/speech-service';
+import { MathText } from '@/components/ui/MathText';
 
 interface ExamQuestionViewProps {
   question: OnlineExamQuestion;
@@ -152,7 +153,7 @@ export function ExamQuestionView({
 
         {/* Soru Metni */}
         <div className="text-sm font-medium leading-relaxed text-slate-800 dark:text-slate-200 whitespace-pre-line sm:text-base">
-          {question.questionText}
+          <MathText text={question.questionText} />
         </div>
 
         {/* Şıklar */}
@@ -191,7 +192,7 @@ export function ExamQuestionView({
                       : 'text-slate-700 dark:text-slate-300'
                   }`}
                 >
-                  {optionText}
+                  <MathText text={optionText} />
                 </span>
               </button>
             );

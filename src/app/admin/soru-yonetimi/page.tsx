@@ -10,6 +10,7 @@ import {
   deleteCustomExamFromStorage,
 } from '@/lib/custom-exams-storage';
 import { LGS_COURSE_OPTIONS, getCourseName } from '@/lib/lgs-topics';
+import { MathText } from '@/components/ui/MathText';
 
 import Link from 'next/link';
 import {
@@ -771,19 +772,19 @@ Doğru Cevap: A
                             Doğru Cevap: {q.correctAnswer}
                           </span>
                         </div>
-                        <p className="text-slate-800 dark:text-slate-200 whitespace-pre-line">
-                          {q.questionText}
-                        </p>
+                        <div className="text-slate-800 dark:text-slate-200 whitespace-pre-line">
+                          <MathText text={q.questionText} />
+                        </div>
                         <div className="grid grid-cols-2 gap-2 text-slate-600 dark:text-slate-400">
                           {Object.entries(q.options).map(([k, v]) => (
                             <div key={k} className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800/60">
                               <span className="font-bold mr-1">{k})</span>
-                              <span>{v}</span>
+                              <span><MathText text={v} /></span>
                             </div>
                           ))}
                         </div>
                         <div className="rounded-xl bg-slate-50 p-2.5 text-[11px] text-slate-500 dark:bg-slate-800/40 dark:text-slate-400">
-                          <strong>Çözüm:</strong> {q.explanation}
+                          <strong>Çözüm:</strong> <MathText text={q.explanation} />
                         </div>
                       </div>
                     ))}

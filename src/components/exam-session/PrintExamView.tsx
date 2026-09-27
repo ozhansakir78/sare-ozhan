@@ -5,6 +5,7 @@ import type { OnlineExam } from '@/types/online-exam';
 import { getWeeklySundayInfo } from '@/lib/weekly-live-exam';
 import { Printer, ArrowLeft, Download, Info, Lock } from 'lucide-react';
 import Link from 'next/link';
+import { MathText } from '@/components/ui/MathText';
 
 interface PrintExamViewProps {
   exam: OnlineExam;
@@ -17,7 +18,8 @@ export function PrintExamView({ exam }: PrintExamViewProps) {
     }
   };
 
-  const optionKeys = ['A', 'B', 'C', 'D'] as const;
+  const hasOptionE = exam.questions.some((q) => q.options.E != null && q.options.E !== '');
+  const optionKeys = (hasOptionE ? ['A', 'B', 'C', 'D', 'E'] : ['A', 'B', 'C', 'D']) as ('A' | 'B' | 'C' | 'D' | 'E')[];
 
   // Pazar Canlı Sınavı PDF İndirme Güvenlik Kilidi
   if (exam.slug === 'lgs-canli-pazar-denemesi') {
@@ -190,24 +192,26 @@ export function PrintExamView({ exam }: PrintExamViewProps) {
                 )}
 
                 {/* Soru Metni */}
-                <p className="text-xs leading-relaxed text-slate-900 font-medium mb-4 whitespace-pre-line print:text-[11px]">
-                  {q.questionText}
-                </p>
+                <div className="text-xs leading-relaxed text-slate-900 font-medium mb-4 whitespace-pre-line print:text-[11px]">
+                  <MathText text={q.questionText} />
+                </div>
 
                 {/* Şıklar */}
                 <div className="space-y-1.5 pt-2 border-t border-slate-100 print:border-slate-300">
                   {optionKeys.map((opt) => (
-                    <div
-                      key={opt}
-                      className="flex items-start gap-2 text-xs print:text-[11px] leading-snug"
-                    >
-                      <span className="font-black text-slate-900 print:text-black shrink-0">
-                        {opt})
-                      </span>
-                      <span className="text-slate-700 print:text-black">
-                        {q.options[opt]}
-                      </span>
-                    </div>
+                    q.options[opt] ? (
+                      <div
+                        key={opt}
+                        className="flex items-start gap-2 text-xs print:text-[11px] leading-snug"
+                      >
+                        <span className="font-black text-slate-900 print:text-black shrink-0">
+                          {opt})
+                        </span>
+                        <span className="text-slate-700 print:text-black">
+                          <MathText text={q.options[opt]} />
+                        </span>
+                      </div>
+                    ) : null
                   ))}
                 </div>
               </div>
@@ -337,7 +341,7 @@ export function PrintExamView({ exam }: PrintExamViewProps) {
                     </span>
                   </div>
                   <div className="leading-relaxed whitespace-pre-line text-slate-700 font-medium print:text-[10px]">
-                    {q.explanation}
+                    <MathText text={q.explanation} />
                   </div>
                 </div>
               ))}

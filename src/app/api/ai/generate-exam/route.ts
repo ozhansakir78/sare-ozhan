@@ -4,6 +4,7 @@ import type { LgsCourseKey } from '@/types/exam';
 import { getCourseName } from '@/lib/lgs-topics';
 import { getLise1CourseName, Lise1CourseKey } from '@/lib/lise1-topics';
 import { ONLINE_EXAMS } from '@/lib/online-exams-data';
+import { formatMathText } from '@/lib/math-formatter';
 
 const GEMINI_MODELS = [
   process.env.GEMINI_MODEL || 'gemini-3.6-flash',
@@ -123,7 +124,8 @@ Görevin, LGS formatına %100 uygun, yeni nesil, beceri temelli, grafik/deney/ta
 ÖNEMLİ KURALLAR:
 1. Sadece saf JSON üret, markdown blokları (\`\`\`json) ekleme.
 2. Sayısal ve mantıksal tutarlılığı kontrol et.
-3. Asla Türkçe karakter hatası yapma.`;
+3. Asla Türkçe karakter hatası yapma.
+4. MATEMATİK VE FEN YAZIM KURALI: Bilgisayar programlama üs işareti '^' (örn: 2^3, 2^12, x^2) KESİNLİKLE KULLANMA! Üsleri daima Unicode üst simgeler olarak yaz: ⁰, ¹, ², ³, ⁴, ⁵, ⁶, ⁷, ⁸, ⁹, ⁺, ⁻, ⁿ, ˣ (Örn: 2³ · 2⁴, 2¹², 2⁷, 4⁷, x² - 4, 10⁻⁵). Çarpma için '·' veya '×' kullan. ASLA LaTeX dolar işareti ($) kullanma.`;
 
     const userPrompt = examTitle
       ? `Lütfen başlığı "${examTitle}" olan sınavı üret.`
@@ -200,6 +202,19 @@ Görevin, LGS formatına %100 uygun, yeni nesil, beceri temelli, grafik/deney/ta
       } catch (parseErr) {
         console.error('Gemini JSON Parse Error:', parseErr, cleanJson);
       }
+    }
+
+    // Soruların matematiksel ifadelerini ve üslü sayılarını temizle ve formatla
+    if (parsedResult && parsedResult.questions && Array.isArray(parsedResult.questions)) {
+      parsedResult.questions = parsedResult.questions.map((q) => ({
+        ...q,
+        questionText: formatMathText(q.questionText || ''),
+        options: Object.fromEntries(
+          Object.entries(q.options || {}).map(([k, v]) => [k, formatMathText(String(v || ''))])
+        ) as Record<'A' | 'B' | 'C' | 'D', string> & { E?: string },
+        explanation: formatMathText(q.explanation || ''),
+        hintForSocratic: q.hintForSocratic ? formatMathText(q.hintForSocratic) : undefined,
+      }));
     }
 
     // Pedagojik Yedek Motor: Eğer yapay zekâ servisi geçici olarak yanıt vermezse,
