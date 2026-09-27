@@ -246,7 +246,7 @@ export function Navbar() {
                 title="Soru Kotasını Genişlet"
               >
                 <Zap className="h-3 w-3 text-amber-400" />
-                <span>AI {quota ? `${quota.remainingToday}/${quota.dailyLimit}` : '3/3'}</span>
+                <span>AI {quota ? `${quota.remainingToday}/${quota.dailyLimit}` : '100/100'}</span>
               </button>
             )}
 

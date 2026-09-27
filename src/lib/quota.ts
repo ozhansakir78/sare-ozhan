@@ -1,7 +1,7 @@
 import type { QuotaStatus } from '@/types/subscription';
 
 const QUOTA_STORAGE_KEY = 'lgs_user_quota_v1';
-export const DEFAULT_DAILY_LIMIT = 3;
+export const DEFAULT_DAILY_LIMIT = 100;
 
 function getTodayDateKey(): string {
   const now = new Date();
@@ -57,6 +57,17 @@ export function getQuotaStatus(): QuotaStatus {
       };
       localStorage.setItem(QUOTA_STORAGE_KEY, JSON.stringify(resetDay));
       return resetDay;
+    }
+
+    // Eğer tarayıcıda kayıtlı limit güncel DEFAULT_DAILY_LIMIT'ten farklıysa (örn: 3 yerine 100 yapıldıysa)
+    if (parsed.dailyLimit !== DEFAULT_DAILY_LIMIT) {
+      const updatedLimit: QuotaStatus = {
+        ...parsed,
+        dailyLimit: DEFAULT_DAILY_LIMIT,
+        remainingToday: Math.max(0, DEFAULT_DAILY_LIMIT - (parsed.usedToday || 0)),
+      };
+      localStorage.setItem(QUOTA_STORAGE_KEY, JSON.stringify(updatedLimit));
+      return updatedLimit;
     }
 
     return parsed;
