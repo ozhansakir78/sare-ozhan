@@ -79,7 +79,7 @@ export default function Lise1KonulariPage() {
       <section className="text-center space-y-3">
         <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
           <School className="h-4 w-4" />
-          <span>MEB 2026-2027 Lise 1 (9. Sınıf) Müfredatı &amp; Konu Notları</span>
+          <span>MEB Türkiye Yüzyılı Maarif Modeli (9. Sınıf Güncel Müfredatı)</span>
         </div>
 
         <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white sm:text-4xl lg:text-5xl">
@@ -90,7 +90,7 @@ export default function Lise1KonulariPage() {
         </h1>
 
         <p className="mx-auto max-w-2xl text-sm leading-relaxed text-slate-600 dark:text-slate-400 sm:text-base">
-          Lise 1 müfredatında yer alan 9 temel dersin tüm ünite ve kazanımları.
+          Türkiye Yüzyılı Maarif Modeli kapsamında 9. sınıfta yer alan 9 temel dersin (Matematik, Türk Dili ve Edebiyatı, Fizik, Kimya, Biyoloji, Tarih, Coğrafya, İngilizce, Din Kültürü) tüm ünite, tema ve MEB Ortak Yazılı senaryoları.
           İstediğin konunun üzerine tıkla; <strong>MEB yazılı hap notlarını</strong>, <strong>sınav tuzaklarını</strong> ve <strong>örnek açık uçlu soru çözümlerini</strong> anında incele.
         </p>
 
