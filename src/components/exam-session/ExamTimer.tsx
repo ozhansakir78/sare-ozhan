@@ -5,15 +5,31 @@ import { Clock, AlertCircle } from 'lucide-react';
 
 interface ExamTimerProps {
   durationMinutes: number;
+  initialRemainingSeconds?: number;
   onTimeUp: () => void;
+  onTick?: (remainingSeconds: number) => void;
 }
 
-export function ExamTimer({ durationMinutes, onTimeUp }: ExamTimerProps) {
-  const [secondsRemaining, setSecondsRemaining] = useState(durationMinutes * 60);
+export function ExamTimer({
+  durationMinutes,
+  initialRemainingSeconds,
+  onTimeUp,
+  onTick,
+}: ExamTimerProps) {
+  const [secondsRemaining, setSecondsRemaining] = useState(() => {
+    if (initialRemainingSeconds !== undefined && initialRemainingSeconds > 0) {
+      return initialRemainingSeconds;
+    }
+    return durationMinutes * 60;
+  });
 
   useEffect(() => {
-    setSecondsRemaining(durationMinutes * 60);
-  }, [durationMinutes]);
+    if (initialRemainingSeconds !== undefined && initialRemainingSeconds > 0) {
+      setSecondsRemaining(initialRemainingSeconds);
+    } else {
+      setSecondsRemaining(durationMinutes * 60);
+    }
+  }, [durationMinutes, initialRemainingSeconds]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -22,12 +38,14 @@ export function ExamTimer({ durationMinutes, onTimeUp }: ExamTimerProps) {
           clearInterval(interval);
           return 0;
         }
-        return prev - 1;
+        const next = prev - 1;
+        if (onTick) onTick(next);
+        return next;
       });
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [onTick]);
 
   useEffect(() => {
     if (secondsRemaining === 0) {

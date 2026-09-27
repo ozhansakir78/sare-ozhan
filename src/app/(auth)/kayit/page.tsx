@@ -46,14 +46,20 @@ export default function KayitPage() {
     }
 
     setLoading(true);
-    const res = await signUpWithEmail(email, password, displayName, selectedSchool, {
-      gradeLevel,
-      nickname: nickname.trim() || undefined,
-      targetCity: selectedCity,
-      targetDistrict: selectedDistrict,
-      targetUniversity: gradeLevel === '9' ? selectedSchool : undefined,
-      targetDepartment: gradeLevel === '9' ? selectedDepartment : undefined,
-    });
+    const res = await signUpWithEmail(
+      email,
+      password,
+      displayName,
+      gradeLevel === '8' ? selectedSchool : undefined,
+      {
+        gradeLevel,
+        nickname: nickname.trim() || undefined,
+        targetCity: selectedCity,
+        targetDistrict: selectedDistrict,
+        targetUniversity: gradeLevel === '9' ? selectedSchool : undefined,
+        targetDepartment: gradeLevel === '9' ? selectedDepartment : undefined,
+      }
+    );
     setLoading(false);
 
     if (res.error) {

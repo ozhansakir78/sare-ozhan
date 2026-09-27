@@ -159,7 +159,7 @@ export default function ProfilPage() {
       setDisplayName(profile.display_name || '');
       setNickname(profile.nickname || '');
       setTargetCity(profile.target_city || '');
-      setTargetSchool(profile.target_high_school || '');
+      setTargetSchool(isLise1 ? '' : (profile.target_high_school || ''));
       setTargetUniversity(profile.target_university || '');
       setTargetDepartment(profile.target_department || '');
       if (profile.target_score) {
@@ -194,7 +194,7 @@ export default function ProfilPage() {
       display_name: displayName.trim(),
       nickname: nickname.trim() || undefined,
       target_city: targetCity.trim() || undefined,
-      target_high_school: targetSchool.trim() || undefined,
+      target_high_school: isLise1 ? undefined : (targetSchool.trim() || undefined),
       target_university: isLise1 ? (targetUniversity.trim() || undefined) : undefined,
       target_department: isLise1 ? (targetDepartment.trim() || undefined) : undefined,
       target_score: targetScore,
@@ -688,17 +688,6 @@ export default function ProfilPage() {
                   Liderlik tablosunda il sıralamanızı takip etmenizi sağlar
                 </p>
               </div>
-
-              {/* 9. Sınıf Öğrencisi için Mevcut Lise Göstergesi */}
-              {isLise1 && targetSchool && (
-                <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 text-xs">
-                  <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-                    <School className="h-4 w-4 text-indigo-500 shrink-0" />
-                    <span>Okuduğun Lise: <strong className="text-slate-900 dark:text-white font-bold">{targetSchool}</strong></span>
-                  </div>
-                  <span className="text-[10px] text-slate-400 font-semibold">9. Sınıf</span>
-                </div>
-              )}
 
               {/* Hedef Seçimi (LGS için Lise, 9. Sınıf için Üniversite/Bölüm) */}
               <SchoolAutocompleteInput

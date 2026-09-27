@@ -303,8 +303,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     targetSchool?: string,
     extraOptions?: SignUpExtraOptions
   ): Promise<{ error?: string; confirmationRequired?: boolean }> => {
-    const cleanSchool = targetSchool ? normalizeSchoolName(targetSchool) : null;
     const gradeLevel = extraOptions?.gradeLevel || '8';
+    const cleanSchool = gradeLevel === '8' && targetSchool ? normalizeSchoolName(targetSchool) : null;
     const targetCity = extraOptions?.targetCity || null;
     const targetDistrict = extraOptions?.targetDistrict || null;
     const targetUniversity = extraOptions?.targetUniversity || null;
