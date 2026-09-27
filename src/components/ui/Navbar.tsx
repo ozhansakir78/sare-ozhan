@@ -11,6 +11,7 @@ import { HorizontalLeaderboardBar } from '@/components/leaderboard/HorizontalLea
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useGradeTier } from '@/lib/grade-tier';
 import { GradeTierSwitcher } from '@/components/ui/GradeTierSwitcher';
+import { useFocus } from '@/components/focus/FocusContext';
 import {
   GraduationCap,
   Sparkles,
@@ -40,6 +41,7 @@ export function Navbar() {
   const pathname = usePathname();
   const { profile, user, signOut } = useAuth();
   const { isLise1 } = useGradeTier();
+  const { isActive: isFocusActive } = useFocus();
   const [quota, setQuota] = useState<QuotaStatus | null>(null);
   const [isProModalOpen, setIsProModalOpen] = useState<boolean>(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
@@ -113,12 +115,17 @@ export function Navbar() {
       icon: Layers,
       iconColor: 'text-sky-400',
     },
+    {
+      href: '/odaklanma-odasi',
+      label: 'Odaklanma Odası',
+      icon: Timer,
+      iconColor: 'text-violet-400',
+    },
   ];
 
   // Ekstra Koçluk & Analiz Araçları (Açılır menüde toplananlar)
   const secondaryNavLinks: NavLinkItem[] = [
     { href: '/liderlik-tablosu', label: 'Liderlik Sıralaması', icon: Trophy, iconColor: 'text-amber-400' },
-    { href: '/odaklanma-odasi', label: 'Odaklanma Odası (Pomodoro)', icon: Timer, iconColor: 'text-violet-400' },
     { href: '/deneme-gecmisi', label: 'Deneme Geçmişim & Gelişim', icon: TrendingUp, iconColor: 'text-emerald-400' },
     { href: '/veli-raporu', label: 'Haftalık Veli Raporu', icon: HeartHandshake, iconColor: 'text-pink-400' },
   ];
@@ -153,30 +160,39 @@ export function Navbar() {
           </div>
 
           {/* Masaüstü Menü Linkleri (Çekirdek Linkler + Şık 'Araçlar ▾' Açılır Menüsü) */}
-          <nav className="hidden lg:flex items-center gap-1.5">
+          <nav className="hidden lg:flex items-center gap-1 xl:gap-1.5">
             {primaryNavLinks.map((link) => {
               const Icon = link.icon;
               const isActive =
                 link.href === '/'
                   ? pathname === '/'
                   : pathname?.startsWith(link.href);
+              const isFocusRunning = link.href === '/odaklanma-odasi' && isFocusActive;
 
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`inline-flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-xs font-bold transition whitespace-nowrap ${
+                  className={`inline-flex items-center gap-1.5 rounded-xl px-2 xl:px-2.5 py-1.5 text-xs font-bold transition whitespace-nowrap ${
                     isActive
                       ? link.highlight
                         ? 'bg-indigo-600 text-white shadow-xs'
                         : 'bg-slate-800 text-white border border-indigo-500/40 shadow-xs'
                       : link.highlight
                       ? 'bg-indigo-600/90 text-white hover:bg-indigo-600 shadow-xs'
+                      : isFocusRunning
+                      ? 'bg-emerald-950/40 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-900/50'
                       : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                   }`}
                 >
                   <Icon className={`h-3.5 w-3.5 shrink-0 ${link.highlight && isActive ? 'text-white' : link.iconColor}`} />
                   <span>{link.label}</span>
+                  {isFocusRunning && (
+                    <span className="relative flex h-2 w-2 ml-0.5" title="Odaklanma Seansı Devam Ediyor">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                    </span>
+                  )}
                 </Link>
               );
             })}
