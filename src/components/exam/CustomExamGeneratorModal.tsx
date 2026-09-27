@@ -50,6 +50,8 @@ const LISE1_COURSES = [
   { key: 'biyoloji', name: 'Biyoloji', iconColor: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/60', defaultQuestionCount: 10 },
   { key: 'tarih', name: 'Tarih', iconColor: 'text-amber-500 bg-amber-50 dark:bg-amber-950/60', defaultQuestionCount: 5 },
   { key: 'cografya', name: 'Coğrafya', iconColor: 'text-teal-500 bg-teal-50 dark:bg-teal-950/60', defaultQuestionCount: 5 },
+  { key: 'ingilizce', name: 'İngilizce (9. Sınıf)', iconColor: 'text-sky-500 bg-sky-50 dark:bg-sky-950/60', defaultQuestionCount: 10 },
+  { key: 'din', name: 'Din Kültürü ve Ahlak Bilgisi', iconColor: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/60', defaultQuestionCount: 5 },
   { key: 'all', name: '9. Sınıf Genel Ortak Yazılı Karma', iconColor: 'text-purple-500 bg-purple-50 dark:bg-purple-950/60', defaultQuestionCount: 15 },
 ];
 

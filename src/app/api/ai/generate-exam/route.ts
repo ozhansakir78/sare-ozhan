@@ -7,9 +7,11 @@ import { ONLINE_EXAMS } from '@/lib/online-exams-data';
 import { formatMathText } from '@/lib/math-formatter';
 
 const GEMINI_MODELS = [
-  process.env.GEMINI_MODEL || 'gemini-3.6-flash',
+  process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+  'gemini-flash-lite-latest',
+  'gemini-3.8-flash',
+  'gemini-3.5-flash',
   'gemini-flash-latest',
-  'gemini-2.5-flash',
 ];
 
 interface GenerateExamRequest {
@@ -241,6 +243,25 @@ Görevin, LGS formatına %100 uygun, yeni nesil, beceri temelli, grafik/deney/ta
         for (const ex of relevantExams) {
           candidateQuestions.push(...ex.questions);
         }
+      }
+
+      // Eğer soru adedi istenen sayıdan azsa, kademenin diğer sorularıyla tamamla
+      if (candidateQuestions.length < count) {
+        const otherPool = relevantExams
+          .flatMap((e) => e.questions)
+          .filter((q) => !candidateQuestions.some((cq) => cq.id === q.id));
+        candidateQuestions.push(...otherPool);
+      }
+
+      // Hâlâ yetersizse havuzdaki soruları çoğaltarak asla öğrenciyi eksik soruyla bırakma!
+      let safetyCounter = 0;
+      while (candidateQuestions.length < count && candidateQuestions.length > 0 && safetyCounter < 5) {
+        safetyCounter++;
+        const cloned = candidateQuestions.map((q, cIdx) => ({
+          ...q,
+          id: `${q.id}-dup-${safetyCounter}-${cIdx}`,
+        }));
+        candidateQuestions.push(...cloned);
       }
 
       // Rastgele karıştır ve istenen adet kadar al
