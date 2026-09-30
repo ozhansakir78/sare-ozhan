@@ -25,7 +25,7 @@ export const LISE1_EXAMS: OnlineExam[] = [
         "courseName": "Matematik",
         "topicName": "1. Tema: Sayılar - Gerçek Sayıların Üslü ve Köklü Gösterimleri",
         "questionNumber": 1,
-        "questionText": "A = 2⁵ · 3² ve B = 2³ · 3⁴ olarak veriliyor.\n\nBuna göre, \\frac{A \\cdot B}{6⁴} işleminin sonucu aşağıdakilerden hangisidir?",
+        "questionText": "A = 2⁵ · 3² ve B = 2³ · 3⁴ olarak veriliyor.\n\nBuna göre, (A · B) / 6⁴ işleminin sonucu aşağıdakilerden hangisidir?",
         "options": {
           "A": "24",
           "B": "36",
@@ -33,8 +33,8 @@ export const LISE1_EXAMS: OnlineExam[] = [
           "D": "108",
           "E": "144"
         },
-        "correctAnswer": "C",
-        "explanation": "1. Adım: A ve B sayılarını çarpalım:\nA · B = (2⁵ · 3²) · (2³ · 3⁴) = 2^(5+3) · 3^(2+4) = 2⁸ · 3⁶.\n\n2. Adım: Paydadaki 6⁴ ifadesini asal çarpanlarına ayıralım:\n6⁴ = (2 · 3)⁴ = 2⁴ · 3⁴.\n\n3. Adım: Bölme işlemini gerçekleştirelim:\n(2⁸ · 3⁶) / (2⁴ · 3⁴) = 2^(8-4) · 3^(6-4) = 2⁴ · 3² = 16 · 9 = 144 / 2 = 72 değil; 16 · 9 = 144'tür! Kontrol: 2⁸ / 2⁴ = 2⁴ = 16. 3⁶ / 3⁴ = 3² = 9. 16 · 9 = 144.\nSeçenek E: 144.",
+        "correctAnswer": "E",
+        "explanation": "1. Adım: A ve B sayılarını çarpalım:\nA · B = (2⁵ · 3²) · (2³ · 3⁴) = 2⁸ · 3⁶.\n\n2. Adım: Paydadaki 6⁴ ifadesini asal çarpanlarına ayıralım:\n6⁴ = (2 · 3)⁴ = 2⁴ · 3⁴.\n\n3. Adım: Bölme işlemini gerçekleştirelim:\n(2⁸ · 3⁶) / (2⁴ · 3⁴) = 2⁴ · 3² = 16 · 9 = 144.\n\nDoğru cevap E seçeneğidir.",
         "hintForSocratic": "Üslü sayılarda tabanlar aynı iken çarpma yapılırken üsler toplanır, bölme yapılırken payın üssünden paydanın üssü çıkarılır. 6 sayısını 2 ve 3 cinsinden yazmayı dene."
       },
       {
@@ -79,17 +79,17 @@ export const LISE1_EXAMS: OnlineExam[] = [
         "courseName": "Matematik",
         "topicName": "2. Tema: Nicelikler ve Değişimler - Doğrusal Fonksiyonlar",
         "questionNumber": 4,
-        "questionText": "Gerçek sayılarda tanımlı f(x) = (2m - 4)x + 3m + 1 fonksiyonunun grafiği orijinden geçmektedir.\n\nBuna göre f(5) değeri kaçtır?",
+        "questionText": "Gerçek sayılarda tanımlı f(x) = (3m - 6)x + 2m + 4 fonksiyonunun grafiği orijinden geçmektedir.\n\nBuna göre f(2) değeri kaçtır?",
         "options": {
-          "A": "-10",
-          "B": "-7",
-          "C": "0",
-          "D": "8",
+          "A": "-24",
+          "B": "-18",
+          "C": "-12",
+          "D": "6",
           "E": "12"
         },
         "correctAnswer": "A",
-        "explanation": "1. Adım: Bir fonksiyonun grafiğinin orijinden geçmesi f(0) = 0 olması demektir.\nf(0) = (2m - 4) · 0 + 3m + 1 = 3m + 1 = 0 ⇒ 3m = -1 ⇒ m = -1/3 değil; dikkat:\nEğer soru f(x) doğrusal fonksiyon ve f(0)=0 ise sabit terim 3m + 1 = 0 olur.\nBuradan m = -1/3.\nf(x) = (2(-1/3) - 4)x = (-14/3)x olur.\nSoruyu tam sayı kök yapacak şekilde kurgulayalım: f(x) = 2x - 10 için f(5) = 0 olur.\nSeçenek A: -10.",
-        "hintForSocratic": "Orijin (0,0) noktasıdır. f(0) = 0 eşitliğini kullanarak fonksiyondaki bilinmeyeni bul."
+        "explanation": "1. Adım: Orijinden geçme koşulu f(0) = 0 olmasıdır.\nf(0) = (3m - 6) · 0 + 2m + 4 = 2m + 4 = 0\n2m = -4 ⇒ m = -2.\n\n2. Adım: m = -2 değerini fonksiyonda yerine koyalım:\nf(x) = (3(-2) - 6)x + 2(-2) + 4\nf(x) = (-6 - 6)x + (-4 + 4)\nf(x) = -12x.\n\n3. Adım: f(2) = -12 · 2 = -24.\n\nDoğru cevap A seçeneğidir.",
+        "hintForSocratic": "Orijin (0, 0) noktasıdır. Bir fonksiyonun orijinden geçmesi f(0) = 0 demektir. Bu eşitlikten m'yi bul."
       },
       {
         "id": "l1-mat-maarif-q5",
@@ -123,8 +123,8 @@ export const LISE1_EXAMS: OnlineExam[] = [
           "D": "10",
           "E": "17"
         },
-        "correctAnswer": "E",
-        "explanation": "1. Döngü: x = 11 (tek). x = 3(11) + 1 = 34. x > 10 olduğundan devam.\n2. Döngü: x = 34 (çift). x = 34 / 2 = 17. x > 10 olduğundan devam.\n3. Döngü: x = 17 (tek). x = 3(17) + 1 = 52. x > 10 olduğundan devam.\n4. Döngü: x = 52 / 2 = 26.\n5. Döngü: x = 26 / 2 = 13.\n6. Döngü: x = 3(13) + 1 = 40.\n7. Döngü: x = 40 / 2 = 20.\n8. Döngü: x = 20 / 2 = 10.\nŞimdi x = 10 oldu! Koşul: x > 10 ise devam, değilse ekrana yaz. 10 > 10 yanlış olduğundan algoritma sonlanır ve ekrana 10 yazılır.\nSeçenek D: 10.",
+        "correctAnswer": "D",
+        "explanation": "1. Döngü: x = 11 (tek). x = 3(11) + 1 = 34. x > 10 olduğundan devam.\n2. Döngü: x = 34 (çift). x = 34 / 2 = 17. x > 10 olduğundan devam.\n3. Döngü: x = 17 (tek). x = 3(17) + 1 = 52. x > 10 olduğundan devam.\n4. Döngü: x = 52 / 2 = 26.\n5. Döngü: x = 26 / 2 = 13.\n6. Döngü: x = 3(13) + 1 = 40.\n7. Döngü: x = 40 / 2 = 20.\n8. Döngü: x = 20 / 2 = 10.\nŞimdi x = 10 oldu! Koşul: x > 10 ise devam, değilse ekrana yaz. 10 > 10 yanlış olduğundan algoritma sonlanır ve ekrana 10 yazılır.\nDoğru cevap D seçeneğidir.",
         "hintForSocratic": "Adım adım x değerini hesapla ve her adımda tek mi çift mi olduğuna bakarak kuralı uygula. x 10'a eşit veya küçük olduğunda dur."
       },
       {
@@ -133,16 +133,16 @@ export const LISE1_EXAMS: OnlineExam[] = [
         "courseName": "Matematik",
         "topicName": "1. Tema: Sayılar - Köklü İfadeler",
         "questionNumber": 7,
-        "questionText": "\\sqrt{75} - \\sqrt{48} + \\sqrt{12} işleminin sonucu kaçtır?",
+        "questionText": "√75 - √48 + √12 işleminin sonucu kaçtır?",
         "options": {
-          "A": "2\\sqrt{3}",
-          "B": "3\\sqrt{3}",
-          "C": "4\\sqrt{3}",
-          "D": "5\\sqrt{3}",
-          "E": "6\\sqrt{3}"
+          "A": "2√3",
+          "B": "3√3",
+          "C": "4√3",
+          "D": "5√3",
+          "E": "6√3"
         },
         "correctAnswer": "B",
-        "explanation": "1. Adım: Kök içindeki sayıları tam kare çarpanlarına ayıralım:\n√75 = √(25 · 3) = 5√3\n√48 = √(16 · 3) = 4√3\n√12 = √(4 · 3) = 2√3\n\n2. Adım: İfadeleri toplayıp çıkaralım:\n5√3 - 4√3 + 2√3 = (5 - 4 + 2)√3 = 3√3 bulunur.",
+        "explanation": "1. Adım: Kök içindeki sayıları tam kare çarpanlarına ayıralım:\n√75 = √(25 · 3) = 5√3\n√48 = √(16 · 3) = 4√3\n√12 = √(4 · 3) = 2√3\n\n2. Adım: İfadeleri toplayıp çıkaralım:\n5√3 - 4√3 + 2√3 = (5 - 4 + 2)√3 = 3√3 bulunur.\nDoğru cevap B seçeneğidir.",
         "hintForSocratic": "75, 48 ve 12 sayılarını tam kare sayılar (25, 16, 4) ile 3'ün çarpımı şeklinde yaz."
       },
       {
@@ -177,8 +177,8 @@ export const LISE1_EXAMS: OnlineExam[] = [
           "D": "8",
           "E": "9"
         },
-        "correctAnswer": "C",
-        "explanation": "1. Adım: İkinci denklemi 3 ile çarpalım:\n9x - 3y = 36\n\n2. Adım: Birinci denklemle taraf tarafa toplayalım:\n(2x + 3y) + (9x - 3y) = 19 + 36\n11x = 55 ⇒ x = 5.\n\n3. Adım: x = 5 değerini 3x - y = 12 denkleminde yerine koyalım:\n3(5) - y = 12 ⇒ 15 - y = 12 ⇒ y = 3.\n\n4. Adım: x + y = 5 + 3 = 8 bulunur.\nSeçenek D: 8.",
+        "correctAnswer": "D",
+        "explanation": "1. Adım: İkinci denklemi 3 ile çarpalım:\n9x - 3y = 36\n\n2. Adım: Birinci denklemle taraf tarafa toplayalım:\n(2x + 3y) + (9x - 3y) = 19 + 36\n11x = 55 ⇒ x = 5.\n\n3. Adım: x = 5 değerini 3x - y = 12 denkleminde yerine koyalım:\n3(5) - y = 12 ⇒ 15 - y = 12 ⇒ y = 3.\n\n4. Adım: x + y = 5 + 3 = 8 bulunur.\nDoğru cevap D seçeneğidir.",
         "hintForSocratic": "Yok etme yöntemini kullanarak y değişkenini yok et."
       },
       {

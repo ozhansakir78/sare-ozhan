@@ -184,16 +184,16 @@ export const FULL_LGS_EXAMS: OnlineExam[] = [
         topicName: 'Basınç',
         questionNumber: 9,
         questionText:
-          'Ağırlıkları eşit olan K, L ve M katı cisimlerinin zemine temas eden taban alanları sırasıyla S, 2S ve 3S\'tir.\n\nBuna göre, cisimlerin zemine uyguladıkları basınçlar (P_K, P_L, P_M) arasındaki doğru ilişki hangisidir?',
+          'Ağırlıkları eşit olan K, L ve M katı cisimlerinin zemine temas eden taban alanları sırasıyla S, 2S ve 3S\'tir.\n\nBuna göre, cisimlerin zemine uyguladıkları basınçlar (PK, PL, PM) arasındaki doğru ilişki hangisidir?',
         options: {
-          A: 'P_K > P_L > P_M',
-          B: 'P_M > P_L > P_K',
-          C: 'P_K = P_L = P_M',
-          D: 'P_L > P_K > P_M',
+          A: 'PK > PL > PM',
+          B: 'PM > PL > PK',
+          C: 'PK = PL = PM',
+          D: 'PL > PK > PM',
         },
         correctAnswer: 'A',
         explanation:
-          'Katı basıncı formülü: P = G / S (Ağırlık / Taban Alanı). Ağırlıklar eşitken taban alanı ile basınç ters orantılıdır. En küçük taban alanına sahip K cismi en büyük basıncı üretir: P_K > P_L > P_M.',
+          'Katı basıncı formülü: P = G / S (Ağırlık / Taban Alanı). Ağırlıklar eşitken taban alanı ile basınç ters orantılıdır. En küçük taban alanına sahip K cismi en büyük basıncı üretir: PK > PL > PM.',
         hintForSocratic: 'Katı basıncının taban alanı ile ters orantılı olduğunu hatırla: Yüzey küçüldükçe basınç artar.',
       },
 

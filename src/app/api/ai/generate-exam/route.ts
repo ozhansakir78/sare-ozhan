@@ -50,6 +50,83 @@ function slugify(text: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
+function validateAndHealQuestion(
+  q: any,
+  isLise1: boolean,
+  fallbackCourseKey: string,
+  fallbackCourseName: string,
+  fallbackTopicName: string,
+  index: number
+): OnlineExamQuestion {
+  let qText = formatMathText(q.questionText || '');
+  // Ham LaTeX kalıntılarını temizle ve okunabilir formata dönüştür
+  qText = qText
+    .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '($1) / ($2)')
+    .replace(/\\sqrt\{([^}]+)\}/g, '√$1')
+    .replace(/\\cdot/g, '·')
+    .replace(/\\times/g, '×')
+    .replace(/\$/g, '');
+
+  let explanation = formatMathText(q.explanation || 'Çözüm adımları inceleniyor.');
+  explanation = explanation
+    .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '($1) / ($2)')
+    .replace(/\\sqrt\{([^}]+)\}/g, '√$1')
+    .replace(/\\cdot/g, '·')
+    .replace(/\\times/g, '×')
+    .replace(/\$/g, '');
+
+  const validKeys: ExamQuestionOptionKey[] = isLise1
+    ? ['A', 'B', 'C', 'D', 'E']
+    : ['A', 'B', 'C', 'D'];
+
+  const options: Record<ExamQuestionOptionKey, string> = {} as any;
+  for (const k of validKeys) {
+    if (q.options && q.options[k] !== undefined && q.options[k] !== null) {
+      let optText = formatMathText(String(q.options[k]).trim());
+      optText = optText
+        .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '($1) / ($2)')
+        .replace(/\\sqrt\{([^}]+)\}/g, '√$1')
+        .replace(/\\cdot/g, '·')
+        .replace(/\\times/g, '×')
+        .replace(/\$/g, '');
+      options[k] = optText;
+    } else {
+      options[k] = '-';
+    }
+  }
+
+  let correctAnswer: ExamQuestionOptionKey = (q.correctAnswer || 'A').toUpperCase().trim() as ExamQuestionOptionKey;
+  if (!validKeys.includes(correctAnswer)) {
+    correctAnswer = 'A';
+  }
+
+  // Çift Katmanlı Sağlama (Explanation vs CorrectAnswer):
+  // Eğer yapay zekâ açıklamada net olarak "Doğru cevap X" veya "Seçenek X" demişse fakat correctAnswer alanına farklı harf yazmışsa otomatik hizala!
+  const answerMatch =
+    explanation.match(/(?:doğru\s+(?:cevap|seçenek)|seçenek)\s+([A-E])\b/i) ||
+    explanation.match(/cevap\s+([A-E])\s*(?:dir|tir|dır|dur|'dir|'tir|'dır|:)/i);
+
+  if (answerMatch && answerMatch[1]) {
+    const deducedKey = answerMatch[1].toUpperCase() as ExamQuestionOptionKey;
+    if (validKeys.includes(deducedKey) && deducedKey !== correctAnswer) {
+      correctAnswer = deducedKey;
+    }
+  }
+
+  return {
+    id: `ai-q-${Date.now()}-${index + 1}-${Math.random().toString(36).slice(2, 6)}`,
+    questionNumber: index + 1,
+    courseKey: q.courseKey || fallbackCourseKey,
+    courseName: q.courseName || fallbackCourseName,
+    topicName: q.topicName || fallbackTopicName,
+    questionText: qText,
+    options,
+    correctAnswer,
+    explanation,
+    hintForSocratic: q.hintForSocratic || 'Soru kökündeki temel kuralı ve verilenleri adım adım incele.',
+  };
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = (await req.json()) as GenerateExamRequest;
@@ -117,17 +194,18 @@ Görevin, LGS formatına %100 uygun, yeni nesil, beceri temelli, grafik/deney/ta
         "D": "D şıkkı"${isLise1 ? ',\n        "E": "E şıkkı"' : ''}
       },
       "correctAnswer": "A",
-      "explanation": "Adım adım net çözüm açıklaması",
-      "hintForSocratic": "Öğrenciyi kuralı hatırlamaya yönlendiren soru"
+      "explanation": "Adım adım net çözüm açıklaması ve en sonda 'Doğru cevap X seçeneğidir.' cümlesi",
+      "hintForSocratic": "Öğrenciyi kuralı hatırlamaya yönlendiren Sokratik ipucu sorusu"
     }
   ]
 }
 
-ÖNEMLİ KURALLAR:
+ÖNEMLİ MATEMATİK VE PEDAGOJİ KURALLARI:
 1. Sadece saf JSON üret, markdown blokları (\`\`\`json) ekleme.
-2. Sayısal ve mantıksal tutarlılığı kontrol et.
-3. Asla Türkçe karakter hatası yapma.
-4. MATEMATİK VE FEN YAZIM KURALI: Bilgisayar programlama üs işareti '^' (örn: 2^3, 2^12, x^2) KESİNLİKLE KULLANMA! Üsleri daima Unicode üst simgeler olarak yaz: ⁰, ¹, ², ³, ⁴, ⁵, ⁶, ⁷, ⁸, ⁹, ⁺, ⁻, ⁿ, ˣ (Örn: 2³ · 2⁴, 2¹², 2⁷, 4⁷, x² - 4, 10⁻⁵). Çarpma için '·' veya '×' kullan. ASLA LaTeX dolar işareti ($) kullanma.`;
+2. ÖNCE ÇÖZ, SONRA ŞIKKA KOY: Sayısal veya mantıksal sorularda önce çözümü adım adım yap. Çıkan kesin sonucu seçeneklerden BİRİNE yaz. 'correctAnswer' alanına KESİNLİKLE o şıkkın harfini yaz. Asla çözümde bir sayı bulup şıklara başka bir harf yazma!
+3. TUTARLILIK ŞARTI: 'explanation' metninin son cümlesi mutlaka 'Doğru cevap [A/B/C/D/E] seçeneğidir.' şeklinde bitmeli ve buradaki harf 'correctAnswer' ile %100 aynı olmalıdır.
+4. ASLA UYDURMA DENKLEM KURMA: Çözümleri tam sayı veya temiz kesir çıkan, MEB müfredatına uygun gerçekçi sorular yaz.
+5. YAZIM KURALI: Bilgisayar programlama üs işareti '^' KESİNLİKLE KULLANMA! Üsleri Unicode üst simge olarak yaz: ⁰, ¹, ², ³, ⁴, ⁵, ⁶, ⁷, ⁸, ⁹, ⁺, ⁻, ⁿ, ˣ. Bölme için '/' veya kesir çizgisi, kök için '√', çarpma için '·' kullan. ASLA LaTeX kodu (\\frac, \\sqrt, $) KULLANMA!`;
 
     const userPrompt = examTitle
       ? `Lütfen başlığı "${examTitle}" olan sınavı üret.`
@@ -292,18 +370,15 @@ Görevin, LGS formatına %100 uygun, yeni nesil, beceri temelli, grafik/deney/ta
 
     const finalQuestionsList = parsedResult?.questions || [];
     const formattedQuestions: OnlineExamQuestion[] = finalQuestionsList.map(
-      (q, idx) => ({
-        id: `ai-q-${Date.now()}-${idx + 1}`,
-        questionNumber: idx + 1,
-        courseKey: q.courseKey || courseKey,
-        courseName: q.courseName || mainCourseName,
-        topicName: q.topicName || topicName || 'Genel Konu',
-        questionText: q.questionText,
-        options: q.options,
-        correctAnswer: q.correctAnswer || 'A',
-        explanation: q.explanation || 'Çözüm açıklaması hazırlanıyor.',
-        hintForSocratic: q.hintForSocratic || 'Soru kökündeki anahtar kelimeleri incele.',
-      })
+      (q, idx) =>
+        validateAndHealQuestion(
+          q,
+          isLise1,
+          courseKey,
+          mainCourseName,
+          topicName || 'Genel Konu',
+          idx
+        )
     );
 
     const generatedExam: OnlineExam = {

@@ -39,8 +39,8 @@ export default function LeaderboardPage() {
               <Users className="h-6 w-6" />
             </div>
             <div>
-              <span className="text-xl font-black text-slate-900 dark:text-white">1,420+</span>
-              <span className="block text-xs text-slate-400">Toplam Katılımcı</span>
+              <span className="text-xl font-black text-slate-900 dark:text-white">Derece Ligi</span>
+              <span className="block text-xs text-slate-400">Türkiye Geneli Canlı Sıralama</span>
             </div>
           </div>
 
@@ -49,8 +49,8 @@ export default function LeaderboardPage() {
               <Award className="h-6 w-6" />
             </div>
             <div>
-              <span className="text-xl font-black text-slate-900 dark:text-white">494.3 Puan</span>
-              <span className="block text-xs text-slate-400">Haftanın En Yüksek Skoru</span>
+              <span className="text-xl font-black text-slate-900 dark:text-white">%0.01 Hedef</span>
+              <span className="block text-xs text-slate-400">Fen &amp; Sosyal Bilimler Radarı</span>
             </div>
           </div>
 

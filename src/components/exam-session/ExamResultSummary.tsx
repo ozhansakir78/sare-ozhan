@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import type { OnlineExam, OnlineExamResult, QuestionResultDetail } from '@/types/online-exam';
 import type { WrongQuestionItem } from '@/types/question';
 import type { LgsCourseKey } from '@/types/exam';
 import { saveQuestionToStorage, getStoredQuestions } from '@/lib/question-storage';
-import { saveStudentExamToStorage } from '@/lib/exam-storage';
+import { saveStudentExamToStorage, getStoredExams } from '@/lib/exam-storage';
+import { syncLocalDataToCloud } from '@/lib/cloud-sync';
 import { addLeaderboardEntry } from '@/lib/leaderboard-storage';
 import { recordStreakActivity } from '@/lib/streak-storage';
 import { SocraticAssistantModal } from '@/components/question/SocraticAssistantModal';
@@ -106,17 +107,17 @@ export function ExamResultSummary({
   // Yanlış veya boş soruları tespit et
   const wrongOrEmptyQuestions = result.questionDetails.filter((d) => !d.isCorrect);
 
-  // Yanlış veya boş soruları Yanlış Defteri'ne aktar
-  const handleSaveToWrongNotebook = () => {
-    if (isSavedToWrongNotebook) return;
-
+  // Yanlış veya boş soruları Yanlış Defteri'ne konu bazında aktar
+  const handleSaveToWrongNotebook = useCallback(() => {
     const existingQuestions = getStoredQuestions();
     let addedCount = 0;
 
     for (const item of wrongOrEmptyQuestions) {
       // Daha önce eklenip eklenmediğini kontrol et
       const alreadyExists = existingQuestions.some(
-        (q) => q.topicName === item.question.topicName && (q.questionText === item.question.questionText || q.studentNote?.includes(item.question.id))
+        (q) =>
+          q.topicName === item.question.topicName &&
+          (q.questionText === item.question.questionText || q.studentNote?.includes(item.question.id))
       );
 
       if (!alreadyExists) {
@@ -156,12 +157,10 @@ export function ExamResultSummary({
     }
 
     setIsSavedToWrongNotebook(true);
-  };
+  }, [exam.title, wrongOrEmptyQuestions]);
 
-  // Deneme geçmişine kaydet
-  const handleSaveToHistory = () => {
-    if (isSavedToHistory) return;
-
+  // Deneme geçmişine ders bazında kaydet
+  const handleSaveToHistory = useCallback(() => {
     // Her dersin netini soru bazında dinamik topla
     const courseStats: Record<
       string,
@@ -182,10 +181,18 @@ export function ExamResultSummary({
         if (d.isEmpty) courseStats[cKey].empty++;
         else if (d.isCorrect) courseStats[cKey].correct++;
         else courseStats[cKey].incorrect++;
+      } else {
+        courseStats[cKey] = {
+          correct: d.isCorrect ? 1 : 0,
+          incorrect: !d.isCorrect && !d.isEmpty ? 1 : 0,
+          empty: d.isEmpty ? 1 : 0,
+          count: 1,
+          name: d.question.courseName || cKey,
+        };
       }
     });
 
-    const coursesObj = {
+    const coursesObj: any = {
       turkce: {
         courseKey: 'turkce' as const,
         courseName: courseStats.turkce.name,
@@ -254,23 +261,75 @@ export function ExamResultSummary({
       },
     };
 
-    saveStudentExamToStorage({
-      examTitle: exam.title,
-      examDate: new Date().toISOString().split('T')[0],
-      totalScore: Math.round(200 + (result.netScore / result.totalQuestions) * 300),
-      calculatedPercentile: Math.max(0.2, Number((100 - (result.netScore / result.totalQuestions) * 98).toFixed(2))),
-      totalNet: result.netScore,
-      totalCorrect: result.correctCount,
-      totalIncorrect: result.incorrectCount,
-      totalEmpty: result.emptyCount,
-      courses: coursesObj,
+    // Diğer branşlar (örn. 9. sınıf Fizik, Kimya vb.) varsa ekle
+    Object.entries(courseStats).forEach(([cKey, stat]) => {
+      if (!coursesObj[cKey] && stat.count > 0) {
+        coursesObj[cKey] = {
+          courseKey: cKey,
+          courseName: stat.name,
+          questionCount: stat.count,
+          weight: 1,
+          correct: stat.correct,
+          incorrect: stat.incorrect,
+          empty: stat.empty,
+          net: Number(Math.max(0, stat.correct - stat.incorrect / 3).toFixed(2)),
+          lostNet: Number((stat.incorrect / 3).toFixed(2)),
+        };
+      }
     });
 
-    // Günlük seri ve soru hedefini güncelle
-    recordStreakActivity(result.totalQuestions);
+    const currentExams = getStoredExams();
+    const today = new Date().toISOString().split('T')[0];
+    const isAlreadySaved = currentExams.some(
+      (e) =>
+        e.examTitle === exam.title &&
+        e.examDate === today &&
+        Math.abs(e.totalNet - result.netScore) < 0.05 &&
+        (Math.abs(new Date(e.createdAt).getTime() - new Date(result.completedAt).getTime()) < 120000 ||
+          Math.abs(Date.now() - new Date(e.createdAt).getTime()) < 120000)
+    );
+
+    if (!isAlreadySaved) {
+      saveStudentExamToStorage({
+        userId: user?.id,
+        examTitle: exam.title,
+        examDate: today,
+        totalScore: Math.round(200 + (result.netScore / result.totalQuestions) * 300),
+        calculatedPercentile: Math.max(0.2, Number((100 - (result.netScore / result.totalQuestions) * 98).toFixed(2))),
+        totalNet: result.netScore,
+        totalCorrect: result.correctCount,
+        totalIncorrect: result.incorrectCount,
+        totalEmpty: result.emptyCount,
+        courses: coursesObj,
+      });
+
+      // Günlük seri ve soru hedefini güncelle
+      recordStreakActivity(result.totalQuestions);
+    }
 
     setIsSavedToHistory(true);
-  };
+  }, [exam.title, result, user?.id]);
+
+  // 🚀 OTOMATİK KAYIT: Sınav sonuçlandığında öğrencinin herhangi bir butona tıklamasına gerek kalmadan
+  // 1. Yanlış ve boş soruları konu bazında Yanlış Defteri'ne arşivler.
+  // 2. Deneme sonucunu ders bazlı net dökümüyle Deneme Geçmişi'ne ekler (Veli raporuna anında yansır).
+  // 3. Kullanıcı oturum açmışsa Supabase bulut veritabanına yedekler.
+  useEffect(() => {
+    if (!result) return;
+
+    handleSaveToWrongNotebook();
+    handleSaveToHistory();
+
+    if (user?.id) {
+      syncLocalDataToCloud(user.id).catch((err) => {
+        console.warn('Otomatik bulut eşitleme hatası:', err);
+      });
+    }
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('cloud_synced'));
+    }
+  }, [result, handleSaveToWrongNotebook, handleSaveToHistory, user?.id]);
 
   // Liderlik Tablosuna Kaydet
   const handleSaveToLeaderboard = (e?: React.FormEvent) => {
@@ -475,49 +534,45 @@ export function ExamResultSummary({
             </span>
           </div>
 
-          {/* Aksiyon Butonları (Yanlış Defterine Ekle & Denemelerime Ekle) */}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          {/* Otomatik Kayıt Bilgilendirme Rozetleri */}
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-bold text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300">
+              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+              <span>Deneme Geçmişine &amp; Veli Raporuna Otomatik Kaydedildi</span>
+            </span>
             {wrongOrEmptyQuestions.length > 0 && (
-              <button
-                type="button"
-                onClick={handleSaveToWrongNotebook}
-                disabled={isSavedToWrongNotebook}
-                className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition shadow-xs cursor-pointer ${
-                  isSavedToWrongNotebook
-                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 cursor-default dark:bg-emerald-950/40 dark:border-emerald-800 dark:text-emerald-300'
-                    : 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white hover:from-indigo-700 hover:to-violet-700 shadow-indigo-500/20'
-                }`}
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-[11px] font-bold text-indigo-700 dark:border-indigo-800 dark:bg-indigo-950/50 dark:text-indigo-300">
+                <BookMarked className="h-3.5 w-3.5 text-indigo-600" />
+                <span>{wrongOrEmptyQuestions.length} Soru Konu Bazında Yanlış Defterine Eklendi</span>
+              </span>
+            )}
+          </div>
+
+          {/* Aksiyon Butonları (Yanlış Defteri, Deneme Geçmişi, Veli WhatsApp ve Tekrar Çöz) */}
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+            {wrongOrEmptyQuestions.length > 0 && (
+              <Link
+                href="/yanlis-defteri"
+                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-2.5 text-xs font-bold text-white shadow-xs hover:from-indigo-700 hover:to-violet-700 transition"
               >
                 <BookMarked className="h-4 w-4" />
-                <span>
-                  {isSavedToWrongNotebook
-                    ? 'Yanlış Defterine Eklendi ✓'
-                    : `Yanlışları (${wrongOrEmptyQuestions.length} Soru) Yanlış Defterime Ekle`}
-                </span>
-              </button>
+                <span>Yanlış Defterimde Çöz ({wrongOrEmptyQuestions.length})</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
             )}
 
-            <button
-              type="button"
-              onClick={handleSaveToHistory}
-              disabled={isSavedToHistory}
-              className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-xs font-bold transition shadow-xs cursor-pointer ${
-                isSavedToHistory
-                  ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:border-emerald-800 dark:text-emerald-300'
-                  : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'
-              }`}
+            <Link
+              href="/deneme-gecmisi"
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 shadow-xs transition"
             >
               <TrendingUp className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-              <span>
-                {isSavedToHistory
-                  ? 'Deneme Geçmişine Kaydedildi ✓'
-                  : 'Grafiğe Kaydet'}
-              </span>
-            </button>
+              <span>Deneme Geçmişimi Aç</span>
+            </Link>
 
             <WhatsAppShareButton
               shareData={{
                 examTitle: exam.title,
+                score: Math.round(200 + (result.netScore / result.totalQuestions) * 300),
                 totalNet: result.netScore,
                 mode: 'student_to_parent',
                 courseBreakdown: courseSummaryList.map((c) => ({ name: c.name, net: c.net })),

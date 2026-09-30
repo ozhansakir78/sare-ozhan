@@ -261,10 +261,10 @@ export const LGS_UNIT_TESTS: OnlineExam[] = [
           C: 'Deniz',
           D: 'Cem',
         },
-        correctAnswer: 'C',
+        correctAnswer: 'B',
         explanation:
-          '1. Emre 1. sıradadır: [1: Emre].\n2. Deniz Burak\'tan hemen sonra, Ali\'den hemen öncedir. Yani [Burak, Deniz, Ali] blok halinde peş peşe gelmelidir.\n3. Cem sonuncu değildir. 5 kişilik sıralamada [Burak, Deniz, Ali] bloğu 2, 3 ve 4. sıralara yerleşirse:\n1. Emre, 2. Burak, 3. Deniz, 4. Ali, 5. Cem olurdu AMA Cem sonuncu olamayacağından:\nSıralama: 1. Emre, 2. Burak, 3. Deniz, 4. Ali... Cem sonuncu olamaz kuralı gereği:\nBlok yerleşimi: 1: Emre, 2: Burak, 3: Deniz, 4: Ali, 5: Cem olamaz.\nO halde Cem 2. sıraya yerleşebilir mi? Hayır, blok bozulamaz.\nDoğru yerleşim: 2. Burak, 3. Deniz, 4. Ali olduğunda Cem sonuncu kalamaz. O halde Burak 2, Deniz 3, Ali 4 ise Cem 1 olamayacağına göre, Cem araya giremez.\nBu blok kurgusunda Deniz kesinlikle 3. sıradadır: [Burak (2), Deniz (3), Ali (4)].',
-        hintForSocratic: 'Burak, Deniz ve Ali arka arkaya gelmek zorunda (Burak -> Deniz -> Ali). Emre 1. ise Deniz kaçıncı olur?',
+          'Adım adım mantıksal sıralama:\n1. Emre yarışın 1.sidir: [1: Emre].\n2. Deniz, Burak\'tan hemen sonra, Ali\'den hemen öncedir. Bu durumda [Burak, Deniz, Ali] üçlüsü blok halinde peş peşe gelmelidir.\n3. Geriye 2, 3, 4 ve 5. sıralar ile Cem kalır.\n- Eğer [Burak, Deniz, Ali] bloğu 2, 3 ve 4. sıraya yerleşirse 5. sıraya Cem kalır; fakat "Cem sonuncu bitirmemiştir" öncülü bunu engeller.\n- Bu nedenle Cem 2. sırada olmalı, [Burak, Deniz, Ali] bloğu ise sırasıyla 3, 4 ve 5. sıralara yerleşmelidir.\n\nKesin sıralama: 1. Emre, 2. Cem, 3. Burak, 4. Deniz, 5. Ali.\nBuna göre 3. sırada yarışı tamamlayan kişi Burak\'tır.\nDoğru cevap B seçeneğidir.',
+        hintForSocratic: 'Emre 1. ise ve Burak-Deniz-Ali ardışık bir blok oluşturuyorsa, Cem\'in sonuncu olmaması için bloğun kaçıncı sıralarda yer alması gerektiğini düşün.',
       },
       {
         id: 'lgs-tur-q3',
