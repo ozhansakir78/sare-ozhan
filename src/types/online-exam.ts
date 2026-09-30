@@ -16,22 +16,32 @@ export interface OnlineExamQuestion {
   hintForSocratic?: string; // Sokratik asistan için ön ipucu
 }
 
-export type OnlineExamTier = 'lgs' | 'lise1';
+export type OnlineExamTier = 'lgs' | 'lise1' | 'lise2' | 'lise3' | 'yks';
 
-export type OnlineExamType = 'branch' | 'mini' | 'full' | 'yazili' | 'tyt';
+export type OnlineExamType = 'branch' | 'mini' | 'full' | 'yazili' | 'tyt' | 'ayt' | 'ydt';
+
+export type OnlineExamDifficulty =
+  | 'Kolay'
+  | 'Orta'
+  | 'LGS Düzeyi'
+  | 'MEB Yazılı Düzeyi'
+  | 'Zorlayıcı'
+  | 'YKS (TYT) Düzeyi'
+  | 'YKS (AYT) Düzeyi'
+  | 'YKS (YDT) Düzeyi';
 
 export interface OnlineExam {
   id: string;
   slug: string;
   title: string;
   description: string;
-  tier?: OnlineExamTier; // 'lgs' | 'lise1' (varsayılan: lgs)
+  tier?: OnlineExamTier; // 'lgs' | 'lise1' | 'lise2' | 'lise3' | 'yks' (varsayılan: lgs)
   type: OnlineExamType;
   courseKey?: string; // Branş veya yazılı denemesi ise
   courseName?: string;
   questionCount: number;
   durationMinutes: number;
-  difficulty: 'Kolay' | 'Orta' | 'LGS Düzeyi' | 'MEB Yazılı Düzeyi' | 'Zorlayıcı' | 'YKS (TYT) Düzeyi';
+  difficulty: OnlineExamDifficulty;
   isPro: boolean;
   questions: OnlineExamQuestion[];
   badgeText?: string;

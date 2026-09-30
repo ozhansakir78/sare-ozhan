@@ -211,7 +211,8 @@ export type UserProfile = {
   email: string | null;
   display_name: string | null;
   nickname?: string | null;
-  grade_level?: string | null; // '8' | '9'
+  grade_level?: '8' | '9' | '10' | '11' | '12' | string | null;
+  target_field?: 'sayisal' | 'esit_agirlik' | 'sozel' | 'dil' | string | null;
   target_city?: string | null;
   target_district?: string | null;
   target_high_school: string | null;
@@ -231,7 +232,8 @@ export type UserProfileInsert = {
   email?: string | null;
   display_name?: string | null;
   nickname?: string | null;
-  grade_level?: string | null;
+  grade_level?: '8' | '9' | '10' | '11' | '12' | string | null;
+  target_field?: 'sayisal' | 'esit_agirlik' | 'sozel' | 'dil' | string | null;
   target_city?: string | null;
   target_district?: string | null;
   target_high_school?: string | null;
@@ -251,7 +253,8 @@ export type UserProfileUpdate = {
   email?: string | null;
   display_name?: string | null;
   nickname?: string | null;
-  grade_level?: string | null;
+  grade_level?: '8' | '9' | '10' | '11' | '12' | string | null;
+  target_field?: 'sayisal' | 'esit_agirlik' | 'sozel' | 'dil' | string | null;
   target_city?: string | null;
   target_district?: string | null;
   target_high_school?: string | null;
