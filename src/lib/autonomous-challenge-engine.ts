@@ -311,6 +311,7 @@ export function generateWeeklyVerbalChallenge(now = new Date()): OnlineExam {
       },
       correctAnswer: 'A',
       explanation: `"Düğüm", karmaşık, anlaşılması güç durumları ifade eder. Düğümleri çözmek ise zihindeki karmaşık ve içinden çıkılmaz duygu ve düşünceleri netleştirip aydınlığa kavuşturmak anlamına gelir.`,
+      hintForSocratic: '"Düğüm" mecazi olarak neyi simgeler? Bu düğümü çözmek, insanın iç dünyasındaki karmaşayı ne hale getirir?',
     },
     {
       id: `verbal-t2-${week.weekNumber}`,
@@ -327,6 +328,7 @@ export function generateWeeklyVerbalChallenge(now = new Date()): OnlineExam {
       },
       correctAnswer: 'D',
       explanation: `A şıkkında 'izlemek' (isim-fiil), B şıkkında 'okuyan' (sıfat-fiil), C şıkkında 'gidip' (zarf-fiil) kullanılmıştır. D şıkkındaki 'Dün akşamki fırtına sabaha karşı nihayet dindi' cümlesinde ise hiçbir fiilimsi eki bulunmamaktadır.`,
+      hintForSocratic: 'Cümlelerdeki fiil köklü sözcükleri incele. -mek/-mak, -an/-en, -ip/-üp eklerini arayarak fiilimsi almamış olan yüklemi tek başına duran cümleyi bul.',
     },
     {
       id: `verbal-t3-${week.weekNumber}`,
@@ -343,6 +345,7 @@ export function generateWeeklyVerbalChallenge(now = new Date()): OnlineExam {
       },
       correctAnswer: 'B',
       explanation: `İnsana ait olan "kollarını açıp yolcuları selamlamak" özelliği insan dışındaki bir varlığa (ulu çınar ağacına) aktarılarak kişileştirme (teşhis) sanatı yapılmıştır.`,
+      hintForSocratic: 'Ulu çınar ağacının insan gibi "kollarını açıp yolcuları selamlaması" cansız bir varlığa hangi insani özelliği kazandırmıştır?',
     },
     {
       id: `verbal-t4-${week.weekNumber}`,
@@ -359,6 +362,7 @@ export function generateWeeklyVerbalChallenge(now = new Date()): OnlineExam {
       },
       correctAnswer: 'D',
       explanation: `D şıkkındaki "Sende" sözcüğündeki "-de", bulunma eki değil, "dahi/bile" anlamındaki bağlaç olan "de"dir. Bağlaç olan "de" ayrı yazılmalıdır: "Sen de bizimle sinemaya gelecek misin?" şeklinde olmalıdır.`,
+      hintForSocratic: 'Cümledeki "-de/-da" ekini cümleden çıkardığında anlam bozuluyor mu yoksa sadece daralıyor mu? "Dahi/bile" anlamındaki "de" nasıl yazılır?',
     },
     {
       id: `verbal-t5-${week.weekNumber}`,
@@ -375,6 +379,7 @@ export function generateWeeklyVerbalChallenge(now = new Date()): OnlineExam {
       },
       correctAnswer: 'B',
       explanation: `Paragrafta başarının asıl anahtarının "denemekten vazgeçmemek" (kararlılık/azim/sebat) olduğu vurgulanmaktadır. Dolayısıyla ana düşünce B şıkkıdır.`,
+      hintForSocratic: 'Yazar zekâ ile sebat (kararlılık) arasında nasıl bir karşılaştırma yapmış? Asıl tohumu yeşerten ne olarak gösterilmiş?',
     },
     {
       id: `verbal-t6-${week.weekNumber}`,
@@ -391,6 +396,7 @@ export function generateWeeklyVerbalChallenge(now = new Date()): OnlineExam {
       },
       correctAnswer: 'B',
       explanation: `Yüklem: suladık. Kim suladı? Biz (gizli özne). Neyi suladık? Okul bahçesindeki fidanları (Belirtili Nesne). Ne zaman suladık? Sabah erkenden (Zarf Tamlayıcısı). Cümledeki öge dizilişi: Belirtili Nesne - Zarf Tamlayıcısı - Yüklem şeklindedir.`,
+      hintForSocratic: 'Önce yüklemi bul: "suladık". "Kim suladı?" (özne gizli mi?). Ardından "Neyi?" ve "Ne zaman?" sorularını sorarak ögeleri sırala.',
     },
 
     // --- 3 İNKILAP TARİHİ SORUSU ---
@@ -409,6 +415,7 @@ export function generateWeeklyVerbalChallenge(now = new Date()): OnlineExam {
       },
       correctAnswer: 'B',
       explanation: `Namık Kemal "Vatan Şairi", Mehmet Emin Yurdakul ise "Millî Şair" olarak bilinir. Onların eserleri Mustafa Kemal'in milliyetçilik ve vatanseverlik duygularının gelişiminde temel oluşturmuştur.`,
+      hintForSocratic: 'Namık Kemal ve Mehmet Emin Yurdakul\'un şiirlerindeki ana temaları (vatan, millet, bayrak) düşün. Bu temalar Mustafa Kemal\'de hangi bilinci güçlendirmiştir?',
     },
     {
       id: `verbal-i2-${week.weekNumber}`,
@@ -425,6 +432,7 @@ export function generateWeeklyVerbalChallenge(now = new Date()): OnlineExam {
       },
       correctAnswer: 'C',
       explanation: `Bu madde bağımsızlığın ancak milletin kendi gücüyle kazanılabileceğini belirtir. Manda ve himaye fikri tam tersine bağımsızlığa aykırıdır ve Erzurum ile Sivas Kongrelerinde kesin olarak reddedilmiştir.`,
+      hintForSocratic: '"Milletin bağımsızlığını millet kurtaracaktır" ilkesi dışarıdan bir devletin koruyuculuğunu (mandacılığı) kabul eder mi yoksa tam tersi kendi gücüne mi güvenir?',
     },
     {
       id: `verbal-i3-${week.weekNumber}`,
@@ -441,6 +449,7 @@ export function generateWeeklyVerbalChallenge(now = new Date()): OnlineExam {
       },
       correctAnswer: 'A',
       explanation: `Kuvay-ı Millîye'yi etkin kılmak ulusal bağımsızlığı, irade-i millîyeyi (millet iradesini) hâkim kılmak ise ulusal egemenliği simgeler.`,
+      hintForSocratic: 'Kuvay-ı Millîye silahlı halk direnişidir (bağımsızlık), irade-i millîye ise halkın kendi yönetimidir (ulusal egemenlik). Bu iki kavram birlikte neyi oluşturur?',
     },
 
     // --- 3 DİN KÜLTÜRÜ SORUSU ---
@@ -459,6 +468,7 @@ export function generateWeeklyVerbalChallenge(now = new Date()): OnlineExam {
       },
       correctAnswer: 'C',
       explanation: `Güneş ve ayın hareketi, yer çekimi ve gök cisimlerinin dengesi maddenin yapısı ve hareketiyle ilgili olan fiziksel yasaların konusudur.`,
+      hintForSocratic: 'Güneş, ay, gezegenler ve evrendeki hassas hareket düzeni; madde ve enerjiyi konu alan hangi evrensel yasaya girer?',
     },
     {
       id: `verbal-d2-${week.weekNumber}`,
@@ -475,6 +485,7 @@ export function generateWeeklyVerbalChallenge(now = new Date()): OnlineExam {
       },
       correctAnswer: 'C',
       explanation: `Kişi bakmakla yükümlü olduğu usûl (anne, baba, dede, nine) ve fürûuna (çocukları ve torunları) zekât veremez. Bu nedenle C şıkkı yanlıştır.`,
+      hintForSocratic: 'İslam hukukunda kişinin bakmakla doğrudan yükümlü olduğu birinci derece üst soyuna (anne-baba) ve alt soyuna (çocuklarına) zekât verilebilir mi?',
     },
     {
       id: `verbal-d3-${week.weekNumber}`,
@@ -491,6 +502,7 @@ export function generateWeeklyVerbalChallenge(now = new Date()): OnlineExam {
       },
       correctAnswer: 'A',
       explanation: `Kişi öldükten sonra da sevabı devam eden kalıcı hayır eserlerine ve faydalı ilme "Sadaka-i Cariye" (akan/kesintisiz sadaka) adı verilir.`,
+      hintForSocratic: 'İnsan öldükten sonra geride bıraktığı cami, köprü, okul veya faydalı bilgi gibi kesintisiz akan sadaka türüne ne ad verilir?',
     },
 
     // --- 3 İNGİLİZCE SORUSU ---
@@ -509,6 +521,7 @@ export function generateWeeklyVerbalChallenge(now = new Date()): OnlineExam {
       },
       correctAnswer: 'B',
       explanation: `Mark "I'd love to, but..." diyerek bir bahane sunmuş (matematik sınavına çalışmak zorunda olduğunu belirterek) daveti nazikçe reddetmiştir ("refuses the offer and makes an excuse").`,
+      hintForSocratic: 'Notice Mark\'s words: "I\'d love to, but...". Does this phrase indicate an acceptance, or does it introduce a reason/excuse for declining?',
     },
     {
       id: `verbal-e2-${week.weekNumber}`,
@@ -525,6 +538,7 @@ export function generateWeeklyVerbalChallenge(now = new Date()): OnlineExam {
       },
       correctAnswer: 'A',
       explanation: `"A friend in need is a friend indeed" (Dost kara günde belli olur / Gerçek dost zor zamanda yanında olandır) atasözü, arkanda duran (backs you up) ve sırrını saklayan gerçek dostu en iyi anlatan ifadedir.`,
+      hintForSocratic: '"Backs you up" means supports you, and "a friend in need" refers to someone who stays by your side during difficult times. Which proverb matches this loyalty?',
     },
     {
       id: `verbal-e3-${week.weekNumber}`,
@@ -541,6 +555,7 @@ export function generateWeeklyVerbalChallenge(now = new Date()): OnlineExam {
       },
       correctAnswer: 'B',
       explanation: `Soğanları kızartmadan (fry the onions) hemen önceki adım "Second, heat the olive oil in a pan" (tavada zeytinyağını ısıtmak) adımıdır.`,
+      hintForSocratic: 'Look at the recipe steps: 1. Chop onions/garlic, 2. Heat olive oil, 3. Fry onions. Which action comes immediately before step 3?',
     },
   ];
 
