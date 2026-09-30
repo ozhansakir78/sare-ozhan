@@ -42,16 +42,16 @@ export const MATH_EXAMS: OnlineExam[] = [
         topicName: 'Üslü İfadeler',
         questionNumber: 2,
         questionText:
-          'Bir laboratuvarda bulunan bakteri popülasyonu her 20 dakikada bir 2 katına çıkmaktadır.\n\nBaşlangıçta kapta 2^4 adet bakteri olduğuna göre, 2 saatin sonunda kapta toplam kaç adet bakteri bulunur?',
+          'Bir laboratuvarda bulunan bakteri popülasyonu her 20 dakikada bir 2 katına çıkmaktadır.\n\nBaşlangıçta kapta 2⁴ adet bakteri olduğuna göre, 2 saatin sonunda kapta toplam kaç adet bakteri bulunur?',
         options: {
-          A: '2^8',
-          B: '2^10',
-          C: '2^12',
-          D: '2^14',
+          A: '2⁸',
+          B: '2¹⁰',
+          C: '2¹²',
+          D: '2¹⁴',
         },
         correctAnswer: 'B',
         explanation:
-          '1. 2 saat = 120 dakikadır.\n2. Bakteriler her 20 dakikada 2 katına çıktığı için 120 / 20 = 6 kez çoğalma gerçekleşir.\n3. 6 kez 2 ile çarpmak, 2^6 ile çarpmak demektir.\n4. Son miktar = 2^4 × 2^6 = 2^(4 + 6) = 2^10 olur.',
+          '1. 2 saat = 120 dakikadır.\n2. Bakteriler her 20 dakikada 2 katına çıktığı için 120 / 20 = 6 kez çoğalma gerçekleşir.\n3. 6 kez 2 ile çarpmak, 2⁶ ile çarpmak demektir.\n4. Son miktar = 2⁴ · 2⁶ = 2⁴⁺⁶ = 2¹⁰ olur.',
         hintForSocratic: '2 saat içinde kaç tane 20 dakika olduğunu hesapla ve üslü ifadelerde çarpma kuralını (tabanlar aynıysa üsler toplanır) hatırla.',
       },
       {
@@ -155,17 +155,17 @@ export const MATH_EXAMS: OnlineExam[] = [
         topicName: 'Üslü İfadeler',
         questionNumber: 2,
         questionText:
-          '[MEB Örnek Soru Kalıbı]\nBir fabrikanın ürettiği 5^8 adet cıvata, her birinde 25 adet cıvata bulunan kutulara doldurulacaktır.\n\nDaha sonra bu kutuların her biri 125 TL\'den satıldığına göre, tüm cıvataların satışından elde edilen toplam gelir kaç TL olur?',
+          '[MEB Örnek Soru Kalıbı]\nBir fabrikanın ürettiği 5⁸ adet cıvata, her birinde 25 adet cıvata bulunan kutulara doldurulacaktır.\n\nDaha sonra bu kutuların her biri 125 TL\'den satıldığına göre, tüm cıvataların satışından elde edilen toplam gelir kaç TL olur?',
         options: {
-          A: '5^7 TL',
-          B: '5^8 TL',
-          C: '5^9 TL',
-          D: '5^10 TL',
+          A: '5⁷ TL',
+          B: '5⁸ TL',
+          C: '5⁹ TL',
+          D: '5¹⁰ TL',
         },
         correctAnswer: 'C',
         explanation:
-          'Resmi MEB Çözümü:\n1. Kutu sayısı = Toplam Cıvata / Bir Kutudaki Cıvata = 5^8 / 25 = 5^8 / 5^2 = 5^(8 - 2) = 5^6 kutu.\n2. Her kutu 125 TL (5^3 TL) olduğuna göre;\nToplam Gelir = 5^6 × 5^3 = 5^(6 + 3) = 5^9 TL elde edilir.',
-        hintForSocratic: '25 sayısını 5 tabanında (5^2) ve 125 sayısını 5 tabanında (5^3) yazarak üslü sayılarda bölme ve çarpma kuralını uygula.',
+          'Resmi MEB Çözümü:\n1. Kutu sayısı = Toplam Cıvata / Bir Kutudaki Cıvata = 5⁸ / 25 = 5⁸ / 5² = 5⁸⁻² = 5⁶ kutu.\n2. Her kutu 125 TL (5³ TL) olduğuna göre;\nToplam Gelir = 5⁶ · 5³ = 5⁶⁺³ = 5⁹ TL elde edilir.',
+        hintForSocratic: '25 sayısını 5 tabanında (5²) ve 125 sayısını 5 tabanında (5³) yazarak üslü sayılarda bölme ve çarpma kuralını uygula.',
       },
       {
         id: 'meb-mat-q-3',
@@ -258,7 +258,7 @@ export const MATH_EXAMS: OnlineExam[] = [
         },
         correctAnswer: 'B',
         explanation:
-          '72\'nin asal çarpanlarına ayrılmış hali: 72 = 2³ × 3².\nTek çarpanlar sadece 3 tabanından gelir. 3²\'nin çarpanları: 3^0=1, 3^1=3, 3^2=9\'dur (Toplam 3 tane tek çarpan: 1, 3, 9).',
+          '72\'nin asal çarpanlarına ayrılmış hali: 72 = 2³ × 3².\nTek çarpanlar sadece 3 tabanından gelir. 3²\'nin çarpanları: 3⁰ = 1, 3¹ = 3, 3² = 9\'dur (Toplam 3 tane tek çarpan: 1, 3, 9).',
         hintForSocratic: '72\'nin çarpanlarını sırayla yazabilir veya 2 çarpanını hariç tutarak hesaplayabilirsin.',
       },
       {

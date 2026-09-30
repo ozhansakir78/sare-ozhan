@@ -27,6 +27,7 @@ export function generateWeeklyStemChallenge(now = new Date()): OnlineExam {
       },
       correctAnswer: 'C',
       explanation: `Her iki rafa da taşmadan sığması için kitap kalınlığı 180 ve 216'nın ortak böleni olmalıdır. En fazla istendiği için EBOB(180, 216) hesaplanır: 180 = 2² × 3² × 5, 216 = 2³ × 3³. Ortak bölenlerin en büyüğü 2² × 3² = 4 × 9 = 36 cm'dir.`,
+      hintForSocratic: 'İki farklı uzunluktaki kalası hiç artmayacak şekilde en büyük eş parçalara bölmek için EBOB mu yoksa EKOK mu kullanmalısın?',
     },
     {
       id: `stem-m2-${week.weekNumber}`,
@@ -43,6 +44,7 @@ export function generateWeeklyStemChallenge(now = new Date()): OnlineExam {
       },
       correctAnswer: 'C',
       explanation: `288 sayısının çarpanlarını buluruz: 288 = 2⁵ × 3² = 32 × 9. 32 ve 9 sayıları aralarında asaldır (ortak bölenleri sadece 1'dir) ve çarpımları 288'dir. Kenar uzunlukları 32 cm ve 9 cm olduğunda çevre = 2 × (32 + 9) = 2 × 41 = 82 cm bulunur.`,
+      hintForSocratic: 'Alanı 288 olan dikdörtgenin kenarları aralarında asal ise, 288 sayısını aralarında asal iki çarpanın çarpımı şeklinde yazmayı dene.',
     },
     {
       id: `stem-m3-${week.weekNumber}`,
@@ -59,6 +61,7 @@ export function generateWeeklyStemChallenge(now = new Date()): OnlineExam {
       },
       correctAnswer: 'C',
       explanation: `25⁴ = (5²)⁴ = 5⁸. 16² = (2⁴)² = 2⁸. 5⁸ × 2⁸ = (5 × 2)⁸ = 10⁸. 10⁸ sayısı 1'in yanına 8 adet sıfır yazılmasıyla oluşur, dolayısıyla 1 + 8 = 9 basamaklıdır.`,
+      hintForSocratic: '25 sayısını 5 tabanında, 16 sayısını 2 tabanında yazarak üsleri eşitlemeyi ve 10 tabanına ulaşmayı dene.',
     },
     {
       id: `stem-m4-${week.weekNumber}`,
@@ -75,6 +78,7 @@ export function generateWeeklyStemChallenge(now = new Date()): OnlineExam {
       },
       correctAnswer: 'B',
       explanation: `Zaman = Yol / Hız = 150.000.000 / 300.000 = 1500 / 3 = 500 saniye. 500 sayısının bilimsel gösterimi 1 ≤ |a| < 10 şartını sağlamak için 5 × 10² şeklindedir.`,
+      hintForSocratic: 'Zaman = Yol / Hız formülünü uyguladıktan sonra çıkan sayıyı 1 ile 10 arasında bir katsayı ve 10’un kuvveti olarak yaz.',
     },
     {
       id: `stem-m5-${week.weekNumber}`,
@@ -91,6 +95,7 @@ export function generateWeeklyStemChallenge(now = new Date()): OnlineExam {
       },
       correctAnswer: 'B',
       explanation: `13² = 169 ve 14² = 196'dır. √169 < √180 < √196 olduğundan sayı 13 ile 14 arasındadır. 180 - 169 = 11 fark varken, 196 - 180 = 16 fark vardır. 11 < 16 olduğundan 13'e daha yakındır.`,
+      hintForSocratic: '180 sayısından küçük ve büyük en yakın tam kare sayıları düşün: 169 ve 196 sayılarını hatırla.',
     },
     {
       id: `stem-m6-${week.weekNumber}`,
@@ -107,6 +112,7 @@ export function generateWeeklyStemChallenge(now = new Date()): OnlineExam {
       },
       correctAnswer: 'B',
       explanation: `Sarı bilye sayısı s olsun. Toplam bilye = 6 + 8 + s = 14 + s. Olasılık = s / (14 + s) = 1/3. İçler dışlar çarpımı yapılırsa: 3s = 14 + s ⇒ 2s = 14 ⇒ s = 7 bulunur.`,
+      hintForSocratic: 'Olasılık = İstenen / Toplam formülünde sarı bilye sayısına s diyerek denklem kur.',
     },
     {
       id: `stem-m7-${week.weekNumber}`,
@@ -123,6 +129,7 @@ export function generateWeeklyStemChallenge(now = new Date()): OnlineExam {
       },
       correctAnswer: 'D',
       explanation: `İki terimin farkının karesi özdeşliği: (a - b)² = a² - 2ab + b². Burada a = 3x ve b = 4'tür. (3x)² - 2 × (3x) × 4 + 4² = 9x² - 24x + 16 elde edilir.`,
+      hintForSocratic: 'Tam kare özdeşliğini hatırla: Birincinin karesi, birinci ile ikincinin çarpımının iki katı ve ikincinin karesi.',
     },
     {
       id: `stem-m8-${week.weekNumber}`,
@@ -139,6 +146,7 @@ export function generateWeeklyStemChallenge(now = new Date()): OnlineExam {
       },
       correctAnswer: 'A',
       explanation: `Orijinden geçen doğruların denklemi y = mx şeklindedir ve eğim m = y / x'tir. A(2, -3) için eğim = -3 / 2 bulunur.`,
+      hintForSocratic: 'Orijinden geçen doğrularda eğim y koordinatının x koordinatına oranıdır.',
     },
 
     // --- 7 FEN BİLİMLERİ SORUSU ---
@@ -157,6 +165,7 @@ export function generateWeeklyStemChallenge(now = new Date()): OnlineExam {
       },
       correctAnswer: 'C',
       explanation: `21 Haziran'da Kuzey Yarım Küre'de en uzun gündüz yaşanır. En uzun gündüze ulaşıldığı için bu tarihten sonra gündüzler kısalmaya, geceler uzamaya başlar. Dolayısıyla C şıkkı yanlıştır.`,
+      hintForSocratic: '21 Haziran yaz gündönümüdür. En uzun gündüze ulaşıldıktan sonraki günlerde gündüz süresi uzar mı kısalır mı?',
     },
     {
       id: `stem-s2-${week.weekNumber}`,
@@ -173,6 +182,7 @@ export function generateWeeklyStemChallenge(now = new Date()): OnlineExam {
       },
       correctAnswer: 'C',
       explanation: `Verilen zincirde toplam nükleotid = 300 + 450 + 200 + 550 = 1.500 adettir. DNA çift zincirli olduğundan karşı zincirde de 1.500 nükleotid vardır. Toplam nükleotid = 1.500 × 2 = 3.000'dir. Her nükleotidde 1 adet şeker bulunduğundan toplam şeker sayısı 3.000'dir.`,
+      hintForSocratic: 'Bir DNA molekülünde toplam nükleotid sayısı, toplam deoksiriboz şekeri ve toplam fosfat sayısına daima eşittir.',
     },
     {
       id: `stem-s3-${week.weekNumber}`,
@@ -189,6 +199,7 @@ export function generateWeeklyStemChallenge(now = new Date()): OnlineExam {
       },
       correctAnswer: 'B',
       explanation: `Heterozigot sarı tohum genotipi Ss'dir. Ss × Ss çaprazlaması: SS (sarı, %25), Ss (sarı, %25), Ss (sarı, %25), ss (yeşil, %25). Yeşil tohum çekinik olduğundan sadece ss genotipinde ortaya çıkar, olasılığı 1/4 yani %25'tir.`,
+      hintForSocratic: 'Heterozigot (Ss) iki bireyin çaprazlanmasında Punnett karesi yaparak çekinik genotipli (ss) bireyin olasılığını hesapla.',
     },
     {
       id: `stem-s4-${week.weekNumber}`,
@@ -196,15 +207,16 @@ export function generateWeeklyStemChallenge(now = new Date()): OnlineExam {
       courseName: 'Fen Bilimleri',
       topicName: scienceTopic,
       questionNumber: 12,
-      questionText: `Ağırlıkları eşit olan K, L ve M katı cisimlerinin zemine temas eden taban alanları sırasıyla S, 2S ve 3S'tir.\n\nBuna göre bu cisimlerin zemine uyguladıkları katı basınçları (P_K, P_L, P_M) arasındaki ilişki nasıldır?`,
+      questionText: `Ağırlıkları eşit olan K, L ve M katı cisimlerinin zemine temas eden taban alanları sırasıyla S, 2S ve 3S'tir.\n\nBuna göre bu cisimlerin zemine uyguladıkları katı basınçları (PK, PL, PM) arasındaki ilişki nasıldır?`,
       options: {
-        A: 'P_K > P_L > P_M',
-        B: 'P_M > P_L > P_K',
-        C: 'P_K = P_L = P_M',
-        D: 'P_L > P_K > P_M',
+        A: 'PK > PL > PM',
+        B: 'PM > PL > PK',
+        C: 'PK = PL = PM',
+        D: 'PL > PK > PM',
       },
       correctAnswer: 'A',
-      explanation: `Katı basıncı formülü P = G / S (Kuvvet / Yüzey Alanı)'dır. Ağırlıklar (G) eşit olduğunda, temas yüzey alanı en küçük olan cismin zemine uyguladığı basınç en büyük olur. S < 2S < 3S olduğundan basınç sıralaması P_K > P_L > P_M olur.`,
+      explanation: `Katı basıncı formülü P = G / S (Kuvvet / Yüzey Alanı)'dır. Ağırlıklar (G) eşit olduğunda, temas yüzey alanı en küçük olan cismin zemine uyguladığı basınç en büyük olur. S < 2S < 3S olduğundan basınç sıralaması PK > PL > PM olur.`,
+      hintForSocratic: 'Katı basıncı taban alanı ile ters orantılıdır. Ağırlıkları eşit cisimlerde yüzey küçüldükçe basınç nasıl değişir?',
     },
     {
       id: `stem-s5-${week.weekNumber}`,
@@ -221,6 +233,7 @@ export function generateWeeklyStemChallenge(now = new Date()): OnlineExam {
       },
       correctAnswer: 'C',
       explanation: `Aynı periyot boyunca soldan sağa gidildiğinde elementlerin katman sayısı değişmez, sabit kalır (çünkü aynı periyottadırlar). Katman sayısı sadece periyodik tabloda yukarıdan aşağıya inildikçe artar.`,
+      hintForSocratic: 'Aynı periyottaki tüm elementlerin katman (yörünge) sayısı aynı mıdır yoksa değişir mi?',
     },
     {
       id: `stem-s6-${week.weekNumber}`,
@@ -237,6 +250,7 @@ export function generateWeeklyStemChallenge(now = new Date()): OnlineExam {
       },
       correctAnswer: 'C',
       explanation: `pH değeri 0-7 arası olan maddeler asittir (I doğru). Asitler mavi turnusol kağıdını kırmızıya çevirir (II yanlış). Asitler metaller ve mermer yüzeylerle tepkimeye girerek aşınmaya neden olur (III doğru). Dolayısıyla I ve III doğrudur.`,
+      hintForSocratic: 'pH değeri 7den küçük olan maddeler asittir. Asitlerin turnusol kağıdına ve metallere etkisini düşün.',
     },
     {
       id: `stem-s7-${week.weekNumber}`,
@@ -253,6 +267,7 @@ export function generateWeeklyStemChallenge(now = new Date()): OnlineExam {
       },
       correctAnswer: 'B',
       explanation: `Sabit makaralarda kuvvet kazancı yoktur (Kuvvet = Yük = 60 N). Sabit makaralar sadece kuvvetin yönünü değiştirerek iş kolaylığı sağlar. Hiçbir basit makinede işten ya da enerjiden kazanç sağlanamaz.`,
+      hintForSocratic: 'Sabit makarada kuvvetten veya yoldan kazanç var mıdır yoksa sadece kuvvetin yönü mü değişir?',
     },
   ];
 

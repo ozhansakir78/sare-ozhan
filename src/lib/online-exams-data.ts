@@ -44,13 +44,13 @@ export function getOnlineExamBySlug(slug: string): OnlineExam | undefined {
 }
 
 /**
- * Belirli bir kademeye (LGS veya Lise 1) ait sınavları filtreler
+ * Belirli bir kademeye (LGS, lise1, lise2, lise3, yks) ait sınavları filtreler
  */
 export function getOnlineExamsByTier(tier: OnlineExamTier): OnlineExam[] {
   const all = getOnlineExams();
-  if (tier === 'lise1') {
-    return all.filter((e) => e.tier === 'lise1');
+  if (tier === 'lgs') {
+    return all.filter((e) => !e.tier || e.tier === 'lgs');
   }
-  // Varsayılan olarak LGS sınavları (tier undefined olanlar LGS'dir)
-  return all.filter((e) => !e.tier || e.tier === 'lgs');
+  return all.filter((e) => e.tier === tier);
 }
+
