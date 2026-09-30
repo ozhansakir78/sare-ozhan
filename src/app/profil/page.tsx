@@ -45,7 +45,7 @@ import { syncLocalDataToCloud, pullCloudDataToLocal } from '@/lib/cloud-sync';
 export default function ProfilPage() {
   const router = useRouter();
   const { profile, user, updateProfile, refreshProfile, signOut, isPro } = useAuth();
-  const { isLise1 } = useGradeTier();
+  const { isLise, isLgs, config } = useGradeTier();
 
   const [mounted, setMounted] = useState(false);
   const [exams, setExams] = useState<SavedStudentExam[]>([]);
@@ -159,20 +159,20 @@ export default function ProfilPage() {
       setDisplayName(profile.display_name || '');
       setNickname(profile.nickname || '');
       setTargetCity(profile.target_city || '');
-      setTargetSchool(isLise1 ? '' : (profile.target_high_school || ''));
+      setTargetSchool(isLise ? '' : (profile.target_high_school || ''));
       setTargetUniversity(profile.target_university || '');
       setTargetDepartment(profile.target_department || '');
       if (profile.target_score) {
         setTargetScore(Number(profile.target_score));
       } else {
-        setTargetScore(isLise1 ? 545 : 450);
+        setTargetScore(isLise ? 545 : 450);
       }
     } else if (user?.email) {
       setDisplayName(user.email.split('@')[0]);
       if (user.user_metadata?.nickname) setNickname(user.user_metadata.nickname);
       if (user.user_metadata?.target_city) setTargetCity(user.user_metadata.target_city);
     }
-  }, [profile, user, isLise1]);
+  }, [profile, user, isLise]);
 
   const handleClearAllData = () => {
     if (window.confirm('Tüm kayıtlı denemeleriniz ve yanlış defteri sorularınız sıfırlanacak. Onaylıyor musunuz?')) {
@@ -194,9 +194,9 @@ export default function ProfilPage() {
       display_name: displayName.trim(),
       nickname: nickname.trim() || undefined,
       target_city: targetCity.trim() || undefined,
-      target_high_school: isLise1 ? undefined : (targetSchool.trim() || undefined),
-      target_university: isLise1 ? (targetUniversity.trim() || undefined) : undefined,
-      target_department: isLise1 ? (targetDepartment.trim() || undefined) : undefined,
+      target_high_school: isLise ? undefined : (targetSchool.trim() || undefined),
+      target_university: isLise ? (targetUniversity.trim() || undefined) : undefined,
+      target_department: isLise ? (targetDepartment.trim() || undefined) : undefined,
       target_score: targetScore,
     });
 
@@ -293,7 +293,7 @@ export default function ProfilPage() {
                 <p className="mt-1 text-xs text-slate-300 flex items-center gap-1.5 flex-wrap">
                   <span>{user?.email || profile?.email || 'Öğrenci Hesabı'}</span>
                   <span>&bull;</span>
-                  {isLise1 ? (
+                  {isLise ? (
                     <span className="text-amber-300 font-semibold flex items-center gap-1">
                       <GraduationCap className="h-4 w-4 shrink-0 text-emerald-400" />{' '}
                       {targetUniversity
@@ -308,9 +308,9 @@ export default function ProfilPage() {
                 </p>
 
                 <p className="mt-1 text-[11px] text-indigo-200/80">
-                  {isLise1 ? (
+                  {isLise ? (
                     <>
-                      <span>Lise 1 Modu: Hedef Üniversite &amp; OBP Takibi</span>
+                      <span>{config.shortLabel} Modu: Hedef Üniversite &amp; YKS Radarı</span>
                       {targetScore > 0 && (
                         <span> &bull; Hedef YKS Tabanı: <strong className="text-white font-bold">{targetScore} Puan</strong></span>
                       )}
@@ -463,7 +463,7 @@ export default function ProfilPage() {
         {/* Orta İkili Blok: Hedef Analizi & Bilgi Düzenleme */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Sol Kolon: Hedef Radarı (7 Kolon) */}
-          {isLise1 ? (
+          {isLise ? (
             <div className="lg:col-span-7">
               <UniversityRadarCard
                 selectedTargetUni={targetUniversity}
@@ -604,14 +604,14 @@ export default function ProfilPage() {
           <div className="lg:col-span-5 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <div className="flex items-center gap-2.5 border-b border-slate-100 pb-4 dark:border-slate-800">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400">
-                {isLise1 ? <GraduationCap className="h-5 w-5" /> : <User className="h-5 w-5" />}
+                {isLise ? <GraduationCap className="h-5 w-5" /> : <User className="h-5 w-5" />}
               </div>
               <div>
                 <h3 className="text-sm font-black text-slate-900 dark:text-white">
-                  {isLise1 ? 'Profil & Üniversite Hedefi' : 'Profil & Hedef Bilgileri'}
+                  {isLise ? 'Profil & Üniversite Hedefi' : 'Profil & Hedef Bilgileri'}
                 </h3>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                  {isLise1
+                  {isLise
                     ? 'İsmini ve hedef üniversite tercihini istediğin zaman güncelle'
                     : 'İsmini ve hedef lise tercihini istediğin zaman güncelle'}
                 </p>
@@ -689,18 +689,18 @@ export default function ProfilPage() {
                 </p>
               </div>
 
-              {/* Hedef Seçimi (LGS için Lise, 9. Sınıf için Üniversite/Bölüm) */}
+              {/* Hedef Seçimi (LGS için Lise, Lise Kademeleri için Üniversite/Bölüm) */}
               <SchoolAutocompleteInput
-                mode={isLise1 ? 'uni' : 'lise'}
+                mode={isLise ? 'uni' : 'lise'}
                 value={
-                  isLise1
+                  isLise
                     ? targetUniversity
                       ? `${targetUniversity}${targetDepartment ? ` (${targetDepartment.split('(')[0].trim()})` : ''}`
                       : ''
                     : targetSchool
                 }
                 onChange={(schoolOrUniName, minScore) => {
-                  if (isLise1) {
+                  if (isLise) {
                     const matchedUni = YKS_TOP_UNIVERSITIES.find(
                       (u) =>
                         `${u.name} (${u.department})`.toLowerCase() === schoolOrUniName.toLowerCase() ||
@@ -722,9 +722,9 @@ export default function ProfilPage() {
                     }
                   }
                 }}
-                label={isLise1 ? 'Hedef Üniversite / Bölüm' : 'Hedef Lise'}
+                label={isLise ? 'Hedef Üniversite / Bölüm' : 'Hedef Lise'}
                 placeholder={
-                  isLise1
+                  isLise
                     ? 'Örn: Boğaziçi Üniversitesi (Bilgisayar Müh.), ODTÜ...'
                     : 'Örn: Kabataş Erkek Lisesi, Galatasaray Lisesi...'
                 }
@@ -734,7 +734,7 @@ export default function ProfilPage() {
               <div>
                 <div className="flex items-center justify-between">
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                    {isLise1 ? 'Hedef YKS Puanı' : 'Hedef LGS Puanı'}
+                    {isLise ? 'Hedef YKS Puanı' : 'Hedef LGS Puanı'}
                   </label>
                   <span className="text-xs font-black text-indigo-600 dark:text-indigo-400">
                     {targetScore} Puan
@@ -743,7 +743,7 @@ export default function ProfilPage() {
                 <input
                   type="range"
                   min={350}
-                  max={isLise1 ? 560 : 500}
+                  max={isLise ? 560 : 500}
                   step={1}
                   value={targetScore}
                   onChange={(e) => setTargetScore(Number(e.target.value))}
@@ -751,8 +751,8 @@ export default function ProfilPage() {
                 />
                 <div className="flex justify-between text-[10px] text-slate-400 font-medium">
                   <span>350 Puan</span>
-                  <span>{isLise1 ? '480 Puan' : '450 Puan'}</span>
-                  <span>{isLise1 ? '560 (Zirve)' : '500 (Tam Puan)'}</span>
+                  <span>{isLise ? '480 Puan' : '450 Puan'}</span>
+                  <span>{isLise ? '560 (Zirve)' : '500 (Tam Puan)'}</span>
                 </div>
               </div>
 

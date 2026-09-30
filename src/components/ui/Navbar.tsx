@@ -40,7 +40,7 @@ import {
 export function Navbar() {
   const pathname = usePathname();
   const { profile, user, signOut } = useAuth();
-  const { isLise1 } = useGradeTier();
+  const { isLise1, isLise2, isLise3, isYks, isLise, tier, config } = useGradeTier();
   const { isActive: isFocusActive } = useFocus();
   const [quota, setQuota] = useState<QuotaStatus | null>(null);
   const [isProModalOpen, setIsProModalOpen] = useState<boolean>(false);
@@ -92,14 +92,14 @@ export function Navbar() {
   const primaryNavLinks: NavLinkItem[] = [
     {
       href: '/deneme-coz',
-      label: isLise1 ? 'Ortak Yazılı & TYT' : 'Deneme Çöz',
+      label: isYks ? 'YKS (TYT/AYT)' : isLise ? 'Ortak Yazılı & TYT' : 'Deneme Çöz',
       icon: FileCheck2,
       highlight: true,
-      iconColor: isLise1 ? 'text-emerald-300' : 'text-indigo-300',
+      iconColor: isYks ? 'text-rose-300' : isLise ? 'text-emerald-300' : 'text-indigo-300',
     },
     {
       href: '/',
-      label: isLise1 ? 'Not Hesapla' : 'Hesapla',
+      label: isYks ? 'YKS Hesapla' : isLise ? 'Not Hesapla' : 'Hesapla',
       icon: Calculator,
       iconColor: 'text-cyan-400',
     },
@@ -110,7 +110,7 @@ export function Navbar() {
       iconColor: 'text-rose-400',
     },
     {
-      href: isLise1 ? '/lise1-konulari' : '/lgs-konulari',
+      href: isLise ? '/lise1-konulari' : '/lgs-konulari',
       label: 'Konular',
       icon: Layers,
       iconColor: 'text-sky-400',
@@ -132,6 +132,36 @@ export function Navbar() {
 
   const allNavLinks = [...primaryNavLinks, ...secondaryNavLinks];
 
+  const BrandIcon = isYks
+    ? Trophy
+    : isLise3
+    ? Layers
+    : isLise2
+    ? BookOpen
+    : isLise1
+    ? School
+    : GraduationCap;
+
+  const brandGradient = isYks
+    ? 'bg-gradient-to-tr from-rose-500 to-pink-500 shadow-rose-500/25'
+    : isLise3
+    ? 'bg-gradient-to-tr from-amber-500 to-orange-500 shadow-amber-500/25'
+    : isLise2
+    ? 'bg-gradient-to-tr from-teal-500 to-emerald-500 shadow-teal-500/25'
+    : isLise1
+    ? 'bg-gradient-to-tr from-emerald-500 to-teal-500 shadow-emerald-500/25'
+    : 'bg-gradient-to-tr from-indigo-500 to-violet-500 shadow-indigo-500/25';
+
+  const brandTextColor = isYks
+    ? 'text-rose-400'
+    : isLise3
+    ? 'text-amber-400'
+    : isLise2
+    ? 'text-teal-400'
+    : isLise1
+    ? 'text-emerald-400'
+    : 'text-indigo-400';
+
   return (
     <>
       <header className="sticky top-0 z-40 border-b border-slate-800 bg-slate-900/95 backdrop-blur-md text-slate-100 shadow-md">
@@ -140,16 +170,12 @@ export function Navbar() {
           <div className="flex items-center gap-2.5 shrink-0 mr-2">
             <Link href="/" className="flex items-center gap-2 shrink-0">
               <div
-                className={`flex h-9 w-9 items-center justify-center rounded-xl text-white shadow-md transition ${
-                  isLise1
-                    ? 'bg-gradient-to-tr from-emerald-500 to-teal-500 shadow-emerald-500/25'
-                    : 'bg-gradient-to-tr from-indigo-500 to-violet-500 shadow-indigo-500/25'
-                }`}
+                className={`flex h-9 w-9 items-center justify-center rounded-xl text-white shadow-md transition ${brandGradient}`}
               >
-                {isLise1 ? <School className="h-5 w-5" /> : <GraduationCap className="h-5 w-5" />}
+                <BrandIcon className="h-5 w-5" />
               </div>
               <span className="text-base font-black tracking-tight text-white">
-                SınavKoçu<span className={isLise1 ? 'text-emerald-400' : 'text-indigo-400'}>.ai</span>
+                SınavKoçu<span className={brandTextColor}>.ai</span>
               </span>
             </Link>
 
