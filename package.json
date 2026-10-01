@@ -15,7 +15,8 @@
     "test:yks-tyt": "node scripts/test-yks-tyt.js",
     "test:yks-ayt": "node scripts/test-yks-ayt.js",
     "test:yks-universities": "node scripts/test-yks-universities.js",
-    "test:socratic": "node scripts/test-socratic-tier-adapter.js"
+    "test:socratic": "node scripts/test-socratic-tier-adapter.js",
+    "test:exam-generator": "node scripts/test-exam-generator.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",

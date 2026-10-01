@@ -14,6 +14,7 @@ export interface OnlineExamQuestion {
   correctAnswer: ExamQuestionOptionKey;
   explanation: string; // Pedagojik çözüm açıklaması
   hintForSocratic?: string; // Sokratik asistan için ön ipucu
+  tier?: OnlineExamTier;
 }
 
 export type OnlineExamTier = 'lgs' | 'lise1' | 'lise2' | 'lise3' | 'yks';
