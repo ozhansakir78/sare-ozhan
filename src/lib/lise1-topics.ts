@@ -1,5 +1,5 @@
 // MEB Türkiye Yüzyılı Maarif Modeli (9. Sınıf Güncel Müfredatı)
-// 2024-2025 Eğitim-Öğretim Yılından İtibaren Yürürlükte Olan Resmi Tema ve Üniteler
+// 2024-2025 Eğitim-Öğretim Yılından İtibaren Yürürlükte Olan Resmi Tema, Ünite ve Ortak Yazılı Kazanımları
 
 export type Lise1CourseKey =
   | 'edebiyat'
@@ -292,6 +292,595 @@ export const LISE1_TOPICS_BY_COURSE: Record<Lise1CourseKey, readonly string[]> =
   ],
 } as const;
 
+export interface Lise1Unit {
+  id: string;
+  unitNumber: number;
+  title: string;
+  semester: 1 | 2;
+  outcomes: string[];
+  mebExamFocus: string; // MEB Ortak Yazılı Sınavı Konu Odakları
+}
+
+export interface Lise1CourseDetailedMetadata {
+  key: Lise1CourseKey;
+  name: string;
+  weeklyHours: number;
+  passingThreshold: number; // 70 for edebiyat, 50 for others
+  isBarajDersi: boolean;
+  annualExamCount: number; // 4 (1. Dönem 1. ve 2. Yazılı, 2. Dönem 1. ve 2. Yazılı)
+  units: Lise1Unit[];
+  mebScenarioSummary: {
+    term1Exam1: string;
+    term1Exam2: string; // Ülke Geneli Ortak Sınav
+    term2Exam1: string;
+    term2Exam2: string; // İl / Ülke Geneli Ortak Sınav
+  };
+}
+
+export const LISE1_DETAILED_CURRICULUM: Record<Lise1CourseKey, Lise1CourseDetailedMetadata> = {
+  edebiyat: {
+    key: 'edebiyat',
+    name: 'Türk Dili ve Edebiyatı',
+    weeklyHours: 5,
+    passingThreshold: 70, // MEB Ortaöğretim Kurumları Yönetmeliği Baraj Dersi
+    isBarajDersi: true,
+    annualExamCount: 4,
+    mebScenarioSummary: {
+      term1Exam1: 'Şiir bilgisi, ahenk unsurları, edebiyatın güzel sanatlarla ilişkisi, hikâye türü, isimler ve sıfatlar.',
+      term1Exam2: 'MEB Ülke Geneli Ortak: Hikâye unsurları, anı türü, zamirler, yazım ve noktalama kuralları.',
+      term2Exam1: 'Gezi yazısı, roman yapısı ve tahlili, zarflar, edebî sanatlar (teşbih, teşhis vb.).',
+      term2Exam2: 'Tiyatro metinleri, eleştiri kültürü, sözcük türlerinin tamamı ve genel metin analizi.',
+    },
+    units: [
+      {
+        id: 'edb-u1',
+        unitNumber: 1,
+        title: 'Sözün İnceliği (Edebiyat, Şiir ve Deneme)',
+        semester: 1,
+        outcomes: [
+          'Edebiyatın doğasını ve güzel sanatlarla ilişkisini açıklar.',
+          'Şiirde ahenk unsurlarını, kafiye-redif ve imge örgüsünü tespit eder.',
+          'Deneme türü metinlerde yazarın öznel bakış açısını tahlil eder.',
+          'Mülakat ve sözlü iletişim kurallarını uygular.',
+        ],
+        mebExamFocus: 'Şiirde nazım birimi, ölçü, uyak düzeni ve söz sanatları soruları.',
+      },
+      {
+        id: 'edb-u2',
+        unitNumber: 2,
+        title: 'Anlam Arayışı (Hikâye, Anı ve İstiklal Marşı)',
+        semester: 1,
+        outcomes: [
+          'Olay ve durum hikâyelerinin ayırt edici niteliklerini karşılaştırır.',
+          'Hikâyede tema, ana fikir ve örtük anlamları çözümler.',
+          'Anı (hatıra) türünün tarihsel ve edebi işlevini değerlendirir.',
+          'İstiklal Marşı metnini edebi ve estetik açıdan tahlil eder.',
+        ],
+        mebExamFocus: 'Hikâyede anlatıcı bakış açısı (hâkim, kahraman, gözlemci) ve sözcük türleri.',
+      },
+      {
+        id: 'edb-u3',
+        unitNumber: 3,
+        title: 'Anlamın Yapı Taşları (Hikâye Yapısı ve Gezi Yazısı)',
+        semester: 2,
+        outcomes: [
+          'Hikâyede olay örgüsü, kişi, zaman ve mekân unsurlarını çözümler.',
+          'Gezi yazısı türünün anlatım özelliklerini ve gözlem gücünü inceler.',
+          'Belgesel ve görsel/işitsel metinleri eleştirel gözle tahlil eder.',
+        ],
+        mebExamFocus: 'Gezi yazısı özellikleri ve zarfların (durum, zaman, miktar) tespiti.',
+      },
+      {
+        id: 'edb-u4',
+        unitNumber: 4,
+        title: 'Dilin Zenginliği (Roman, Tiyatro ve Eleştiri)',
+        semester: 2,
+        outcomes: [
+          'Roman türünün yapı unsurlarını ve anlatım tekniklerini çözümler.',
+          'Tiyatro metinlerindeki dramatik örgü ve çatışmayı kavrar.',
+          'Eleştiri (tenkit) metinlerini nesnel ve öznel ölçütler bağlamında irdeler.',
+        ],
+        mebExamFocus: 'Roman ve tiyatro karşılaştırması, edebi sanatlar ve yazım kuralları.',
+      },
+    ],
+  },
+
+  matematik: {
+    key: 'matematik',
+    name: 'Matematik (9. Sınıf)',
+    weeklyHours: 6,
+    passingThreshold: 50,
+    isBarajDersi: false,
+    annualExamCount: 4,
+    mebScenarioSummary: {
+      term1Exam1: 'Mantık önermeleri, sayı kümeleri, gerçek sayı aralıkları, üslü ve köklü ifadeler.',
+      term1Exam2: 'MEB Ülke Geneli Ortak: Birinci dereceden denklem ve eşitsizlikler, mutlak değer, doğrusal fonksiyonlar.',
+      term2Exam1: 'Üçgende açılar, açı-kenar bağıntıları, üçgen eşitsizliği ve üçgende eşlik-benzerlik.',
+      term2Exam2: 'Tales, Pisagor ve Öklid bağıntıları, istatistiksel yayılım ölçüleri ve deneysel olasılık.',
+    },
+    units: [
+      {
+        id: 'mat-u1',
+        unitNumber: 1,
+        title: 'Sayılar (Gerçek Sayılar, Üslü-Köklü İfadeler ve Aralıklar)',
+        semester: 1,
+        outcomes: [
+          'Gerçek sayıların üslü ve köklü gösterimlerini işlem özellikleriyle kullanır.',
+          'Sayı doğrusu üzerinde gerçek sayı aralıklarını gösterir ve kesişim/birleşim işlemlerini yapar.',
+          'İki kare farkı ve tam kare özdeşliklerini cebirsel ve geometrik olarak modeller.',
+        ],
+        mebExamFocus: 'Köklü sayılarda sıralama, paydayı rasyonel yapma ve aralık gösterimi.',
+      },
+      {
+        id: 'mat-u2',
+        unitNumber: 2,
+        title: 'Nicelikler ve Değişimler (Doğrusal Fonksiyonlar ve Denklemler)',
+        semester: 1,
+        outcomes: [
+          'Doğrusal fonksiyonların kuralını bulur ve grafiklerini çizer.',
+          'Mutlak değer içeren doğrusal denklem ve eşitsizlikleri çözer.',
+          'Gerçek hayat problemlerini birinci dereceden denklem ve eşitsizlik modelleriyle çözer.',
+        ],
+        mebExamFocus: 'Mutlak değerli eşitsizliklerin çözüm kümesi ve grafik üzerinden eğim yorumlama.',
+      },
+      {
+        id: 'mat-u3',
+        unitNumber: 3,
+        title: 'Algoritma ve Bilişim (Mantık ve Akış Şemaları)',
+        semester: 1,
+        outcomes: [
+          'Önermeleri ve mantık bağlaçlarını (ve, veya, ise, ancak ve ancak) doğruluk tablosuyla modeller.',
+          'Açık önermeleri ve niceleyicileri (her, bazı) matematiksel ifadelerde kullanır.',
+          'Algoritmik akış şemalarını adım adım analiz eder ve problemi kodlar.',
+        ],
+        mebExamFocus: 'Koşullu önermenin karşıtı, tersi ve karşıt tersi; totoloji ve çelişki kuralları.',
+      },
+      {
+        id: 'mat-u4',
+        unitNumber: 4,
+        title: 'Geometrik Şekiller (Üçgende Açı ve Kenar Bağıntıları)',
+        semester: 2,
+        outcomes: [
+          'Üçgenin iç ve dış açı özellikleri arasındaki bağıntıları ispatlar.',
+          'Üçgen eşitsizliği kuralını uygulayarak kenar uzunluk aralıklarını belirler.',
+          'Büyük açı karşısında büyük kenar bulunur kuralını çoklu geometrik şekillerde çözer.',
+        ],
+        mebExamFocus: 'İç açılar toplamı, dış açı teoremi ve üçgen eşitsizliği sınır değerleri.',
+      },
+      {
+        id: 'mat-u5',
+        unitNumber: 5,
+        title: 'Eşlik ve Benzerlik (Dönüşümler, Pisagor ve Öklid)',
+        semester: 2,
+        outcomes: [
+          'Yansıma, öteleme ve dönme dönüşümlerini koordinat sisteminde uygular.',
+          'Üçgenlerde Kenar-Açı-Kenar, Açı-Kenar-Açı ve Kenar-Kenar-Kenar benzerlik koşullarını kullanır.',
+          'Tales, Pisagor ve Öklid bağıntılarını geometrik ve pratik problemlerde uygular.',
+        ],
+        mebExamFocus: 'Öklid yükseklik teoremi (h²=p·k) ve benzerlik oranı karesinin alan oranına eşitliği.',
+      },
+      {
+        id: 'mat-u6',
+        unitNumber: 6,
+        title: 'İstatistik ve Veriden Olasılığa',
+        semester: 2,
+        outcomes: [
+          'Merkezi eğilim (ortalama, medyan, mod) ve yayılım (standart sapma, kutu grafiği) ölçülerini hesaplar.',
+          'Histogram grafiği oluşturur ve grup genişliğini belirler.',
+          'Ayrık ve ayrık olmayan olaylarda deneysel ve teorik olasılık hesaplamaları yapar.',
+        ],
+        mebExamFocus: 'Aritmetik ortalama ile medyan farkı ve birleşik olayların teorik olasılığı.',
+      },
+    ],
+  },
+
+  fizik: {
+    key: 'fizik',
+    name: 'Fizik (9. Sınıf)',
+    weeklyHours: 2,
+    passingThreshold: 50,
+    isBarajDersi: false,
+    annualExamCount: 4,
+    mebScenarioSummary: {
+      term1Exam1: 'Fizik bilimine giriş, büyüklüklerin sınıflandırılması, skaler ve vektörel büyüklükler.',
+      term1Exam2: 'MEB Ülke Geneli Ortak: Bir boyutta sabit hızlı hareket, konum-zaman ve hız-zaman grafikleri, temel kuvvetler.',
+      term2Exam1: 'Katı ve sıvı basıncı, açık hava basıncı (Torricelli) ve sıvıların kaldırma kuvveti.',
+      term2Exam2: 'İç enerji, sıcaklık, ısı, öz ısı, hâl değişimi ve ısıl denge problemleri.',
+    },
+    units: [
+      {
+        id: 'fiz-u1',
+        unitNumber: 1,
+        title: 'Fizik Bilimi ve Kariyer Keşfi',
+        semester: 1,
+        outcomes: [
+          'Fiziğin doğasını, önemini ve alt dallarını (mekanik, termodinamik, optik vb.) açıklar.',
+          'Fizik bilimine yön veren bilim insanlarını ve geleceğin mesleklerini tanır.',
+        ],
+        mebExamFocus: 'Fiziğin alt dalları ile teknolojik uygulamaların eşleştirilmesi.',
+      },
+      {
+        id: 'fiz-u2',
+        unitNumber: 2,
+        title: 'Kuvvet ve Hareket',
+        semester: 1,
+        outcomes: [
+          'Temel-türetilmiş ve skaler-vektörel büyüklükleri ayırt eder.',
+          'Kartezyen koordinat sisteminde iki boyutlu vektörlerin bileşkesini bulur.',
+          'Doğadaki dört temel kuvveti (kütle çekim, elektromanyetik, güçlü ve zayıf nükleer) karşılaştırır.',
+          'Konum, yer değiştirme, sürat ve hız kavramlarını grafiklerle yorumlar.',
+        ],
+        mebExamFocus: 'Konum-zaman grafiğinin eğiminden hız bulma, vektör bileşkesi hesaplama.',
+      },
+      {
+        id: 'fiz-u3',
+        unitNumber: 3,
+        title: 'Akışkanlar (Basınç ve Kaldırma Kuvveti)',
+        semester: 2,
+        outcomes: [
+          'Katı, sıvı ve gazlarda basıncı etkileyen değişkenleri analiz eder.',
+          'Pascal ilkesi ve Torricelli açık hava basıncı deneyini günlük hayatla ilişkilendirir.',
+          'Arşimet prensibini kullanarak sıvı içindeki cisimlerin yüzme, askıda kalma ve batma durumlarını hesaplar.',
+          'Bernoulli ilkesini akışkanlar mekaniğinde yorumlar.',
+        ],
+        mebExamFocus: 'Sıvı basıncı formülü (P=h·d·g) ve kaldırma kuvveti (Fk=Vbatan·dsıvı·g) bağıntıları.',
+      },
+      {
+        id: 'fiz-u4',
+        unitNumber: 4,
+        title: 'Enerji (Isı, Sıcaklık ve Termodinamik)',
+        semester: 2,
+        outcomes: [
+          'İç enerji, sıcaklık ve ısı kavramlarını termodinamik temelde ayırt eder.',
+          'Öz ısı ve ısı sığası kavramlarını Q = m·c·ΔT bağıntısıyla açıklar.',
+          'Maddelerin hâl değişim süreçlerini (erime, buharlaşma) ve ısıl dengeyi modeller.',
+          'Isı aktarım yollarını (iletim, konveksiyon, ışıma) günlük hayattaki yalıtım sistemleriyle ilişkilendirir.',
+        ],
+        mebExamFocus: 'Isıl dengede son sıcaklık hesabı ve hâl değişimi sıcaklık-zaman grafikleri.',
+      },
+    ],
+  },
+
+  kimya: {
+    key: 'kimya',
+    name: 'Kimya (9. Sınıf)',
+    weeklyHours: 2,
+    passingThreshold: 50,
+    isBarajDersi: false,
+    annualExamCount: 4,
+    mebScenarioSummary: {
+      term1Exam1: 'Kimya bilimi, laboratuvar güvenlik piktogramları, simyadan kimyaya geçiş, atom modelleri.',
+      term1Exam2: 'Bohr ve Modern atom teorisi, elektron dizilimi, periyodik sistem ve periyodik özellikler.',
+      term2Exam1: 'Kimyasal türler (atom, molekül, iyon), güçlü etkileşimler (iyonik, kovalent, metalik bağ), Lewis yapıları.',
+      term2Exam2: 'Zayıf etkileşimler (dipol-dipol, London, hidrojen bağı), maddenin halleri ve yeşil kimya.',
+    },
+    units: [
+      {
+        id: 'kim-u1',
+        unitNumber: 1,
+        title: 'Etkileşim (Kimya Bilimi ve Atomun Yapısı)',
+        semester: 1,
+        outcomes: [
+          'Kimya disiplinlerini (analitik, biyokimya vb.) ve laboratuvar güvenlik kurallarını kavrar.',
+          'Dalton, Thomson, Rutherford, Bohr atom teorilerini ve eksikliklerini karşılaştırır.',
+          'Elektron dizilimini yazar ve periyodik tabloda grup/periyot tayini yapar.',
+          'Periyodik özelliklerin (atom yarıçapı, iyonlaşma enerjisi, elektronegatiflik) periyot ve gruptaki değişimini açıklar.',
+        ],
+        mebExamFocus: 'İyonlaşma enerjisi sıçramalarından değerlik elektronu bulma ve periyodik eğilimler.',
+      },
+      {
+        id: 'kim-u2',
+        unitNumber: 2,
+        title: 'Çeşitlilik (Kimyasal Türler Arası Etkileşimler)',
+        semester: 2,
+        outcomes: [
+          'Kimyasal türleri (atom, molekül, iyon, radikal) sınıflandırır.',
+          'İyonik bağın oluşumunu ve Lewis yapısını gösterir.',
+          'Kovalent bağda apolar ve polar kovalent bağı, molekül polarlığını analiz eder.',
+          'Zayıf etkileşimleri (Van der Waals ve Hidrojen bağı) kaynama noktası farklılıklarıyla ilişkilendirir.',
+          'Katı türlerini (kristal ve amorf) ayırt eder; sıvılarda viskoziteyi açıklar.',
+        ],
+        mebExamFocus: 'Lewis elektron nokta gösterimi ve moleküller arası hidrojen bağının kaynama noktasına etkisi.',
+      },
+      {
+        id: 'kim-u3',
+        unitNumber: 3,
+        title: 'Sürdürülebilirlik (Nanoteknoloji ve Yeşil Kimya)',
+        semester: 2,
+        outcomes: [
+          'Nanoteknoloji ve metalik nanoparçacıkların kimyadaki rolünü açıklar.',
+          'Yeşil kimyanın 12 ilkesini çevre kirliliğini önleme bağlamında değerlendirir.',
+        ],
+        mebExamFocus: 'Atık azaltımı, yenilenebilir hammadde kullanımı ve ekolojik kimya prensipleri.',
+      },
+    ],
+  },
+
+  biyoloji: {
+    key: 'biyoloji',
+    name: 'Biyoloji (9. Sınıf)',
+    weeklyHours: 2,
+    passingThreshold: 50,
+    isBarajDersi: false,
+    annualExamCount: 4,
+    mebScenarioSummary: {
+      term1Exam1: 'Canlıların ortak özellikleri, inorganik bileşikler (su, mineraller), organik bileşiklere giriş (karbonhidratlar ve lipitler).',
+      term1Exam2: 'Proteinler, peptit bağı, enzimlerin yapısı ve reaksiyon hızını etkileyen faktörler, nükleik asitler ve ATP.',
+      term2Exam1: 'Hücre teorisi, prokaryot ve ökaryot hücre yapısı, hücre zarı ve madde geçişleri (difüzyon, osmoz, aktif taşıma).',
+      term2Exam2: 'Hücre organelleri, organeller arası iş birliği, biyolojik sınıflandırma ve 3 üst âlem taksonomisi.',
+    },
+    units: [
+      {
+        id: 'biy-u1',
+        unitNumber: 1,
+        title: 'Yaşam (Canlıların Temel Bileşenleri ve Biyomoleküller)',
+        semester: 1,
+        outcomes: [
+          'Canlıların 12 ortak özelliğini (hücresel yapı, beslenme, hücresel solunum, homeostazi vb.) açıklar.',
+          'Suyun canlılar için önemini kohezyon, adhezyon ve öz ısı özellikleri üzerinden analiz eder.',
+          'Karbonhidrat, yağ ve proteinlerin yapı taşlarını ve hücresel görevlerini karşılaştırır.',
+          'Enzimlerin substrata özgül yapısını ve pH, sıcaklık, substrat yüzeyi etkilerini grafiklerle yorumlar.',
+          'DNA, RNA ve ATP moleküllerinin yapısını ve işlevini açıklar.',
+        ],
+        mebExamFocus: 'Enzim aktivitesi grafik yorumlama ve organik moleküllerin monomer-polimer yapısı.',
+      },
+      {
+        id: 'biy-u2',
+        unitNumber: 2,
+        title: 'Organizasyon (Hücre Yapısı ve Biyolojik Çeşitlilik)',
+        semester: 2,
+        outcomes: [
+          'Prokaryot (bakteri, arke) ve ökaryot (bitki, hayvan, mantar) hücreleri yapısal olarak kıyaslar.',
+          'Hücre zarından madde geçiş mekanizmalarını (pasif taşıma, osmoz, turgor/plazmoliz, aktif taşıma, endositoz/eksositoz) açıklar.',
+          'Zarlı ve zarsız organellerin (ribozom, mitokondri, kloroplast, golgi, ER) işlevlerini ilişkilendirir.',
+          'Canlıların bilimsel sınıflandırma basamaklarını (Tür, Cins, Familya...) ve 3 üst âlem sistemini kavrar.',
+        ],
+        mebExamFocus: 'Hücre zarından geçiş deneyleri (hipertonik, izotonik, hipotonik ortam) ve organel işlevleri.',
+      },
+    ],
+  },
+
+  tarih: {
+    key: 'tarih',
+    name: 'Tarih (9. Sınıf)',
+    weeklyHours: 2,
+    passingThreshold: 50,
+    isBarajDersi: false,
+    annualExamCount: 4,
+    mebScenarioSummary: {
+      term1Exam1: 'Tarih biliminin konusu, yöntemi, kaynak türleri, zaman ve takvim sistemleri.',
+      term1Exam2: 'Eski Çağ medeniyetleri (Mezopotamya, Mısır, Anadolu), ilk yazılı kanunlar, Türklerde konargöçer yaşam.',
+      term2Exam1: 'Orta Çağ siyasi teşkilatları, feodalite, Kavimler Göçü, Orta Çağ ticaret yolları (İpek ve Baharat Yolu).',
+      term2Exam2: 'Orta Çağ medeniyet havzalarında bilim ve sanat, İslamiyet öncesi Türk devlet teşkilatı ve askeri yapı.',
+    },
+    units: [
+      {
+        id: 'tar-u1',
+        unitNumber: 1,
+        title: 'Geçmişin İnşa Sürecinde Tarih',
+        semester: 1,
+        outcomes: [
+          'Tarih öğrenmenin bireysel ve toplumsal faydalarını tarih bilinciyle ilişkilendirir.',
+          'Birinci elden ve ikinci elden kaynakları güvenilirlik bakımından tahlil eder.',
+          'Tarih araştırmalarında dijital teknolojilerin ve yapay zekânın kullanımını değerlendirir.',
+          'Takvim sistemlerinin (Güneş ve Ay yılı) ortaya çıkışını ve Türklerin kullandığı takvimleri kavrar.',
+        ],
+        mebExamFocus: 'Kaynak tenkidi basamakları ve Türklerin kullandığı 5 takvimin özellikleri.',
+      },
+      {
+        id: 'tar-u2',
+        unitNumber: 2,
+        title: 'Eski Çağ Medeniyetleri',
+        semester: 1,
+        outcomes: [
+          'Tarım devrimi, yerleşik hayata geçiş ve ilk şehir devletlerinin doğuşunu açıklar.',
+          'Mezopotamya, Mısır ve Anadolu medeniyetlerinin hukuk, yazı ve bilimsel miraslarını karşılaştırır.',
+          'Eski Türklerde konargöçer bozkır kültürünün toplumsal yapı ve ordu teşkilatına etkilerini irdeler.',
+        ],
+        mebExamFocus: 'Hammurabi ve Urugakina kanunları farkı; Türklerde kut anlayışı ve kurultay.',
+      },
+      {
+        id: 'tar-u3',
+        unitNumber: 3,
+        title: 'Orta Çağ Medeniyetleri',
+        semester: 2,
+        outcomes: [
+          'Kavimler Göçü\'nün Avrupa\'daki siyasi ve feodal yapıya etkilerini açıklar.',
+          'İpek, Baharat ve Kürk Yollarının devletler arası siyasi ve ekonomik mücadelelerdeki yerini kavrar.',
+          'Orta Çağ\'da İslam, Çin, Hint ve Avrupa medeniyet havzalarındaki bilim ve felsefe hareketlerini karşılaştırır.',
+        ],
+        mebExamFocus: 'Feodalite düzeni, ticaret yolları denetimi ve İslam medeniyetinin altın çağı.',
+      },
+    ],
+  },
+
+  cografya: {
+    key: 'cografya',
+    name: 'Coğrafya (9. Sınıf)',
+    weeklyHours: 2,
+    passingThreshold: 50,
+    isBarajDersi: false,
+    annualExamCount: 4,
+    mebScenarioSummary: {
+      term1Exam1: 'Coğrafyanın konusu ve ilkeleri, insan-doğa etkileşimi, coğrafi koordinat sistemi, harita ölçekleri.',
+      term1Exam2: 'İzohips haritaları okuma, yer şekillerini tanıma, atmosferin katmanları, hava durumu ve iklim, sıcaklık.',
+      term2Exam1: 'Basınç ve rüzgârlar, nem ve yağış tipleri, dünyadaki büyük iklim tipleri (makroklima).',
+      term2Exam2: 'Türkiye\'nin iklim özellikleri, nüfusun dağılışı, göç hareketleri ve afet yönetimi.',
+    },
+    units: [
+      {
+        id: 'cog-u1',
+        unitNumber: 1,
+        title: 'Coğrafyanın Doğası ve Mekânsal Bilgi Teknolojileri',
+        semester: 1,
+        outcomes: [
+          'Coğrafya biliminin bölümlerini (fiziki ve beşerî) ve ilkelerini (dağılış, nedensellik, ilgi) açıklar.',
+          'Harita projeksiyonlarını (silindirik, konik, düzlem) ve bozulma oranlarını kavrar.',
+          'Ölçek türlerini kullanarak haritada uzunluk ve alan hesaplamaları yapar.',
+          'İzohips yöntemiyle çizilmiş haritalarda vadi, sırt, tepe, boyun ve falez gibi yer şekillerini gösterir.',
+        ],
+        mebExamFocus: 'İzohips aralıkları yorumlama ve çizgi ölçek-kesir ölçek çevrimleri.',
+      },
+      {
+        id: 'cog-u2',
+        unitNumber: 2,
+        title: 'Doğal Sistemler (İklim Elemanları ve İklim Tipleri)',
+        semester: 1,
+        outcomes: [
+          'Atmosferin katmanlarını ve yaşam için önemini açıklar.',
+          'Sıcaklığın yeryüzündeki dağılışını etkileyen faktörleri (güneş ışınlarının düşme açısı, enlem, bakı vb.) analiz eder.',
+          'Basınç merkezlerini ve rüzgâr türlerini (sürekli, devirli, yerel rüzgârlar) açıklar.',
+          'Yoğuşma ve yağış türlerini oluşum biçimlerine göre sınıflandırır.',
+          'Büyük iklim tiplerini (Ekvatoral, Akdeniz, Muson, Tundra vb.) sıcaklık ve yağış grafiklerinden tanır.',
+        ],
+        mebExamFocus: 'Sıcaklık ve yağış grafiği üzerinden iklim tipi tespiti ve Türkiye iklimi.',
+      },
+      {
+        id: 'cog-u3',
+        unitNumber: 3,
+        title: 'Beşerî Sistemler, Afetler ve Çevre',
+        semester: 2,
+        outcomes: [
+          'Dünyada ve Türkiye\'de nüfusun alansal dağılışını etkileyen doğal ve beşerî faktörleri analiz eder.',
+          'Nüfus piramitlerini yaş ve cinsiyet yapısına göre yorumlar.',
+          'Göç hareketlerinin nedenlerini ve sonuçlarını değerlendirir.',
+          'Doğal afetleri oluşum türlerine göre sınıflandırır ve afet öncesi-sırası-sonrası yapılması gerekenleri kavrar.',
+        ],
+        mebExamFocus: 'Nüfus piramidi tahlili ve deprem/sel afetlerinde risk azaltma yöntemleri.',
+      },
+    ],
+  },
+
+  ingilizce: {
+    key: 'ingilizce',
+    name: 'Birinci Yabancı Dil (İngilizce)',
+    weeklyHours: 4,
+    passingThreshold: 50,
+    isBarajDersi: false,
+    annualExamCount: 4,
+    mebScenarioSummary: {
+      term1Exam1: 'Themes 1 & 2: School and classroom life, nationalities, daily routines, present simple tense, classroom instructions.',
+      term1Exam2: 'Themes 3 & 4: Physical appearance & personality adjectives, family relationships, occupations, talking about hobbies.',
+      term2Exam1: 'Themes 5 & 6: Rooms, furniture, neighbourhood interactions, city vs countryside life comparison, food cultures.',
+      term2Exam2: 'Themes 7 & 8: Wildlife habitats, endangered animals, environmental solutions, technology and future predictions (will/going to).',
+    },
+    units: [
+      {
+        id: 'ing-u1',
+        unitNumber: 1,
+        title: 'School & Classroom Life (Themes 1 & 2)',
+        semester: 1,
+        outcomes: [
+          'Introduces oneself, peers and international students using target vocabulary.',
+          'Describes daily school routines using Simple Present Tense and frequency adverbs.',
+          'Follows and gives classroom rules and instructions effectively.',
+        ],
+        mebExamFocus: 'Present Simple vs Present Continuous, frequency adverbs and daily dialogues.',
+      },
+      {
+        id: 'ing-u2',
+        unitNumber: 2,
+        title: 'Personal & Family Life (Themes 3 & 4)',
+        semester: 1,
+        outcomes: [
+          'Describes physical appearances and character traits of individuals with rich adjectives.',
+          'Expresses family relationships, occupations and responsibilities at work.',
+          'Talks about personal hobbies, abilities (can/can\'t) and preferences.',
+        ],
+        mebExamFocus: 'Personality/appearance adjectives (generous, stubbborn, wavy hair) and occupation matching.',
+      },
+      {
+        id: 'ing-u3',
+        unitNumber: 3,
+        title: 'Living Spaces & City Life (Themes 5 & 6)',
+        semester: 2,
+        outcomes: [
+          'Describes house types, rooms, furniture and prepositions of place.',
+          'Compares city life with country life using comparative and superlative structures.',
+          'Discusses local and international food cultures and ordering food in a restaurant.',
+        ],
+        mebExamFocus: 'Comparative forms (cheaper, more crowded) and prepositions of place.',
+      },
+      {
+        id: 'ing-u4',
+        unitNumber: 4,
+        title: 'Nature & Future Life (Themes 7 & 8)',
+        semester: 2,
+        outcomes: [
+          'Describes natural habitats, wildlife and causes of endangered species.',
+          'Offers practical environmental solutions to protect nature and save energy.',
+          'Makes predictions about the future regarding technology, artificial intelligence and space.',
+        ],
+        mebExamFocus: 'Future tenses (will / be going to), modal verbs (must/should) and environmental vocabulary.',
+      },
+    ],
+  },
+
+  din: {
+    key: 'din',
+    name: 'Din Kültürü ve Ahlak Bilgisi',
+    weeklyHours: 2,
+    passingThreshold: 50,
+    isBarajDersi: false,
+    annualExamCount: 4,
+    mebScenarioSummary: {
+      term1Exam1: '1. Ünite: İnsanın özellikleri, dinin insan hayatındaki yeri, fıtrat kavramı, vahiy ve akıl ilişkisi.',
+      term1Exam2: '1. ve 2. Ünite: Dua ve ibadet eden varlık olarak insan, İslam inanç esasları, imanın bireysel ve toplumsal kazanımları.',
+      term2Exam1: '3. Ünite: İslam\'da ibadetlerin mahiyeti, ibadetlerin temel ilkeleri (ihlas, sünnete uygunluk) ve ahlakla ilişkisi.',
+      term2Exam2: '4. Ünite: Temel ahlaki erdemler (adalet, hikmet, iffet, şecaat) ve Asr-ı Saadet\'te örnek genç sahabiler.',
+    },
+    units: [
+      {
+        id: 'din-u1',
+        unitNumber: 1,
+        title: 'Allah-İnsan İlişkisi',
+        semester: 1,
+        outcomes: [
+          'İnsanın yaratılış gayesini, fıtratını ve üstün özelliklerini Kur\'an ayetleriyle açıklar.',
+          'Vahiy ve akıl arasındaki dengeyi ve doğru bilgiye ulaşmadaki rollerini kavrar.',
+          'Dua ve ibadetin insanın ruhsal dinginliği ve Allah ile irtibatındaki yerini kavrar.',
+        ],
+        mebExamFocus: 'Fıtrat, haniflik kavramları ve Rum suresi 17-27. ayetlerin ana teması.',
+      },
+      {
+        id: 'din-u2',
+        unitNumber: 2,
+        title: 'İslam\'da İnanç Esasları',
+        semester: 1,
+        outcomes: [
+          'İman kavramını, imanın tasdik ve ikrar boyutlarını açıklar.',
+          'İslam inanç esaslarının temel özelliklerini (dogmatik olmama, fıtrata uygunluk) analiz eder.',
+          'İmanın birey ve toplum hayatında oluşturduğu güven ve ahlaki değerleri değerlendirir.',
+        ],
+        mebExamFocus: 'İcmali ve tafsili iman farkı, imanın mahiyeti ve taklidi/tahkiki iman.',
+      },
+      {
+        id: 'din-u3',
+        unitNumber: 3,
+        title: 'İslam\'da İbadetler ve Ahlak',
+        semester: 2,
+        outcomes: [
+          'İbadetin kapsamını, ibadet çeşitlerini (bedenî, malî, hem bedenî hem malî) açıklar.',
+          'İbadetlerin kabul edilme şartlarını (ihlas ve sünnete uygunluk) kavrar.',
+          'İbadetlerin insanın kötülüklerden uzaklaşmasındaki ve ahlak gelişimindeki rolünü değerlendirir.',
+        ],
+        mebExamFocus: 'İbadetlerin ilkeleri ve ibadet-ahlak bütünlüğü soruları.',
+      },
+      {
+        id: 'din-u4',
+        unitNumber: 4,
+        title: 'Ahlaki Değerler ve Gençlik',
+        semester: 2,
+        outcomes: [
+          'Dört temel ahlaki erdemi (adalet, hikmet, iffet, şecaat) açıklar.',
+          'Hz. Muhammed\'in gençlere verdiği önemi ve genç sahabilerin (Hz. Ali, Muaz b. Cebel, Üsame b. Zeyd) hayatlarını modeller.',
+        ],
+        mebExamFocus: 'Temel ahlaki erdemler (hikmet, adalet, iffet, şecaat) ve genç sahabilerin rolleri.',
+      },
+    ],
+  },
+};
+
 /**
  * Belirtilen dersin konularını döndürür
  */
@@ -305,4 +894,43 @@ export function getLise1TopicsByCourse(courseKey: Lise1CourseKey): readonly stri
 export function getLise1CourseName(courseKey: Lise1CourseKey): string {
   const found = LISE1_COURSE_OPTIONS.find((c) => c.key === courseKey);
   return found ? found.name : courseKey;
+}
+
+/**
+ * Bir 9. sınıf dersinin detaylı Maarif Modeli müfredat metadatasını döndürür
+ */
+export function getLise1CourseMetadata(courseKey: Lise1CourseKey): Lise1CourseDetailedMetadata | undefined {
+  return LISE1_DETAILED_CURRICULUM[courseKey];
+}
+
+/**
+ * Bir 9. sınıf dersinin resmi ünitelerini döndürür
+ */
+export function getLise1UnitsByCourse(courseKey: Lise1CourseKey): Lise1Unit[] {
+  return LISE1_DETAILED_CURRICULUM[courseKey]?.units || [];
+}
+
+/**
+ * MEB Ortak Yazılı Sınavı için ilgili dönem ve yazılı numarasına göre odak konuları döndürür
+ */
+export function getLise1ExamTopicsForSemester(
+  courseKey: Lise1CourseKey,
+  semester: 1 | 2,
+  examNumber: 1 | 2
+): string {
+  const meta = LISE1_DETAILED_CURRICULUM[courseKey];
+  if (!meta) return '';
+  if (semester === 1) {
+    return examNumber === 1 ? meta.mebScenarioSummary.term1Exam1 : meta.mebScenarioSummary.term1Exam2;
+  } else {
+    return examNumber === 1 ? meta.mebScenarioSummary.term2Exam1 : meta.mebScenarioSummary.term2Exam2;
+  }
+}
+
+/**
+ * MEB Ortaöğretim Kurumları Yönetmeliği uyarınca dersin baraj/geçme notunu döndürür
+ * (Türk Dili ve Edebiyatı için 70, diğer tüm dersler için 50)
+ */
+export function getLise1PassingThreshold(courseKey: Lise1CourseKey): number {
+  return courseKey === 'edebiyat' ? 70 : 50;
 }
