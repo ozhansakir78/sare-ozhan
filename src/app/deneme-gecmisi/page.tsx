@@ -13,6 +13,7 @@ import {
 import type { SavedStudentExam } from '@/types/exam';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { AuthGuard } from '@/components/auth/AuthGuard';
+import { useGradeTier } from '@/lib/grade-tier';
 import { pullCloudDataToLocal, syncLocalDataToCloud } from '@/lib/cloud-sync';
 import {
   TrendingUp,
@@ -32,6 +33,7 @@ import { WhatsAppShareButton } from '@/components/share/WhatsAppShareButton';
 
 export default function DenemeGecmisiPage() {
   const { user, profile } = useAuth();
+  const { isLise, isYks } = useGradeTier();
   const [exams, setExams] = useState<SavedStudentExam[]>([]);
   const [selectedExamId, setSelectedExamId] = useState<string | null>(null);
 
@@ -75,7 +77,7 @@ export default function DenemeGecmisiPage() {
   return (
     <AuthGuard
       title="Deneme Geçmişinizi Görmek İçin Giriş Yapmalısınız"
-      description="Çözdüğünüz tüm denemeleri, net artış grafiklerinizi ve LGS puan trendinizi takip edebilmek için lütfen ücretsiz üye olun veya giriş yapın."
+      description="Çözdüğünüz tüm denemeleri, net artış grafiklerinizi ve sınav puan trendinizi takip edebilmek için lütfen ücretsiz üye olun veya giriş yapın."
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6 space-y-8 py-8">
           {/* Başlık ve Eylem */}
@@ -83,13 +85,23 @@ export default function DenemeGecmisiPage() {
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50/70 px-3 py-1 text-xs font-semibold text-indigo-700 dark:border-indigo-800/60 dark:bg-indigo-950/50 dark:text-indigo-300">
                 <TrendingUp className="h-3.5 w-3.5" />
-                <span>2027 LGS Başarı Takibi</span>
+                <span>
+                  {isLise
+                    ? 'MEB Ortak Yazılı & Not Takibi'
+                    : isYks
+                    ? 'ÖSYM YKS (TYT/AYT) Başarı Takibi'
+                    : 'LGS Başarı Takibi'}
+                </span>
               </div>
               <h1 className="mt-2 text-2xl font-black tracking-tight text-slate-900 dark:text-white sm:text-3xl">
                 Deneme Sınavı Geçmişi &amp; Trend Analizi
               </h1>
               <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 sm:text-sm">
-                Çözdüğün denemeleri kaydet, puan artışını takip et ve hedef lisene ne kadar yaklaştığını gör.
+                {isLise
+                  ? 'Çözdüğün yazılı provalarını kaydet, not artışını takip et ve hedef üniversitene ne kadar yaklaştığını gör.'
+                  : isYks
+                  ? 'Çözdüğün TYT/AYT denemelerini kaydet, sıralamanı takip et ve hedef üniversitene ne kadar yaklaştığını gör.'
+                  : 'Çözdüğün denemeleri kaydet, puan artışını takip et ve hedef lisene ne kadar yaklaştığını gör.'}
               </p>
             </div>
 
@@ -233,10 +245,14 @@ export default function DenemeGecmisiPage() {
                         <div className="flex items-center justify-between sm:justify-end gap-4">
                           <div className="text-right">
                             <div className="text-lg font-black text-indigo-600 dark:text-indigo-400">
-                              {exam.totalScore} ₺Puan
+                              {exam.tier === 'lise1' || exam.tier === 'lise2' || exam.tier === 'lise3' || (exam.examTitle || '').toLowerCase().includes('yazılı') || (exam.examTitle || '').toLowerCase().includes('9. sınıf')
+                                ? `${exam.totalScore} / 100`
+                                : `${exam.totalScore} Puan`}
                             </div>
                             <div className="text-[11px] font-semibold text-slate-500">
-                              {exam.totalNet} Net &bull; %{exam.calculatedPercentile} Dilim
+                              {exam.tier === 'lise1' || exam.tier === 'lise2' || exam.tier === 'lise3' || (exam.examTitle || '').toLowerCase().includes('yazılı') || (exam.examTitle || '').toLowerCase().includes('9. sınıf')
+                                ? `${exam.totalNet} Doğru / Net • Yazılı Notu`
+                                : `${exam.totalNet} Net • %${exam.calculatedPercentile || '0'} Dilim`}
                             </div>
                           </div>
 
@@ -245,12 +261,23 @@ export default function DenemeGecmisiPage() {
                               <WhatsAppShareButton
                                 variant="compact"
                                 shareData={{
+                                  tier: exam.tier,
                                   examTitle: exam.examTitle,
                                   score: exam.totalScore,
+                                  scoreLabel: exam.scoreLabel,
+                                  scoreUnit:
+                                    exam.tier === 'lise1' || exam.tier === 'lise2' || exam.tier === 'lise3' || (exam.examTitle || '').toLowerCase().includes('yazılı') || (exam.examTitle || '').toLowerCase().includes('9. sınıf')
+                                      ? '/ 100'
+                                      : 'Puan',
                                   totalNet: exam.totalNet,
-                                  courseBreakdown: Object.values(exam.courses).map((c) => ({
-                                    name: c.courseName,
-                                    net: c.net,
+                                  totalQuestions:
+                                    (exam.totalCorrect || 0) +
+                                    (exam.totalIncorrect || 0) +
+                                    (exam.totalEmpty || 0),
+                                  correctCount: exam.totalCorrect,
+                                  courseBreakdown: Object.values(exam.courses || {}).map((c: any) => ({
+                                    name: c.courseName || c.name || 'Ders',
+                                    net: c.net ?? 0,
                                   })),
                                   mode: 'student_to_parent',
                                 }}

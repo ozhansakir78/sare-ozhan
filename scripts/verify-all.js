@@ -17,6 +17,7 @@ const SUITES = [
   { name: 'YÖK Atlas Üniversitesi & Net Yeterlilik Radarı', script: 'scripts/test-yks-universities.js', command: 'test:yks-universities' },
   { name: 'Çok Kademeli Sokratik AI & Yanlış Defteri Adaptörü', script: 'scripts/test-socratic-tier-adapter.js', command: 'test:socratic' },
   { name: 'Çift Katmanlı Yapay Zekâ Soru Üretim Motoru', script: 'scripts/test-exam-generator.js', command: 'test:exam-generator' },
+  { name: 'Çok Kademeli Sınav Puanı & WhatsApp Karne Motoru', script: 'scripts/test-multi-tier-scoring.js', command: 'test:multi-tier-scoring' },
 ];
 
 console.log('='.repeat(80));

@@ -14,6 +14,7 @@ import { useAuth } from '@/components/auth/AuthProvider';
 import { useGradeTier } from '@/lib/grade-tier';
 import { MathText } from '@/components/ui/MathText';
 import { formatMathText } from '@/lib/math-formatter';
+import { resolveExamTier, computeTierExamScore, calculateCourseNetByTier } from '@/lib/exam-tier-utils';
 import {
   CheckCircle2,
   XCircle,
@@ -47,6 +48,15 @@ export function ExamResultSummary({
 }: ExamResultSummaryProps) {
   const { user, profile, updateProfile } = useAuth();
   const { isLise1, isLise, isYks } = useGradeTier();
+  const examTier = resolveExamTier(exam);
+  const scoreEval = computeTierExamScore({
+    tier: examTier,
+    totalQuestions: result.totalQuestions,
+    correctCount: result.correctCount,
+    incorrectCount: result.incorrectCount,
+    emptyCount: result.emptyCount,
+    courseKey: exam.courseKey,
+  });
 
   const [activeTab, setActiveTab] = useState<'all' | 'wrong_or_empty' | 'correct'>('all');
   const [expandedQuestionIds, setExpandedQuestionIds] = useState<Set<string>>(new Set());
@@ -190,88 +200,28 @@ export function ExamResultSummary({
       }
     });
 
-    const coursesObj: any = {
-      turkce: {
-        courseKey: 'turkce' as const,
-        courseName: courseStats.turkce.name,
-        questionCount: courseStats.turkce.count,
-        weight: 4,
-        correct: courseStats.turkce.correct,
-        incorrect: courseStats.turkce.incorrect,
-        empty: courseStats.turkce.empty,
-        net: Number(Math.max(0, courseStats.turkce.correct - courseStats.turkce.incorrect / 3).toFixed(2)),
-        lostNet: Number((courseStats.turkce.incorrect / 3).toFixed(2)),
-      },
-      matematik: {
-        courseKey: 'matematik' as const,
-        courseName: courseStats.matematik.name,
-        questionCount: courseStats.matematik.count,
-        weight: 4,
-        correct: courseStats.matematik.correct,
-        incorrect: courseStats.matematik.incorrect,
-        empty: courseStats.matematik.empty,
-        net: Number(Math.max(0, courseStats.matematik.correct - courseStats.matematik.incorrect / 3).toFixed(2)),
-        lostNet: Number((courseStats.matematik.incorrect / 3).toFixed(2)),
-      },
-      fen: {
-        courseKey: 'fen' as const,
-        courseName: courseStats.fen.name,
-        questionCount: courseStats.fen.count,
-        weight: 4,
-        correct: courseStats.fen.correct,
-        incorrect: courseStats.fen.incorrect,
-        empty: courseStats.fen.empty,
-        net: Number(Math.max(0, courseStats.fen.correct - courseStats.fen.incorrect / 3).toFixed(2)),
-        lostNet: Number((courseStats.fen.incorrect / 3).toFixed(2)),
-      },
-      inkilap: {
-        courseKey: 'inkilap' as const,
-        courseName: courseStats.inkilap.name,
-        questionCount: courseStats.inkilap.count,
-        weight: 1,
-        correct: courseStats.inkilap.correct,
-        incorrect: courseStats.inkilap.incorrect,
-        empty: courseStats.inkilap.empty,
-        net: Number(Math.max(0, courseStats.inkilap.correct - courseStats.inkilap.incorrect / 3).toFixed(2)),
-        lostNet: Number((courseStats.inkilap.incorrect / 3).toFixed(2)),
-      },
-      din: {
-        courseKey: 'din' as const,
-        courseName: courseStats.din.name,
-        questionCount: courseStats.din.count,
-        weight: 1,
-        correct: courseStats.din.correct,
-        incorrect: courseStats.din.incorrect,
-        empty: courseStats.din.empty,
-        net: Number(Math.max(0, courseStats.din.correct - courseStats.din.incorrect / 3).toFixed(2)),
-        lostNet: Number((courseStats.din.incorrect / 3).toFixed(2)),
-      },
-      ingilizce: {
-        courseKey: 'ingilizce' as const,
-        courseName: courseStats.ingilizce.name,
-        questionCount: courseStats.ingilizce.count,
-        weight: 1,
-        correct: courseStats.ingilizce.correct,
-        incorrect: courseStats.ingilizce.incorrect,
-        empty: courseStats.ingilizce.empty,
-        net: Number(Math.max(0, courseStats.ingilizce.correct - courseStats.ingilizce.incorrect / 3).toFixed(2)),
-        lostNet: Number((courseStats.ingilizce.incorrect / 3).toFixed(2)),
-      },
-    };
+    const isHighSchool = examTier === 'lise1' || examTier === 'lise2' || examTier === 'lise3';
+    const coursesObj: any = {};
 
-    // Diğer branşlar (örn. 9. sınıf Fizik, Kimya vb.) varsa ekle
     Object.entries(courseStats).forEach(([cKey, stat]) => {
-      if (!coursesObj[cKey] && stat.count > 0) {
+      if (stat.count > 0) {
+        const net = calculateCourseNetByTier(examTier, stat.correct, stat.incorrect);
+        const lostNet = isHighSchool
+          ? 0
+          : examTier === 'yks'
+          ? Number((stat.incorrect / 4).toFixed(2))
+          : Number((stat.incorrect / 3).toFixed(2));
+
         coursesObj[cKey] = {
           courseKey: cKey,
           courseName: stat.name,
           questionCount: stat.count,
-          weight: 1,
+          weight: ['turkce', 'matematik', 'fen', 'edebiyat', 'fizik', 'kimya'].includes(cKey) ? 4 : 1,
           correct: stat.correct,
           incorrect: stat.incorrect,
           empty: stat.empty,
-          net: Number(Math.max(0, stat.correct - stat.incorrect / 3).toFixed(2)),
-          lostNet: Number((stat.incorrect / 3).toFixed(2)),
+          net,
+          lostNet,
         };
       }
     });
@@ -290,10 +240,13 @@ export function ExamResultSummary({
     if (!isAlreadySaved) {
       saveStudentExamToStorage({
         userId: user?.id,
+        tier: examTier,
+        scoreLabel: scoreEval.scoreLabel,
+        scoreUnit: scoreEval.scoreUnit,
         examTitle: exam.title,
         examDate: today,
-        totalScore: Math.round(200 + (result.netScore / result.totalQuestions) * 300),
-        calculatedPercentile: Math.max(0.2, Number((100 - (result.netScore / result.totalQuestions) * 98).toFixed(2))),
+        totalScore: scoreEval.calculatedScore,
+        calculatedPercentile: scoreEval.percentile || 0,
         totalNet: result.netScore,
         totalCorrect: result.correctCount,
         totalIncorrect: result.incorrectCount,
@@ -306,7 +259,7 @@ export function ExamResultSummary({
     }
 
     setIsSavedToHistory(true);
-  }, [exam.title, result, user?.id]);
+  }, [exam.title, result, user?.id, examTier, scoreEval]);
 
   // 🚀 OTOMATİK KAYIT: Sınav sonuçlandığında öğrencinin herhangi bir butona tıklamasına gerek kalmadan
   // 1. Yanlış ve boş soruları konu bazında Yanlış Defteri'ne arşivler.
@@ -334,13 +287,11 @@ export function ExamResultSummary({
     if (e) e.preventDefault();
     if (!nickname.trim() || isSavedToLeaderboard) return;
 
-    const calculatedScore = Number((200 + (result.netScore / result.totalQuestions) * 300).toFixed(2));
-
     addLeaderboardEntry({
       nickname: nickname.trim(),
       examTitle: exam.title,
       examSlug: exam.slug,
-      score: calculatedScore,
+      score: scoreEval.calculatedScore,
       totalNet: result.netScore,
       correctCount: result.correctCount,
       wrongCount: result.incorrectCount,
@@ -407,24 +358,21 @@ export function ExamResultSummary({
   const secondsSpent = result.timeSpentSeconds % 60;
 
   const courseSummaryList = React.useMemo(() => {
-    if (exam.type !== 'full') return [];
-    const map: Record<string, { name: string; correct: number; incorrect: number; empty: number; count: number }> = {
-      turkce: { name: 'Türkçe', correct: 0, incorrect: 0, empty: 0, count: 0 },
-      matematik: { name: 'Matematik', correct: 0, incorrect: 0, empty: 0, count: 0 },
-      fen: { name: 'Fen Bilimleri', correct: 0, incorrect: 0, empty: 0, count: 0 },
-      inkilap: { name: 'İnkılap Tarihi', correct: 0, incorrect: 0, empty: 0, count: 0 },
-      din: { name: 'Din Kültürü', correct: 0, incorrect: 0, empty: 0, count: 0 },
-      ingilizce: { name: 'İngilizce', correct: 0, incorrect: 0, empty: 0, count: 0 },
-    };
+    const map: Record<
+      string,
+      { name: string; correct: number; incorrect: number; empty: number; count: number }
+    > = {};
 
     result.questionDetails.forEach((d) => {
       const k = d.question.courseKey || 'matematik';
-      if (map[k]) {
-        map[k].count++;
-        if (d.isEmpty) map[k].empty++;
-        else if (d.isCorrect) map[k].correct++;
-        else map[k].incorrect++;
+      const name = d.question.courseName || k;
+      if (!map[k]) {
+        map[k] = { name, correct: 0, incorrect: 0, empty: 0, count: 0 };
       }
+      map[k].count++;
+      if (d.isEmpty) map[k].empty++;
+      else if (d.isCorrect) map[k].correct++;
+      else map[k].incorrect++;
     });
 
     return Object.entries(map)
@@ -436,9 +384,9 @@ export function ExamResultSummary({
         correct: data.correct,
         incorrect: data.incorrect,
         empty: data.empty,
-        net: Number(Math.max(0, data.correct - data.incorrect / 3).toFixed(2)),
+        net: calculateCourseNetByTier(examTier, data.correct, data.incorrect),
       }));
-  }, [exam.type, result.questionDetails]);
+  }, [examTier, result.questionDetails]);
 
   return (
     <div className="space-y-8">
@@ -456,8 +404,8 @@ export function ExamResultSummary({
           <h2 className="mt-2 text-2xl font-black text-slate-900 dark:text-white sm:text-3xl">
             Sınav Sonuç Karnesi
           </h2>
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 sm:text-sm">
-            MEB standartlarına göre 3 yanlış 1 doğruyu götürerek netin hesaplandı.
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 sm:text-sm max-w-xl">
+            {scoreEval.ruleExplanation}
           </p>
 
           {/* 4 Temel Metrik Kartı */}
@@ -492,22 +440,47 @@ export function ExamResultSummary({
               </span>
             </div>
 
-            {/* Toplam Net */}
+            {/* Toplam Net / Yazılı Notu */}
             <div className="flex flex-col items-center rounded-2xl border border-indigo-200 bg-indigo-50/70 p-4 shadow-xs dark:border-indigo-800/60 dark:bg-indigo-950/40">
               <span className="text-2xl font-black text-indigo-600 dark:text-indigo-400 sm:text-3xl">
-                {result.netScore.toFixed(2)}
+                {examTier === 'lise1' || examTier === 'lise2' || examTier === 'lise3'
+                  ? `${scoreEval.calculatedScore}`
+                  : result.netScore.toFixed(2)}
               </span>
               <span className="mt-1 text-[11px] font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-300">
-                Toplam Net
+                {examTier === 'lise1' || examTier === 'lise2' || examTier === 'lise3'
+                  ? 'Yazılı Notu (/100)'
+                  : 'Toplam Net'}
               </span>
             </div>
           </div>
 
-          {/* LGS Çoklu Ders Net Dağılımı */}
+          {/* Resmi Başarı Puanı Bandı */}
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+            <div className="inline-flex items-center gap-2 rounded-2xl border border-indigo-200 bg-white/90 px-4 py-2 text-xs font-bold text-slate-700 shadow-xs dark:border-indigo-900/60 dark:bg-slate-800 dark:text-slate-200">
+              <Award className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+              <span>{scoreEval.scoreLabel}:</span>
+              <span className="text-sm font-black text-indigo-600 dark:text-indigo-400">
+                {scoreEval.scoreDisplay}
+              </span>
+            </div>
+          </div>
+
+          {/* Ders Bazlı Net/Doğru Dağılımı */}
           {courseSummaryList.length > 0 && (
             <div className="mt-6 w-full max-w-2xl rounded-2xl border border-indigo-100 bg-white/90 p-4 dark:border-indigo-900/50 dark:bg-slate-800/80 text-left">
               <h4 className="mb-3 text-xs font-black uppercase tracking-wider text-indigo-700 dark:text-indigo-300 text-center">
-                📚 Ders Bazlı Net Dağılımı (LGS Genel Karne)
+                📚 Ders Bazlı Dağılım ({
+                  examTier === 'lise1'
+                    ? '9. Sınıf Yazılı Karnesi'
+                    : examTier === 'lise2'
+                    ? '10. Sınıf Yazılı Karnesi'
+                    : examTier === 'lise3'
+                    ? '11. Sınıf Yazılı Karnesi'
+                    : examTier === 'yks'
+                    ? 'YKS Karnesi'
+                    : 'LGS Genel Karne'
+                })
               </h4>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                 {courseSummaryList.map((cs) => (
@@ -521,7 +494,9 @@ export function ExamResultSummary({
                     <div className="mt-1 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
                       <span>{cs.correct}D {cs.incorrect}Y {cs.empty}B</span>
                       <span className="font-extrabold text-indigo-600 dark:text-indigo-400">
-                        {cs.net} Net
+                        {examTier === 'lise1' || examTier === 'lise2' || examTier === 'lise3'
+                          ? `${cs.correct} Doğru`
+                          : `${cs.net} Net`}
                       </span>
                     </div>
                   </div>
@@ -575,9 +550,16 @@ export function ExamResultSummary({
 
             <WhatsAppShareButton
               shareData={{
+                tier: examTier,
                 examTitle: exam.title,
-                score: Math.round(200 + (result.netScore / result.totalQuestions) * 300),
+                score: scoreEval.calculatedScore,
+                scoreLabel: scoreEval.scoreLabel,
+                scoreUnit: scoreEval.scoreUnit,
                 totalNet: result.netScore,
+                totalQuestions: result.totalQuestions,
+                correctCount: result.correctCount,
+                targetSchool: targetSchool,
+                targetSchoolLabel: scoreEval.targetLabel,
                 mode: 'student_to_parent',
                 courseBreakdown: courseSummaryList.map((c) => ({ name: c.name, net: c.net })),
               }}

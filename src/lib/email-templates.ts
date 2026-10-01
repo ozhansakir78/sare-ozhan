@@ -9,9 +9,12 @@ export interface ParentReportEmailData {
   examInfo?: {
     title: string;
     score: number;
+    scoreLabel?: string;
+    scoreUnit?: string;
     net: number;
     percentile?: number;
     targetSchool?: string;
+    targetSchoolLabel?: string;
     targetSchoolProgress?: number;
   };
   stats?: {
@@ -88,12 +91,12 @@ export function generateParentReportEmailHtml(data: ParentReportEmailData): stri
         
         <table style="width: 100%; border-collapse: collapse;">
           <tr style="border-bottom: 1px solid rgba(199, 210, 254, 0.6);">
-            <td style="padding: 8px 0; font-size: 13px; color: #475569;">Tahmini LGS Puanı:</td>
-            <td style="padding: 8px 0; font-size: 18px; font-weight: 900; color: #4f46e5; text-align: right;">${examInfo.score.toFixed(1)} Puan</td>
+            <td style="padding: 8px 0; font-size: 13px; color: #475569;">${examInfo.scoreLabel || 'Sınav Puanı'}:</td>
+            <td style="padding: 8px 0; font-size: 18px; font-weight: 900; color: #4f46e5; text-align: right;">${examInfo.score.toFixed(1)} ${examInfo.scoreUnit || 'Puan'}</td>
           </tr>
           <tr style="border-bottom: 1px solid rgba(199, 210, 254, 0.6);">
-            <td style="padding: 8px 0; font-size: 13px; color: #475569;">Toplam Net:</td>
-            <td style="padding: 8px 0; font-size: 15px; font-weight: 800; color: #0f172a; text-align: right;">${examInfo.net.toFixed(2)} / 90.00</td>
+            <td style="padding: 8px 0; font-size: 13px; color: #475569;">Toplam Net / Doğru:</td>
+            <td style="padding: 8px 0; font-size: 15px; font-weight: 800; color: #0f172a; text-align: right;">${examInfo.net.toFixed(2)}</td>
           </tr>
           ${
             examInfo.percentile
@@ -109,7 +112,7 @@ export function generateParentReportEmailHtml(data: ParentReportEmailData): stri
             examInfo.targetSchool
               ? `
           <tr>
-            <td style="padding: 8px 0; font-size: 13px; color: #475569;">Hedef Lise:</td>
+            <td style="padding: 8px 0; font-size: 13px; color: #475569;">${examInfo.targetSchoolLabel || 'Hedef Okul / Üniversite'}:</td>
             <td style="padding: 8px 0; font-size: 13px; font-weight: 800; color: #7c3aed; text-align: right;">${examInfo.targetSchool} ${examInfo.targetSchoolProgress ? `(%${examInfo.targetSchoolProgress})` : ''}</td>
           </tr>
           `

@@ -18,6 +18,7 @@ import {
   getSavedExamProgress,
   removeSavedExamProgress,
 } from '@/lib/exam-progress-storage';
+import { resolveExamTier, computeTierExamScore } from '@/lib/exam-tier-utils';
 import {
   ArrowLeft,
   CheckCircle2,
@@ -226,9 +227,19 @@ export function ExamSessionContainer({ exam }: ExamSessionContainerProps) {
       };
     });
 
-    // MEB Formülü: Her 3 yanlış 1 doğruyu götürür
-    const netScore = Math.max(0, correctCount - incorrectCount / 3);
-    const scorePercentage = Math.round((netScore / totalQuestions) * 100);
+    // Kademeye göre puan, net ve değerlendirme motoru (Lise yazılı, YKS, LGS)
+    const examTier = resolveExamTier(exam);
+    const scoreEvaluation = computeTierExamScore({
+      tier: examTier,
+      totalQuestions,
+      correctCount,
+      incorrectCount,
+      emptyCount,
+      courseKey: exam.courseKey,
+    });
+
+    const netScore = scoreEvaluation.netScore;
+    const scorePercentage = Math.round((correctCount / totalQuestions) * 100);
     const timeSpentSeconds = Math.min(
       exam.durationMinutes * 60,
       Math.max(1, Math.round((Date.now() - startTime) / 1000))
@@ -237,6 +248,7 @@ export function ExamSessionContainer({ exam }: ExamSessionContainerProps) {
     return {
       examId: exam.id,
       examTitle: exam.title,
+      tier: examTier,
       courseKey: exam.courseKey,
       totalQuestions,
       correctCount,
@@ -244,6 +256,9 @@ export function ExamSessionContainer({ exam }: ExamSessionContainerProps) {
       emptyCount,
       netScore,
       scorePercentage,
+      calculatedScore: scoreEvaluation.calculatedScore,
+      scoreLabel: scoreEvaluation.scoreLabel,
+      scoreUnit: scoreEvaluation.scoreUnit,
       timeSpentSeconds,
       questionDetails,
       completedAt: new Date().toISOString(),

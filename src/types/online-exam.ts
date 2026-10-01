@@ -65,6 +65,7 @@ export interface QuestionResultDetail {
 export interface OnlineExamResult {
   examId: string;
   examTitle: string;
+  tier?: OnlineExamTier;
   courseKey?: string;
   totalQuestions: number;
   correctCount: number;
@@ -72,7 +73,11 @@ export interface OnlineExamResult {
   emptyCount: number;
   netScore: number;
   scorePercentage: number;
+  calculatedScore?: number;
+  scoreLabel?: string;
+  scoreUnit?: string;
   timeSpentSeconds: number;
   questionDetails: QuestionResultDetail[];
   completedAt: string;
 }
+

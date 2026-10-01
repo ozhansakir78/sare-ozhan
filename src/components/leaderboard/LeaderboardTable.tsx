@@ -196,10 +196,10 @@ export function LeaderboardTable() {
                 <tr>
                   <th className="py-3.5 px-4 sm:px-6">Sıra</th>
                   <th className="py-3.5 px-4 sm:px-6">Öğrenci Lakabı</th>
-                  <th className="py-3.5 px-4 sm:px-6 hidden sm:table-cell">Hedef Lise / İl</th>
+                  <th className="py-3.5 px-4 sm:px-6 hidden sm:table-cell">Hedef Okul / İl</th>
                   <th className="py-3.5 px-4 sm:px-6 hidden md:table-cell">Sınav</th>
                   <th className="py-3.5 px-4 sm:px-6 text-center">Net</th>
-                  <th className="py-3.5 px-4 sm:px-6 text-right">LGS Puanı</th>
+                  <th className="py-3.5 px-4 sm:px-6 text-right">Başarı Puanı</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">

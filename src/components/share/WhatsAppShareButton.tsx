@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { MessageCircle, Check, Send, X, Share2 } from 'lucide-react';
-import { getWhatsAppShareUrl, type WhatsAppShareData } from '@/lib/whatsapp-share';
+import { getWhatsAppShareUrl, generateWhatsAppReportMessage, type WhatsAppShareData } from '@/lib/whatsapp-share';
 
 interface WhatsAppShareButtonProps {
   shareData: WhatsAppShareData;
@@ -98,10 +98,7 @@ export function WhatsAppShareButton({
                 💬 Hazırlanan WhatsApp Mesajı
               </span>
               <p className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-line line-clamp-6 leading-relaxed font-sans">
-                {shareData.mode === 'student_to_parent'
-                  ? `👋 *Anneciğim / Babacığım,*\nBugünkü *${shareData.examTitle}* denememi tamamladım!\n🎯 Toplam Net: ${shareData.totalNet.toFixed(2)} Net\n🏆 Puanım: ${shareData.score?.toFixed(1) || '-'} Puan`
-                  : `📊 *${shareData.studentName || 'Öğrenciniz'}* LGS Karne Özeti\n🎯 Toplam Net: ${shareData.totalNet.toFixed(2)} Net`}
-                {shareData.targetSchool && `\n🏫 Hedef: ${shareData.targetSchool}`}
+                {generateWhatsAppReportMessage(shareData)}
               </p>
             </div>
 

@@ -46,6 +46,9 @@ export interface LgsCalculationResult {
 export interface SavedStudentExam {
   id: string;
   userId?: string;
+  tier?: 'lgs' | 'lise1' | 'lise2' | 'lise3' | 'yks';
+  scoreLabel?: string;
+  scoreUnit?: string;
   examTitle: string;
   examDate: string;
   totalScore: number;
@@ -54,6 +57,7 @@ export interface SavedStudentExam {
   totalCorrect: number;
   totalIncorrect: number;
   totalEmpty: number;
-  courses: Record<LgsCourseKey, LgsCourseResult>;
+  courses: Record<string, any>;
   createdAt: string;
 }
+
