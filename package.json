@@ -12,7 +12,8 @@
     "test:lise1": "node scripts/test-lise1-calculation.js",
     "test:field-selection": "node scripts/test-field-selection.js",
     "test:early-tyt": "node scripts/test-early-tyt.js",
-    "test:yks-tyt": "node scripts/test-yks-tyt.js"
+    "test:yks-tyt": "node scripts/test-yks-tyt.js",
+    "test:yks-ayt": "node scripts/test-yks-ayt.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",
