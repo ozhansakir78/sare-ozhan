@@ -6,6 +6,7 @@ import { SCIENCE_EXAMS } from '@/lib/exams/science-exams';
 import { VERBAL_EXAMS } from '@/lib/exams/verbal-exams';
 import { LISE1_EXAMS } from '@/lib/exams/lise1-exams';
 import { LISE1_UNIT_TESTS } from '@/lib/exams/lise1-unit-tests';
+import { LISE2_EXAMS } from '@/lib/exams/lise2-exams';
 import { LGS_UNIT_TESTS } from '@/lib/exams/lgs-unit-tests';
 import { generateWeeklyLiveExam } from '@/lib/weekly-live-exam';
 import { getAutonomousChallengeExams } from '@/lib/autonomous-challenge-engine';
@@ -21,6 +22,7 @@ export const ONLINE_EXAMS: OnlineExam[] = [
   ...LGS_UNIT_TESTS,
   ...LISE1_EXAMS,
   ...LISE1_UNIT_TESTS,
+  ...LISE2_EXAMS,
 ];
 
 export function getOnlineExams(): OnlineExam[] {
