@@ -111,7 +111,13 @@ export function Navbar() {
       iconColor: 'text-rose-400',
     },
     {
-      href: isLise2 ? '/lise2-konulari' : isLise ? '/lise1-konulari' : '/lgs-konulari',
+      href: isLise3
+        ? '/lise3-konulari'
+        : isLise2
+        ? '/lise2-konulari'
+        : isLise
+        ? '/lise1-konulari'
+        : '/lgs-konulari',
       label: 'Konular',
       icon: Layers,
       iconColor: 'text-sky-400',
