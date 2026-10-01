@@ -150,7 +150,7 @@ export function EventAnnouncementModal() {
         <div className="mt-4 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 px-1">
           <span className="flex items-center gap-1.5 font-bold text-emerald-600 dark:text-emerald-400">
             <Users className="h-3.5 w-3.5" />
-            <span>{isLise1 ? '260+ Lise 1 Öğrencisi Çözdü' : '340+ Öğrenci Katıldı'}</span>
+            <span>{isLise1 ? '9. Sınıf MEB Yazılı Provası' : 'MEB Güncel Müfredat Provası'}</span>
           </span>
           <span className="font-semibold">
             {challenge.questionCount} Soru &bull; Canlı Sıralama

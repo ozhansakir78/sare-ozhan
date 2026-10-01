@@ -31,44 +31,50 @@ export function Footer() {
               </span>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed">
-              2027 LGS sınavına hazırlanan öğrenciler için yapay zekâ destekli soru çözüm, net hesaplama ve online deneme platformu.
+              LGS (8. Sınıf), Lise (9, 10, 11) ve YKS (TYT / AYT) sınavlarına hazırlanan öğrenciler için yapay zekâ destekli soru çözüm, net hesaplama ve 145 online deneme platformu.
             </p>
           </div>
 
           {/* Kolon 2: Online Sınavlar */}
           <div>
             <span className="text-xs font-black uppercase tracking-wider text-white">
-              Online Sınavlar
+              Online Sınavlar &amp; Kademeler
             </span>
             <ul className="mt-3 space-y-2 text-xs text-slate-300">
               <li>
                 <Link href="/deneme-coz" className="inline-flex items-center gap-1.5 hover:text-indigo-400 transition">
                   <FileCheck2 className="h-3.5 w-3.5 text-indigo-400" />
-                  LGS Denemeleri
-                </Link>
-              </li>
-              <li>
-                <Link href="/meb-cikmis-sorular" className="inline-flex items-center gap-1.5 hover:text-indigo-400 transition">
-                  <ShieldCheck className="h-3.5 w-3.5 text-amber-400" />
-                  MEB Çıkmış Sorular (2018–2024)
-                </Link>
-              </li>
-              <li>
-                <Link href="/liderlik-tablosu" className="inline-flex items-center gap-1.5 hover:text-indigo-400 transition">
-                  <Trophy className="h-3.5 w-3.5 text-amber-400" />
-                  Liderlik Sıralaması
-                </Link>
-              </li>
-              <li>
-                <Link href="/deneme-gecmisi" className="inline-flex items-center gap-1.5 hover:text-indigo-400 transition">
-                  <TrendingUp className="h-3.5 w-3.5 text-emerald-400" />
-                  Gelişim Grafiğim
+                  145 Online Deneme Sınavı
                 </Link>
               </li>
               <li>
                 <Link href="/lgs-konulari" className="inline-flex items-center gap-1.5 hover:text-indigo-400 transition">
                   <Layers className="h-3.5 w-3.5 text-sky-400" />
-                  LGS Konu &amp; Formül Kartları
+                  8. Sınıf LGS Konuları
+                </Link>
+              </li>
+              <li>
+                <Link href="/lise1-konulari" className="inline-flex items-center gap-1.5 hover:text-emerald-400 transition">
+                  <Layers className="h-3.5 w-3.5 text-emerald-400" />
+                  9. Sınıf Maarif Modeli
+                </Link>
+              </li>
+              <li>
+                <Link href="/lise2-konulari" className="inline-flex items-center gap-1.5 hover:text-purple-400 transition">
+                  <Layers className="h-3.5 w-3.5 text-purple-400" />
+                  10. Sınıf &amp; Alan Seçimi
+                </Link>
+              </li>
+              <li>
+                <Link href="/lise3-konulari" className="inline-flex items-center gap-1.5 hover:text-blue-400 transition">
+                  <Layers className="h-3.5 w-3.5 text-blue-400" />
+                  11. Sınıf &amp; Erken TYT
+                </Link>
+              </li>
+              <li>
+                <Link href="/meb-cikmis-sorular" className="inline-flex items-center gap-1.5 hover:text-amber-400 transition">
+                  <ShieldCheck className="h-3.5 w-3.5 text-amber-400" />
+                  MEB Çıkmış Sınav Soruları
                 </Link>
               </li>
             </ul>

@@ -132,7 +132,7 @@ export async function syncLocalDataToCloud(userId: string): Promise<SyncResult> 
               course_key: q.courseKey || 'genel',
               course_name: q.courseName || 'Genel',
               topic_name: q.topicName || 'Genel Konu',
-              image_url: finalUrl || 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800',
+              image_url: finalUrl || '',
               student_note: q.studentNote || null,
               ai_hint_history: q.aiHintHistory || [],
               is_resolved: q.isResolved || false,

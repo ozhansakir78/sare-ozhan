@@ -20,9 +20,10 @@ import {
   ArrowRight,
   School,
   FileCheck2,
-  AlertTriangle,
   GraduationCap,
   Calculator,
+  Compass,
+  Trophy,
 } from 'lucide-react';
 
 interface DenemeCozTierContainerProps {
@@ -30,8 +31,237 @@ interface DenemeCozTierContainerProps {
 }
 
 export function DenemeCozTierContainer({ exams }: DenemeCozTierContainerProps) {
-  const { isLise1 } = useGradeTier();
+  const { isLise1, isLise2, isLise3, isYks, isLgs, config } = useGradeTier();
 
+  // 12. Sınıf & YKS (TYT / AYT / YDT) Deneyimi
+  if (isYks) {
+    return (
+      <AuthGuard
+        title="YKS Denemelerini Çözmek İçin Giriş Yapmalısınız"
+        description="ÖSYM 120 soruluk TYT ve alan AYT denemelerini süre tutarak çözmek, anında Türkiye sıralaması ve YÖK baraj analizini görmek için lütfen ücretsiz üye olun veya giriş yapın."
+      >
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 space-y-10 py-8 sm:py-12">
+          {/* YKS Hero Banner */}
+          <section className="text-center space-y-4">
+            <div className="inline-flex items-center gap-2 rounded-full border border-rose-500/30 bg-rose-500/10 px-4 py-1.5 text-xs font-semibold text-rose-700 dark:border-rose-800/60 dark:bg-rose-950/50 dark:text-rose-300">
+              <Trophy className="h-4 w-4 text-rose-600 dark:text-rose-400" />
+              <span>ÖSYM 2026-2027 YKS (TYT / AYT / YDT) Sınav Merkezi</span>
+            </div>
+
+            <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white sm:text-4xl lg:text-5xl">
+              YKS TYT &amp; AYT Online Deneme Sınavları &amp;{' '}
+              <span className="bg-gradient-to-r from-rose-600 via-orange-600 to-amber-600 bg-clip-text text-transparent">
+                Alan Provaları
+              </span>
+            </h1>
+
+            <p className="mx-auto max-w-2xl text-sm leading-relaxed text-slate-600 dark:text-slate-400 sm:text-base">
+              ÖSYM standartlarında 120 soruluk TYT ve alan bazlı (Sayısal, EA, Sözel, Dil) AYT denemelerini süre tutarak çözün. 4 yanlış 1 doğru kuralı, anında ham/yerleştirme puanı, Türkiye başarı sırası tahmini ve Sokratik AI çözümleri.
+            </p>
+
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
+              <Link
+                href="/"
+                className="inline-flex items-center gap-2 rounded-2xl bg-rose-600 px-4 py-2.5 text-xs font-bold text-white shadow-md hover:bg-rose-500 transition"
+              >
+                <Calculator className="h-4 w-4" />
+                <span>YKS (TYT/AYT) Puan &amp; Sıralama Hesapla</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+
+              <Link
+                href="/profil"
+                className="inline-flex items-center gap-2 rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 transition"
+              >
+                <Trophy className="h-4 w-4 text-amber-500" />
+                <span>YÖK Atlas Hedef Üniversite Radarı</span>
+              </Link>
+            </div>
+          </section>
+
+          {/* Eksik Konuya Özel Yapay Zekâ Destekli Pekiştirme Testi Oluşturucu */}
+          <CustomExamBanner />
+
+          {/* YKS Özellik Şeritleri */}
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-950/60 dark:text-rose-400">
+                <Clock className="h-5 w-5" />
+              </div>
+              <div>
+                <h4 className="text-xs font-black text-slate-900 dark:text-white">
+                  165 Dk TYT &amp; Turlama Modu
+                </h4>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  ÖSYM süresi ve 22 dk kontrol rezervi
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950/60 dark:text-amber-400">
+                <CheckCircle2 className="h-5 w-5" />
+              </div>
+              <div>
+                <h4 className="text-xs font-black text-slate-900 dark:text-white">
+                  4 Yanlış 1 Doğruyu Götürür
+                </h4>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  Resmi ÖSYM ham net ve katsayı hesabı
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400">
+                <GraduationCap className="h-5 w-5" />
+              </div>
+              <div>
+                <h4 className="text-xs font-black text-slate-900 dark:text-white">
+                  YÖK Başarı Barajları
+                </h4>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  Tıp, Diş, Hukuk, Müh. baraj uygunluğu
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Sınavlar Kataloğu */}
+          <section className="space-y-4">
+            <div>
+              <h2 className="text-xl font-black text-slate-900 dark:text-white sm:text-2xl">
+                Yayındaki YKS (TYT, AYT, YDT) Denemeleri
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                120 soruluk TYT genel denemeleri ve alan bazlı AYT provalarından dilediğini seçip çözmeye başlayabilirsin.
+              </p>
+            </div>
+
+            <ExamCatalogGrid initialExams={exams} />
+          </section>
+        </div>
+      </AuthGuard>
+    );
+  }
+
+  // 11. Sınıf (Lise 3) Deneyimi
+  if (isLise3) {
+    return (
+      <AuthGuard
+        title="11. Sınıf Denemelerini Çözmek İçin Giriş Yapmalısınız"
+        description="11. Sınıf MEB ortak yazılı prova sınavlarını çözmek, alan başarınızı ölçmek ve 70/30 Erken TYT denemelerini başlatmak için lütfen ücretsiz üye olun veya giriş yapın."
+      >
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 space-y-10 py-8 sm:py-12">
+          {/* 11. Sınıf Hero Banner */}
+          <section className="text-center space-y-4">
+            <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-1.5 text-xs font-semibold text-blue-700 dark:border-blue-800/60 dark:bg-blue-950/50 dark:text-blue-300">
+              <School className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              <span>MEB 2026-2027 11. Sınıf Alan &amp; Erken TYT Sınav Merkezi</span>
+            </div>
+
+            <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white sm:text-4xl lg:text-5xl">
+              11. Sınıf MEB Yazılı Provaları &amp;{' '}
+              <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent">
+                Alan Denemeleri
+              </span>
+            </h1>
+
+            <p className="mx-auto max-w-2xl text-sm leading-relaxed text-slate-600 dark:text-slate-400 sm:text-base">
+              Sayısal, Eşit Ağırlık, Sözel ve Yabancı Dil alan dersleri için MEB 1. ve 2. dönem yazılı sınav provalarını ve 70/30 zaman modelli Erken TYT denemelerini süre tutarak çözün.
+            </p>
+
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
+              <Link
+                href="/lise3-konulari"
+                className="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-4 py-2.5 text-xs font-bold text-white shadow-md hover:bg-blue-500 transition"
+              >
+                <BookOpen className="h-4 w-4" />
+                <span>11. Sınıf Alan &amp; Erken TYT Rehberi</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          </section>
+
+          <CustomExamBanner />
+
+          {/* Sınavlar Kataloğu */}
+          <section className="space-y-4">
+            <div>
+              <h2 className="text-xl font-black text-slate-900 dark:text-white sm:text-2xl">
+                Yayındaki 11. Sınıf Yazılı Provaları &amp; Alan Denemeleri
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                İleri Matematik, Fizik, Kimya, Biyoloji, Edebiyat, Tarih, Coğrafya ve Felsefe alan sınavları.
+              </p>
+            </div>
+
+            <ExamCatalogGrid initialExams={exams} />
+          </section>
+        </div>
+      </AuthGuard>
+    );
+  }
+
+  // 10. Sınıf (Lise 2) Deneyimi
+  if (isLise2) {
+    return (
+      <AuthGuard
+        title="10. Sınıf Yazılı Provalarını Çözmek İçin Giriş Yapmalısınız"
+        description="10. Sınıf MEB ortak yazılı prova sınavlarını çözmek, okul başarınızı artırmak ve 11. sınıf alan seçimi simülatörünü kullanmak için lütfen ücretsiz üye olun veya giriş yapın."
+      >
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 space-y-10 py-8 sm:py-12">
+          {/* 10. Sınıf Hero Banner */}
+          <section className="text-center space-y-4">
+            <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-4 py-1.5 text-xs font-semibold text-purple-700 dark:border-purple-800/60 dark:bg-purple-950/50 dark:text-purple-300">
+              <Compass className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+              <span>MEB 2026-2027 10. Sınıf Sınav &amp; Alan Seçimi Merkezi</span>
+            </div>
+
+            <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white sm:text-4xl lg:text-5xl">
+              10. Sınıf MEB Ortak Yazılı Provaları &amp;{' '}
+              <span className="bg-gradient-to-r from-purple-600 via-violet-600 to-indigo-600 bg-clip-text text-transparent">
+                Alan Hazırlığı
+              </span>
+            </h1>
+
+            <p className="mx-auto max-w-2xl text-sm leading-relaxed text-slate-600 dark:text-slate-400 sm:text-base">
+              10 temel ders için MEB açık uçlu ve çoktan seçmeli ortak yazılı provalarını süre tutarak çözün. 11. sınıf alan seçimi öncesi güçlü akademik temel ve yüksek OBP oluşturun.
+            </p>
+
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
+              <Link
+                href="/lise2-konulari"
+                className="inline-flex items-center gap-2 rounded-2xl bg-purple-600 px-4 py-2.5 text-xs font-bold text-white shadow-md hover:bg-purple-500 transition"
+              >
+                <Compass className="h-4 w-4" />
+                <span>10. Sınıf Alan Seçimi (MF/TM/TS/DİL) Radarı</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          </section>
+
+          <CustomExamBanner />
+
+          {/* Sınavlar Kataloğu */}
+          <section className="space-y-4">
+            <div>
+              <h2 className="text-xl font-black text-slate-900 dark:text-white sm:text-2xl">
+                Yayındaki 10. Sınıf MEB Ortak Yazılı Provaları
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                10 temel dersin MEB 1. Dönem ve 2. Dönem ortak yazılı senaryolarına tam uyumlu deneme provaları.
+              </p>
+            </div>
+
+            <ExamCatalogGrid initialExams={exams} />
+          </section>
+        </div>
+      </AuthGuard>
+    );
+  }
+
+  // 9. Sınıf (Lise 1) Deneyimi
   if (isLise1) {
     return (
       <AuthGuard
@@ -39,40 +269,98 @@ export function DenemeCozTierContainer({ exams }: DenemeCozTierContainerProps) {
         description="9. Sınıf MEB ortak yazılı prova sınavlarını çözmek, 100 üzerinden yazılı notu karnesi almak ve TYT denemelerini başlatmak için lütfen ücretsiz üye olun veya giriş yapın."
       >
         <div className="mx-auto max-w-6xl px-4 sm:px-6 space-y-10 py-8 sm:py-12">
-        {/* 9. Sınıf (Lise 1) Hero Banner */}
+          {/* 9. Sınıf Hero Banner */}
+          <section className="text-center space-y-4">
+            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-xs font-semibold text-emerald-700 dark:border-emerald-800/60 dark:bg-emerald-950/50 dark:text-emerald-300">
+              <School className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+              <span>MEB 2026-2027 9. Sınıf (Lise 1) Sınav Merkezi</span>
+            </div>
+
+            <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white sm:text-4xl lg:text-5xl">
+              9. Sınıf MEB Ortak Yazılı Provaları &amp;{' '}
+              <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 bg-clip-text text-transparent">
+                TYT Denemeleri
+              </span>
+            </h1>
+
+            <p className="mx-auto max-w-2xl text-sm leading-relaxed text-slate-600 dark:text-slate-400 sm:text-base">
+              MEB ortak yazılı senaryolarına tam uyumlu 1. ve 2. dönem prova sınavlarını ve TYT tarama denemelerini süre tutarak çözün. Anında net, 100 üzerinden yazılı notu ve Sokratik AI çözümleri.
+            </p>
+
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
+              <Link
+                href="/lise1-konulari"
+                className="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white shadow-md hover:bg-emerald-500 transition"
+              >
+                <BookOpen className="h-4 w-4" />
+                <span>9. Sınıf Konu &amp; Yazılı Rehberi</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+
+              <Link
+                href="/"
+                className="inline-flex items-center gap-2 rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 transition"
+              >
+                <Calculator className="h-4 w-4 text-emerald-500" />
+                <span>Yazılı Notu &amp; Takdir/Teşekkür Hesapla</span>
+              </Link>
+            </div>
+          </section>
+
+          <CustomExamBanner />
+
+          {/* Sınavlar Kataloğu */}
+          <section className="space-y-4">
+            <div>
+              <h2 className="text-xl font-black text-slate-900 dark:text-white sm:text-2xl">
+                Yayındaki 9. Sınıf MEB Ortak Yazılı &amp; TYT Denemeleri
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                1. Dönem ve 2. Dönem MEB ortak yazılı senaryo provaları ile TYT tarama sınavlarından dilediğini seçip çözmeye başlayabilirsin.
+              </p>
+            </div>
+
+            <ExamCatalogGrid initialExams={exams} />
+          </section>
+        </div>
+      </AuthGuard>
+    );
+  }
+
+  // Varsayılan: 8. Sınıf (LGS) Deneyimi
+  return (
+    <AuthGuard
+      title="Online Deneme Çözmek İçin Giriş Yapmalısınız"
+      description="2027 LGS denemelerini süre tutarak çözmek, anında net ve standart puan karnesi almak ve sorularınızı kaydetmek için lütfen ücretsiz üye olun veya giriş yapın."
+    >
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 space-y-10 py-8 sm:py-12">
+        {/* Hero Banner */}
         <section className="text-center space-y-4">
-          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-xs font-semibold text-emerald-700 dark:border-emerald-800/60 dark:bg-emerald-950/50 dark:text-emerald-300">
-            <School className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-            <span>MEB 2026-2027 9. Sınıf (Lise 1) Sınav Merkezi</span>
+          <div className="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50/80 px-4 py-1.5 text-xs font-semibold text-indigo-700 dark:border-indigo-800/60 dark:bg-indigo-950/50 dark:text-indigo-300">
+            <Sparkles className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+            <span>2027 LGS Yeni Nesil Deneme Motoru</span>
           </div>
 
           <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white sm:text-4xl lg:text-5xl">
-            9. Sınıf MEB Ortak Yazılı Provaları &amp;{' '}
-            <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 bg-clip-text text-transparent">
-              TYT Denemeleri
+            Online LGS Denemeleri Çöz &amp;{' '}
+            <span className="bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-700 bg-clip-text text-transparent">
+              Eksiklerini Kapat
             </span>
           </h1>
 
           <p className="mx-auto max-w-2xl text-sm leading-relaxed text-slate-600 dark:text-slate-400 sm:text-base">
-            MEB ortak yazılı senaryolarına tam uyumlu 1. ve 2. dönem prova sınavlarını ve TYT tarama denemelerini süre tutarak çözün. Anında net, 100 üzerinden yazılı notu ve Sokratik AI çözümleri.
+            Süre tutarak gerçek sınav atmosferinde denemeni çöz. Sınav bittiğinde yanlış ve boş soruların{' '}
+            <strong>otomatik olarak Yanlış Defteri&apos;ne eklensin</strong> ve Sokratik AI koçla adım adım çözülsün.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
             <Link
-              href="/lise1-konulari"
-              className="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white shadow-md hover:bg-emerald-500 transition"
+              href="/meb-cikmis-sorular"
+              className="inline-flex items-center gap-2 rounded-2xl bg-amber-500/10 border border-amber-500/30 px-4 py-2 text-xs font-bold text-amber-700 hover:bg-amber-500/20 dark:text-amber-300 dark:bg-amber-950/40 dark:border-amber-800/60 transition"
             >
-              <BookOpen className="h-4 w-4" />
-              <span>9. Sınıf Konu &amp; Yazılı Rehberi</span>
+              <ShieldCheck className="h-4 w-4 text-amber-500" />
+              <span>MEB Çıkmış Sınav Soruları Arşivi</span>
               <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
-
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 transition"
-            >
-              <Calculator className="h-4 w-4 text-emerald-500" />
-              <span>Yazılı Notu &amp; Takdir/Teşekkür Hesapla</span>
             </Link>
           </div>
         </section>
@@ -80,87 +368,52 @@ export function DenemeCozTierContainer({ exams }: DenemeCozTierContainerProps) {
         {/* Eksik Konuya Özel Yapay Zekâ Destekli Pekiştirme Testi Oluşturucu */}
         <CustomExamBanner />
 
-        {/* 9. Sınıf MEB Yazılı Bilgilendirme ve Başarı Kartı */}
-        <section className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="rounded-3xl border border-emerald-200/80 bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-transparent p-5 sm:p-6 dark:border-emerald-900/50 dark:bg-emerald-950/20">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-sm">
-                <FileCheck2 className="h-5 w-5" />
-              </div>
-              <div>
-                <h3 className="text-sm font-black text-slate-900 dark:text-white">
-                  MEB Ortak Yazılı Senaryoları
-                </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Yeni müfredat açık uçlu ve çoktan seçmeli standartları
-                </p>
-              </div>
-            </div>
-            <p className="mt-3 text-xs leading-relaxed text-slate-600 dark:text-slate-300">
-              MEB ortak sınavlarında ezber yerine kavramsal kavrama ve soru çözüm adımları puanlandırılır. Çözdüğünüz her provada pedagojik puanlama anahtarını inceleyebilirsiniz.
-            </p>
-          </div>
+        {/* Günün Yeni Nesil LGS Meydan Okuması (Daily Quest) */}
+        <DailyQuestCard />
 
-          <div className="rounded-3xl border border-rose-200/80 bg-gradient-to-br from-rose-500/10 via-amber-500/5 to-transparent p-5 sm:p-6 dark:border-rose-900/50 dark:bg-rose-950/20">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-rose-600 text-white shadow-sm">
-                <AlertTriangle className="h-5 w-5" />
-              </div>
-              <div>
-                <h3 className="text-sm font-black text-slate-900 dark:text-white">
-                  Edebiyat 70 Barajı &amp; OBP Önemi
-                </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Yeni yönetmelik sınıf geçme ve belge şartı
-                </p>
-              </div>
-            </div>
-            <p className="mt-3 text-xs leading-relaxed text-slate-600 dark:text-slate-300">
-              Türk Dili ve Edebiyatı notu 70&apos;in altında olan öğrenciler doğrudan sınıf geçemez ve belge alamaz. 9. sınıf yıl sonu puanı OBP&apos;ye %25 katkı sağlar.
-            </p>
-          </div>
-        </section>
+        {/* Her Pazar Canlı Türkiye Geneli LGS Denemesi Geri Sayım Kartı */}
+        <LiveSundayExamCard />
 
-        {/* 9. Sınıf Özellik Şeritleri */}
+        {/* Özellik Şeritleri */}
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400">
               <Clock className="h-5 w-5" />
             </div>
             <div>
               <h4 className="text-xs font-black text-slate-900 dark:text-white">
-                40 Dakika Ders Saati Modu
+                Canlı LGS Sayaç Modu
               </h4>
               <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                Okul yazılı süresine birebir uyumlu prova
+                Gerçek sınav süresine göre zaman yönetimi
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-50 text-teal-600 dark:bg-teal-950/60 dark:text-teal-400">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400">
               <CheckCircle2 className="h-5 w-5" />
             </div>
             <div>
               <h4 className="text-xs font-black text-slate-900 dark:text-white">
-                100 Üzerinden Puanlama
+                3 Yanlış 1 Doğruyu Götürür
               </h4>
               <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                Edebiyat 70 barajı ve Takdir/Teşekkür analizi
+                Resmi MEB katsayılarıyla anında net hesabı
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400">
-              <GraduationCap className="h-5 w-5" />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-50 text-violet-600 dark:bg-violet-950/60 dark:text-violet-400">
+              <Zap className="h-5 w-5" />
             </div>
             <div>
               <h4 className="text-xs font-black text-slate-900 dark:text-white">
-                YKS (TYT) Temel Atma
+                Sokratik AI Entegrasyonu
               </h4>
               <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                5 seçenekli soru yapısı ve Sokratik ipuçları
+                Yanlış sorulara adım adım ipuçlarıyla çözüm
               </p>
             </div>
           </div>
@@ -170,177 +423,15 @@ export function DenemeCozTierContainer({ exams }: DenemeCozTierContainerProps) {
         <section className="space-y-4">
           <div>
             <h2 className="text-xl font-black text-slate-900 dark:text-white sm:text-2xl">
-              Yayındaki 9. Sınıf MEB Ortak Yazılı &amp; TYT Denemeleri
+              Yayındaki LGS Deneme Sınavları
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              1. Dönem ve 2. Dönem MEB ortak yazılı senaryo provaları ile TYT tarama sınavlarından dilediğini seçip çözmeye başlayabilirsin.
+              Genel LGS denemeleri, Sayısal / Sözel branş denemeleri ve ünite bazlı testlerden dilediğini seçip çözmeye başlayabilirsin.
             </p>
           </div>
 
           <ExamCatalogGrid initialExams={exams} />
         </section>
-
-        {/* Deneme Sonrası Yanlış Defteri Çağrısı */}
-        <section className="rounded-3xl border border-emerald-200 bg-gradient-to-r from-emerald-950 via-teal-900 to-slate-900 p-6 text-white shadow-lg sm:p-8">
-          <div className="flex flex-col items-center justify-between gap-6 text-center sm:flex-row sm:text-left">
-            <div className="space-y-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/30 px-3 py-1 text-[11px] font-bold text-emerald-200 backdrop-blur-sm">
-                <Award className="h-3.5 w-3.5" />
-                9. Sınıf Yazılı Başarısı
-              </span>
-              <h3 className="text-xl font-black tracking-tight sm:text-2xl">
-                Yazılı provasında yapamadığın soruları Yanlış Defteri&apos;ne aktar
-              </h3>
-              <p className="max-w-xl text-xs text-emerald-100/80 sm:text-sm">
-                Sınav bittiğinde &quot;Yanlış Defterime Aktar&quot; butonuna basarak tüm eksiklerini topla, okul yazılı sınavından önce tek tıkla pekiştirme testi çözerek 100 tam puanı hedefle.
-              </p>
-            </div>
-
-            <Link
-              href="/yanlis-defteri"
-              className="inline-flex shrink-0 items-center gap-2 rounded-2xl bg-white px-5 py-3 text-xs font-black text-emerald-950 shadow-md transition hover:bg-emerald-50 cursor-pointer"
-            >
-              <BookOpen className="h-4 w-4 text-emerald-700" />
-              <span>Yanlış Defterime Git</span>
-            </Link>
-          </div>
-        </section>
-      </div>
-    </AuthGuard>
-  );
-}
-
-  // Varsayılan: 8. Sınıf (LGS) Deneyimi
-  return (
-    <AuthGuard
-      title="Online Deneme Çözmek İçin Giriş Yapmalısınız"
-      description="2027 LGS denemelerini süre tutarak çözmek, anında net ve standart puan karnesi almak ve sorularınızı kaydetmek için lütfen ücretsiz üye olun veya giriş yapın."
-    >
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 space-y-10 py-8 sm:py-12">
-      {/* Hero Banner */}
-      <section className="text-center space-y-4">
-        <div className="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50/80 px-4 py-1.5 text-xs font-semibold text-indigo-700 dark:border-indigo-800/60 dark:bg-indigo-950/50 dark:text-indigo-300">
-          <Sparkles className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-          <span>2027 LGS Yeni Nesil Deneme Motoru</span>
-        </div>
-
-        <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white sm:text-4xl lg:text-5xl">
-          Online LGS Denemeleri Çöz &amp;{' '}
-          <span className="bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-700 bg-clip-text text-transparent">
-            Eksiklerini Kapat
-          </span>
-        </h1>
-
-        <p className="mx-auto max-w-2xl text-sm leading-relaxed text-slate-600 dark:text-slate-400 sm:text-base">
-          Süre tutarak gerçek sınav atmosferinde denemeni çöz. Sınav bittiğinde yanlış ve boş soruların{' '}
-          <strong>otomatik olarak Yanlış Defteri&apos;ne eklensin</strong> ve Sokratik AI koçla adım adım çözülsün.
-        </p>
-
-        <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
-          <Link
-            href="/meb-cikmis-sorular"
-            className="inline-flex items-center gap-2 rounded-2xl bg-amber-500/10 border border-amber-500/30 px-4 py-2 text-xs font-bold text-amber-700 hover:bg-amber-500/20 dark:text-amber-300 dark:bg-amber-950/40 dark:border-amber-800/60 transition"
-          >
-            <ShieldCheck className="h-4 w-4 text-amber-500" />
-            <span>2018–2024 MEB Çıkmış Sorular Arşivi</span>
-            <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
-        </div>
-      </section>
-
-      {/* Eksik Konuya Özel Yapay Zekâ Destekli Pekiştirme Testi Oluşturucu */}
-      <CustomExamBanner />
-
-      {/* Günün Yeni Nesil LGS Meydan Okuması (Daily Quest) */}
-      <DailyQuestCard />
-
-      {/* Her Pazar Canlı Türkiye Geneli LGS Denemesi Geri Sayım Kartı */}
-      <LiveSundayExamCard />
-
-      {/* Özellik Şeritleri */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400">
-            <Clock className="h-5 w-5" />
-          </div>
-          <div>
-            <h4 className="text-xs font-black text-slate-900 dark:text-white">
-              Canlı LGS Sayaç Modu
-            </h4>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400">
-              Gerçek sınav süresine göre zaman yönetimi
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400">
-            <CheckCircle2 className="h-5 w-5" />
-          </div>
-          <div>
-            <h4 className="text-xs font-black text-slate-900 dark:text-white">
-              3 Yanlış 1 Doğruyu Götürür
-            </h4>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400">
-              Resmi MEB katsayılarıyla anında net hesabı
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-50 text-violet-600 dark:bg-violet-950/60 dark:text-violet-400">
-            <Zap className="h-5 w-5" />
-          </div>
-          <div>
-            <h4 className="text-xs font-black text-slate-900 dark:text-white">
-              Sokratik AI Entegrasyonu
-            </h4>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400">
-              Yanlış sorulara adım adım ipuçlarıyla çözüm
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Denemeler Listesi & Filtre */}
-      <section className="space-y-4">
-        <div>
-          <h2 className="text-xl font-black text-slate-900 dark:text-white sm:text-2xl">
-            Yayındaki LGS Deneme Sınavları
-          </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            MEB resmi örnek soruları ve branş denemelerinden dilediğini seçerek hemen çözmeye başlayabilirsin.
-          </p>
-        </div>
-
-        <ExamCatalogGrid initialExams={exams} />
-      </section>
-
-      {/* Deneme Sonrası Yanlış Defteri Çağrısı */}
-      <section className="rounded-3xl border border-indigo-100 bg-gradient-to-r from-indigo-900 via-indigo-800 to-violet-900 p-6 text-white shadow-lg sm:p-8">
-        <div className="flex flex-col items-center justify-between gap-6 text-center sm:flex-row sm:text-left">
-          <div className="space-y-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-500/30 px-3 py-1 text-[11px] font-bold text-indigo-200 backdrop-blur-sm">
-              <Award className="h-3.5 w-3.5" />
-              Kişiselleştirilmiş Öğrenme
-            </span>
-            <h3 className="text-xl font-black tracking-tight sm:text-2xl">
-              Denemede yapamadığın soruları Yanlış Defteri&apos;nde biriktir
-            </h3>
-            <p className="max-w-xl text-xs text-indigo-100/80 sm:text-sm">
-              Sınav bittiğinde &quot;Yanlış Defterime Aktar&quot; butonuna basarak tüm eksiklerini tek bir yerde toplayabilir, haftalık veli raporuna yansıtabilirsin.
-            </p>
-          </div>
-
-          <Link
-            href="/yanlis-defteri"
-            className="inline-flex shrink-0 items-center gap-2 rounded-2xl bg-white px-5 py-3 text-xs font-black text-indigo-900 shadow-md transition hover:bg-indigo-50 cursor-pointer"
-          >
-            <BookOpen className="h-4 w-4 text-indigo-600" />
-            <span>Yanlış Defterime Git</span>
-          </Link>
-        </div>
-      </section>
       </div>
     </AuthGuard>
   );

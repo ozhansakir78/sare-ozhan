@@ -1,4 +1,4 @@
-﻿import { LgsCourseKey } from '@/types/exam';
+import { LgsCourseKey } from '@/types/exam';
 
 export type PastQuestionSource = 'lgs_cikmis' | 'meb_ornek';
 
@@ -284,6 +284,58 @@ export const PAST_LGS_QUESTIONS: PastQuestion[] = [
     solutionExplanation: '120 - 15x = 0 => 15x = 120 => x = 8 saattir.',
     socraticHint: '120 litrelik depodan her saat 15 litre eksilirse, kaçıncı saatte depoda hiç su kalmaz?',
     nationalSuccessRate: 77,
+  },
+
+  // 2019 LGS - Matematik (Çarpanlar ve Katlar / EBOB)
+  {
+    id: 'lgs-2019-mat-1',
+    year: 2019,
+    sourceType: 'lgs_cikmis',
+    sourceLabel: '2019 LGS Sınavı',
+    courseKey: 'matematik',
+    courseName: 'Matematik',
+    topicName: 'Çarpanlar ve Katlar (EBOB)',
+    questionNumber: 2,
+    contextText: 'Kenar uzunlukları santimetre cinsinden 1\'den büyük birer tam sayı olan iki dikdörtgen kartonun alanları sırasıyla 77 cm² ve 110 cm²\'dir. Bu iki karton birer kenarları çakışacak şekilde yapıştırılarak yeni bir dikdörtgen elde ediliyor.',
+    questionText: 'Elde edilen yeni dikdörtgenin çevresi en az kaç santimetredir?',
+    options: [
+      { key: 'A', text: '48 cm' },
+      { key: 'B', text: '56 cm' },
+      { key: 'C', text: '64 cm' },
+      { key: 'D', text: '72 cm' },
+    ],
+    correctOption: 'B',
+    difficulty: 'Orta',
+    mebTrapNote: 'Çevrenin en az olması için ortak kenar uzunluğu olabildiğince büyük (EBOB) seçilmelidir. Ortak kenar 11 cm alınır.',
+    solutionExplanation: 'EBOB(77, 110) = 11 cm (Ortak kenar). 77 / 11 = 7 cm (Birinci kenar). 110 / 11 = 10 cm (İkinci kenar). Birleştirilen dikdörtgenin kenarları 11 cm ve (7 + 10 = 17 cm) olur. Çevre = 2 × (11 + 17) = 2 × 28 = 56 cm\'dir.',
+    socraticHint: 'Çevrenin en küçük olması için ortak kenar uzunluğunu olabildiğince büyük mü yoksa küçük mü seçmelisin? 77 ve 110\'un ortak en büyük böleni kaçtır?',
+    nationalSuccessRate: 59,
+  },
+
+  // 2018 LGS - Matematik (Üslü İfadeler)
+  {
+    id: 'lgs-2018-mat-1',
+    year: 2018,
+    sourceType: 'lgs_cikmis',
+    sourceLabel: '2018 LGS Sınavı',
+    courseKey: 'matematik',
+    courseName: 'Matematik',
+    topicName: 'Üslü İfadeler',
+    questionNumber: 5,
+    contextText: '4⁵ adet ceviz, 8 kişi arasında eşit olarak paylaştırılacaktır.',
+    questionText: 'Buna göre her bir kişiye kaç adet ceviz düşer?',
+    options: [
+      { key: 'A', text: '2⁶' },
+      { key: 'B', text: '2⁷' },
+      { key: 'C', text: '2⁸' },
+      { key: 'D', text: '2⁹' },
+    ],
+    correctOption: 'B',
+    difficulty: 'Kolay',
+    mebTrapNote: 'Tabanları aynı yapmadan üsleri bölmeye kalkmak en yaygın hatadır. Hem 4 hem 8 sayıları 2\'nin kuvveti olarak yazılmalıdır.',
+    solutionExplanation: 'Toplam ceviz = 4⁵ = (2²)⁵ = 2¹⁰. Kişi sayısı = 8 = 2³. Kişi başına düşen = 2¹⁰ / 2³ = 2¹⁰⁻³ = 2⁷ adettir.',
+    socraticHint: '4 ve 8 sayılarını 2 tabanında üslü sayı olarak nasıl yazarsın? Tabanları aynı olan üslü sayılarda bölme işleminde üsler ne yapılır?',
+    nationalSuccessRate: 71,
   },
 ];
 

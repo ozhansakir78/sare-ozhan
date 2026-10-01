@@ -62,7 +62,7 @@ export default function FocusRoomPage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
-                  <span>Sitedeki 21 denemeden birini süreli olarak çöz.</span>
+                  <span>Sitedeki 145 denemeden dilediğini süreli olarak çöz.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />

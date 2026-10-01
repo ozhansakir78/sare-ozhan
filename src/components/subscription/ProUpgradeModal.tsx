@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { upgradeToPro } from '@/lib/quota';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { useGradeTier } from '@/lib/grade-tier';
 import { trackEvent } from '@/lib/analytics';
 import {
   Sparkles,
@@ -33,6 +34,7 @@ export function ProUpgradeModal({
 }: ProUpgradeModalProps) {
   const router = useRouter();
   const { user } = useAuth();
+  const { isYks, isLise } = useGradeTier();
   const [selectedPlan, setSelectedPlan] = useState<'season' | 'monthly'>('season');
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
@@ -117,14 +119,18 @@ export function ProUpgradeModal({
               </div>
 
               <h2 className="mt-3 text-2xl font-black tracking-tight text-slate-900 dark:text-white sm:text-3xl">
-                Hedeflediğin Liseye{' '}
+                {isYks ? 'Hedeflediğin Üniversiteye ' : isLise ? 'Hedeflediğin Başarıya ' : 'Hedeflediğin Liseye '}
                 <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
                   Sınırsız Soru Analitiği
                 </span>{' '}
                 ile Ulaş
               </h2>
               <p className="mt-2 text-xs text-slate-600 dark:text-slate-400 sm:text-sm">
-                LGS&apos;de derece yapan öğrencilerin sırrı; çözemedikleri her sorunun peşine düşüp mantığını kavramalarıdır.
+                {isYks
+                  ? 'YKS’de (TYT/AYT) derece yapan adayların sırrı; takıldıkları her sorunun peşine düşüp mantığını kavramalarıdır.'
+                  : isLise
+                  ? 'Lisede takdir ve yüksek OBP alan öğrencilerin sırrı; çözemedikleri her sorunun peşine düşüp eksiklerini kapatmalarıdır.'
+                  : 'LGS’de derece yapan öğrencilerin sırrı; çözemedikleri her sorunun peşine düşüp mantığını kavramalarıdır.'}
               </p>
             </div>
 

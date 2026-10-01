@@ -18,7 +18,7 @@ import {
 
 export function HorizontalLeaderboardBar() {
   const { profile, user } = useAuth();
-  const [topEntries, setTopEntries] = useState<LeaderboardEntry[]>(() => INITIAL_ENTRIES.slice(0, 5));
+  const [topEntries, setTopEntries] = useState<LeaderboardEntry[]>([]);
   const [userRank, setUserRank] = useState<number | null>(null);
   const [userBestScore, setUserBestScore] = useState<number | null>(null);
 
@@ -59,42 +59,52 @@ export function HorizontalLeaderboardBar() {
           </span>
         </div>
 
-        {/* Orta: İlk 5 Sıralama (Yatay Kaydırılabilir Kapsüller) */}
+        {/* Orta: İlk 5 Sıralama veya İlk Deneme Daveti */}
         <div className="flex items-center gap-2 min-w-0 overflow-x-auto no-scrollbar py-0.5">
-          {topEntries.map((entry, index) => {
-            const rank = index + 1;
-            const isFirst = rank === 1;
-            const isSecond = rank === 2;
-            const isThird = rank === 3;
+          {topEntries.length === 0 ? (
+            <Link
+              href="/deneme-coz"
+              className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-300 hover:text-amber-300 transition"
+            >
+              <span>İlk denemeni çöz, liderlik kürsüsüne adını 1. sıradan yazdır!</span>
+              <ArrowRight className="h-3 w-3 text-amber-400" />
+            </Link>
+          ) : (
+            topEntries.map((entry, index) => {
+              const rank = index + 1;
+              const isFirst = rank === 1;
+              const isSecond = rank === 2;
+              const isThird = rank === 3;
 
-            return (
-              <div
-                key={entry.id || index}
-                className={`inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-[11px] font-semibold whitespace-nowrap transition shrink-0 ${
-                  isFirst
-                    ? 'bg-amber-500/20 border border-amber-500/40 text-amber-200'
-                    : isSecond
-                    ? 'bg-slate-800 border border-slate-700 text-slate-200'
-                    : isThird
-                    ? 'bg-amber-900/20 border border-amber-800/40 text-amber-300'
-                    : 'bg-slate-800/60 border border-slate-700/60 text-slate-300'
-                }`}
-              >
-                <span className="flex items-center font-bold">
-                  {isFirst && <Crown className="h-3 w-3 text-amber-400 mr-0.5" />}
-                  {isSecond && <Medal className="h-3 w-3 text-slate-300 mr-0.5" />}
-                  {isThird && <Medal className="h-3 w-3 text-amber-600 mr-0.5" />}
-                  {!isFirst && !isSecond && !isThird && `#${rank}`}
-                </span>
-                <span className="font-bold max-w-[90px] sm:max-w-[110px] truncate">
-                  {entry.nickname}
-                </span>
-                <span className="font-mono font-bold text-amber-400 text-[10px]">
-                  {entry.score.toFixed(1)}P
-                </span>
-              </div>
-            );
-          })}
+              return (
+                <div
+                  key={entry.id || index}
+                  className={`inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-[11px] font-semibold whitespace-nowrap transition shrink-0 ${
+                    isFirst
+                      ? 'bg-amber-500/20 border border-amber-500/40 text-amber-200'
+                      : isSecond
+                      ? 'bg-slate-800 border border-slate-700 text-slate-200'
+                      : isThird
+                      ? 'bg-amber-900/20 border border-amber-800/40 text-amber-300'
+                      : 'bg-slate-800/60 border border-slate-700/60 text-slate-300'
+                  }`}
+                >
+                  <span className="flex items-center font-bold">
+                    {isFirst && <Crown className="h-3 w-3 text-amber-400 mr-0.5" />}
+                    {isSecond && <Medal className="h-3 w-3 text-slate-300 mr-0.5" />}
+                    {isThird && <Medal className="h-3 w-3 text-amber-600 mr-0.5" />}
+                    {!isFirst && !isSecond && !isThird && `#${rank}`}
+                  </span>
+                  <span className="font-bold max-w-[90px] sm:max-w-[110px] truncate">
+                    {entry.nickname}
+                  </span>
+                  <span className="font-mono font-bold text-amber-400 text-[10px]">
+                    {entry.score.toFixed(1)}P
+                  </span>
+                </div>
+              );
+            })
+          )}
         </div>
 
         {/* Sağ: Öğrencinin Sırası ve Kullanıcı İsmi */}

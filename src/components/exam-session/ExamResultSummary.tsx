@@ -46,7 +46,7 @@ export function ExamResultSummary({
   onRestartExam,
 }: ExamResultSummaryProps) {
   const { user, profile, updateProfile } = useAuth();
-  const { isLise1 } = useGradeTier();
+  const { isLise1, isLise, isYks } = useGradeTier();
 
   const [activeTab, setActiveTab] = useState<'all' | 'wrong_or_empty' | 'correct'>('all');
   const [expandedQuestionIds, setExpandedQuestionIds] = useState<Set<string>>(new Set());
@@ -125,9 +125,7 @@ export function ExamResultSummary({
           courseKey: item.question.courseKey,
           courseName: item.question.courseName,
           topicName: item.question.topicName,
-          imageUrl:
-            item.question.questionImageUrl ||
-            'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&auto=format&fit=crop&q=60',
+          imageUrl: item.question.questionImageUrl || '',
           studentNote: `Sınav: ${exam.title}\nİşaretlenen: ${item.studentAnswer || 'Boş'} | Doğru Cevap: ${item.question.correctAnswer}`,
           status: 'unresolved',
           isResolved: false,
@@ -383,9 +381,13 @@ export function ExamResultSummary({
       topicName: detail.question.topicName,
       tier: exam.tier || 'lgs',
       examTitle: exam.title,
-      imageUrl:
-        detail.question.questionImageUrl ||
-        'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&auto=format&fit=crop&q=60',
+      isOnlineExamQuestion: true,
+      questionText: detail.question.questionText,
+      options: detail.question.options,
+      correctAnswer: detail.question.correctAnswer,
+      studentAnswer: detail.studentAnswer || undefined,
+      solutionExplanation: detail.question.explanation,
+      imageUrl: detail.question.questionImageUrl || '',
       studentNote: `Soru Metni: ${formatMathText(detail.question.questionText)}\nBenim Seçtiğim Şık: ${detail.studentAnswer || 'Boş'}\nÖn İpucu: ${formatMathText(detail.question.hintForSocratic || '')}`,
       status: 'unresolved',
       isResolved: false,
@@ -687,7 +689,7 @@ export function ExamResultSummary({
                 <input
                   type="text"
                   required
-                  placeholder="Örn: LgsBükücü, FizikDehası..."
+                  placeholder="Örn: Hedef_Derece, FenAdayi..."
                   value={nickname}
                   onChange={(e) => setNickname(e.target.value)}
                   className="w-full rounded-xl border border-amber-300/80 bg-white px-3.5 py-2 text-xs font-medium text-slate-800 placeholder-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
@@ -696,11 +698,11 @@ export function ExamResultSummary({
 
               <div>
                 <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1">
-                  {isLise1 ? 'Hedef Üniversite / Bölüm' : 'Hedef Lise'}
+                  {isLise || isYks ? 'Hedef Üniversite / Bölüm' : 'Hedef Lise'}
                 </label>
                 <input
                   type="text"
-                  placeholder={isLise1 ? 'Örn: Boğaziçi Üniversitesi' : 'Örn: Kabataş Erkek Lisesi'}
+                  placeholder={isLise || isYks ? 'Örn: ODTÜ Mühendislik, Hacettepe Tıp...' : 'Örn: Kabataş Erkek Lisesi'}
                   value={targetSchool}
                   onChange={(e) => setTargetSchool(e.target.value)}
                   className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-medium text-slate-800 placeholder-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500"

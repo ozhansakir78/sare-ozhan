@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { LeaderboardEntry } from '@/types/leaderboard';
 import { getLeaderboardEntries } from '@/lib/leaderboard-storage';
 import { ONLINE_EXAMS } from '@/lib/online-exams-data';
-import { Trophy, Medal, Crown, Target, MapPin, Sparkles, Filter, Calendar } from 'lucide-react';
+import { Trophy, Medal, Crown, Target, MapPin, Sparkles, Filter, Calendar, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 
 export function LeaderboardTable() {
   const [period, setPeriod] = useState<'weekly' | 'all-time'>('all-time');
@@ -164,88 +165,112 @@ export function LeaderboardTable() {
         </div>
       )}
 
-      {/* Sıralama Tablosu */}
-      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs sm:text-sm">
-            <thead className="border-b border-slate-100 bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:border-slate-800 dark:bg-slate-900/50">
-              <tr>
-                <th className="py-3.5 px-4 sm:px-6">Sıra</th>
-                <th className="py-3.5 px-4 sm:px-6">Öğrenci Lakabı</th>
-                <th className="py-3.5 px-4 sm:px-6 hidden sm:table-cell">Hedef Lise / İl</th>
-                <th className="py-3.5 px-4 sm:px-6 hidden md:table-cell">Sınav</th>
-                <th className="py-3.5 px-4 sm:px-6 text-center">Net</th>
-                <th className="py-3.5 px-4 sm:px-6 text-right">LGS Puanı</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {entries.map((entry, index) => {
-                const rank = index + 1;
-                return (
-                  <tr
-                    key={entry.id}
-                    className={`transition hover:bg-slate-50/70 dark:hover:bg-slate-800/40 ${
-                      entry.isCurrentUser
-                        ? 'bg-indigo-50/60 dark:bg-indigo-950/40 font-bold'
-                        : ''
-                    }`}
-                  >
-                    <td className="py-3.5 px-4 sm:px-6 whitespace-nowrap">
-                      <div className="flex items-center gap-1.5">
-                        {rank === 1 && <Crown className="h-4 w-4 text-amber-500" />}
-                        {rank === 2 && <Medal className="h-4 w-4 text-slate-400" />}
-                        {rank === 3 && <Medal className="h-4 w-4 text-amber-700" />}
-                        <span className={`font-black ${rank <= 3 ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500'}`}>
-                          #{rank}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="py-3.5 px-4 sm:px-6">
-                      <div className="flex items-center gap-2">
-                        <span className="font-black text-slate-900 dark:text-white">
-                          {entry.nickname}
-                        </span>
-                        {entry.isCurrentUser && (
-                          <span className="rounded-md bg-indigo-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
-                            SEN
-                          </span>
-                        )}
-                      </div>
-                      {/* Mobilde Hedef Lise */}
-                      {entry.targetSchool && (
-                        <span className="block text-[11px] text-slate-400 sm:hidden">
-                          {entry.targetSchool}
-                        </span>
-                      )}
-                    </td>
-                    <td className="py-3.5 px-4 sm:px-6 hidden sm:table-cell text-slate-600 dark:text-slate-300">
-                      <div className="flex flex-col">
-                        <span>{entry.targetSchool || 'Belirtilmedi'}</span>
-                        {entry.city && (
-                          <span className="text-[11px] text-slate-400 flex items-center gap-1">
-                            <MapPin className="h-3 w-3" /> {entry.city}
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="py-3.5 px-4 sm:px-6 hidden md:table-cell text-slate-500 dark:text-slate-400 max-w-xs truncate">
-                      {entry.examTitle}
-                    </td>
-                    <td className="py-3.5 px-4 sm:px-6 text-center font-bold text-slate-700 dark:text-slate-200">
-                      {entry.totalNet}
-                    </td>
-                    <td className="py-3.5 px-4 sm:px-6 text-right whitespace-nowrap">
-                      <span className="text-sm font-black text-indigo-600 dark:text-indigo-400 sm:text-base">
-                        {entry.score.toFixed(2)}
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+      {/* Sıralama Tablosu veya Boş Durum */}
+      {entries.length === 0 ? (
+        <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-12 text-center dark:border-slate-800 dark:bg-slate-900/60 shadow-xs">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 dark:bg-amber-950/60 dark:text-amber-400 mb-4">
+            <Trophy className="h-8 w-8" />
+          </div>
+          <h3 className="text-lg font-black text-slate-900 dark:text-white">
+            Bu Filtrede Henüz Kayıtlı Sonuç Yok
+          </h3>
+          <p className="mt-2 max-w-md mx-auto text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+            Hemen bir deneme çözerek Türkiye geneli liderlik tablosuna adını ilk sıraya yazdırabilirsin!
+          </p>
+          <div className="mt-6">
+            <Link
+              href="/deneme-coz"
+              className="inline-flex items-center gap-2 rounded-2xl bg-indigo-600 px-6 py-3 text-xs sm:text-sm font-bold text-white shadow-md hover:bg-indigo-700 transition"
+            >
+              <Sparkles className="h-4 w-4" />
+              <span>Deneme Çöz ve Listeye Gir</span>
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs sm:text-sm">
+              <thead className="border-b border-slate-100 bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:border-slate-800 dark:bg-slate-900/50">
+                <tr>
+                  <th className="py-3.5 px-4 sm:px-6">Sıra</th>
+                  <th className="py-3.5 px-4 sm:px-6">Öğrenci Lakabı</th>
+                  <th className="py-3.5 px-4 sm:px-6 hidden sm:table-cell">Hedef Lise / İl</th>
+                  <th className="py-3.5 px-4 sm:px-6 hidden md:table-cell">Sınav</th>
+                  <th className="py-3.5 px-4 sm:px-6 text-center">Net</th>
+                  <th className="py-3.5 px-4 sm:px-6 text-right">LGS Puanı</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                {entries.map((entry, index) => {
+                  const rank = index + 1;
+                  return (
+                    <tr
+                      key={entry.id}
+                      className={`transition hover:bg-slate-50/70 dark:hover:bg-slate-800/40 ${
+                        entry.isCurrentUser
+                          ? 'bg-indigo-50/60 dark:bg-indigo-950/40 font-bold'
+                          : ''
+                      }`}
+                    >
+                      <td className="py-3.5 px-4 sm:px-6 whitespace-nowrap">
+                        <div className="flex items-center gap-1.5">
+                          {rank === 1 && <Crown className="h-4 w-4 text-amber-500" />}
+                          {rank === 2 && <Medal className="h-4 w-4 text-slate-400" />}
+                          {rank === 3 && <Medal className="h-4 w-4 text-amber-700" />}
+                          <span className={`font-black ${rank <= 3 ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500'}`}>
+                            #{rank}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="py-3.5 px-4 sm:px-6">
+                        <div className="flex items-center gap-2">
+                          <span className="font-black text-slate-900 dark:text-white">
+                            {entry.nickname}
+                          </span>
+                          {entry.isCurrentUser && (
+                            <span className="rounded-md bg-indigo-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                              SEN
+                            </span>
+                          )}
+                        </div>
+                        {/* Mobilde Hedef Lise */}
+                        {entry.targetSchool && (
+                          <span className="block text-[11px] text-slate-400 sm:hidden">
+                            {entry.targetSchool}
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-3.5 px-4 sm:px-6 hidden sm:table-cell text-slate-600 dark:text-slate-300">
+                        <div className="flex flex-col">
+                          <span>{entry.targetSchool || 'Belirtilmedi'}</span>
+                          {entry.city && (
+                            <span className="text-[11px] text-slate-400 flex items-center gap-1">
+                              <MapPin className="h-3 w-3" /> {entry.city}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-3.5 px-4 sm:px-6 hidden md:table-cell text-slate-500 dark:text-slate-400 max-w-xs truncate">
+                        {entry.examTitle}
+                      </td>
+                      <td className="py-3.5 px-4 sm:px-6 text-center font-bold text-slate-700 dark:text-slate-200">
+                        {entry.totalNet}
+                      </td>
+                      <td className="py-3.5 px-4 sm:px-6 text-right whitespace-nowrap">
+                        <span className="text-sm font-black text-indigo-600 dark:text-indigo-400 sm:text-base">
+                          {entry.score.toFixed(2)}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

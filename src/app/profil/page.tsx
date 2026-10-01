@@ -663,7 +663,7 @@ export default function ProfilPage() {
                     type="text"
                     value={nickname}
                     onChange={(e) => setNickname(e.target.value)}
-                    placeholder="Örn: LgsBükücü, FizikDehası..."
+                    placeholder="Örn: Hedef_Derece, FenAdayi..."
                     className="mt-1.5 w-full rounded-xl border border-amber-300/80 bg-amber-50/30 px-3.5 py-2.5 text-xs font-medium text-slate-900 transition focus:border-amber-500 focus:bg-white focus:outline-none dark:border-amber-700/60 dark:bg-amber-950/20 dark:text-white"
                   />
                   <p className="mt-1 text-[10px] text-slate-500 dark:text-slate-400">

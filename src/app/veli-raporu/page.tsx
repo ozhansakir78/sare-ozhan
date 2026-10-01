@@ -58,7 +58,7 @@ export default function VeliRaporuPage() {
 
   // Başarı oranı
   const successRate =
-    stats.total > 0 ? Math.round((stats.resolved / stats.total) * 100) : 80;
+    stats.total > 0 ? Math.round((stats.resolved / stats.total) * 100) : 0;
 
   // En çok takılınan kritik konular (çözülemeyen veya ipucu alınan soruların gruplanması)
   const topicCounts: Record<string, { count: number; course: string }> = {};
@@ -83,17 +83,22 @@ export default function VeliRaporuPage() {
     ? `🎯 *Son Deneme Sınavı:* ${latestExam.examTitle}\n📈 *Puan & Net:* ${latestExam.totalScore} Puan (${latestExam.totalNet.toFixed(2)} Net) - Tahmini Dilim: %${latestExam.calculatedPercentile}\n`
     : '';
 
-  const reportSummaryText = `📊 *SınavKoçu LGS - Haftalık Veli İlerleme Raporu*
+  const reportSummaryText = stats.total > 0
+    ? `📊 *SınavKoçu - Haftalık Veli İlerleme Raporu*
 
 ${examInfoText}🗓 *Dönem:* Son 7 Günlük Analiz
-✅ *Eksik Kapatma Başarısı:* %${successRate} (${stats.resolved}/${stats.total || 3} Soru Çözüldü)
+✅ *Eksik Kapatma Başarısı:* %${successRate} (${stats.resolved}/${stats.total} Soru Çözüldü)
 ⏳ *Çözüm Bekleyen:* ${stats.unresolved} Soru
 
-⚠️ *Kritik Dikkat Gerektiren Konular:*
-${criticalTopics.map((t, i) => `${i + 1}. ${t.name}`).join('\n')}
+${criticalTopics.length > 0 ? `⚠️ *Kritik Dikkat Gerektiren Konular:*\n${criticalTopics.map((t, i) => `${i + 1}. ${t.name}`).join('\n')}\n\n` : ''}💡 *Rehberlik Tavsiyesi:*
+${stats.resolved > 0 ? 'Öğrenciniz düzenli yanlış analizi yapıyor ve takıldığı soruları kavrıyor. Çalışmalarını takdir ederek motivasyonunu yüksek tutabilirsiniz.' : 'Öğrencinizin biriken yanlış sorularını Sokratik asistanla adım adım çözmesini teşvik edebilirsiniz.'}
 
-💡 *Rehberlik Tavsiyesi:*
-Öğrenciniz düzenli yanlış analizi yapıyor. Özellikle matematik sorularında işlem adımlarını sesli düşünerek çözmesi hata payını ciddi oranda düşürecektir.
+_Detaylı analiz için SınavKoçu platformunu ziyaret edin._`
+    : `📊 *SınavKoçu - Haftalık Veli İlerleme Raporu*
+
+${examInfoText}🗓 *Dönem:* Son 7 Günlük Analiz
+ℹ️ *Durum:* Öğrenciniz bu hafta henüz yanlış defterine çözemediği bir soru kaydetmedi.
+💡 *Tavsiye:* Düzenli deneme çözümü yaparak takıldığı soruları sisteme yüklemesi eksik kapatma sürecini hızlandıracaktır.
 
 _Detaylı analiz için SınavKoçu platformunu ziyaret edin._`;
 
@@ -444,7 +449,9 @@ _Detaylı analiz için SınavKoçu platformunu ziyaret edin._`;
                 <span className="text-xs text-slate-400 font-medium">Başarı</span>
               </div>
               <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-                Takıldığı {stats.total || 3} sorunun {stats.resolved || 2} tanesini Sokratik asistanla kavradı.
+                {stats.total > 0
+                  ? `Takıldığı ${stats.total} sorunun ${stats.resolved} tanesini Sokratik asistanla kavradı.`
+                  : 'Henüz analiz edilecek soru kaydedilmedi.'}
               </p>
             </div>
 

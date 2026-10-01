@@ -112,14 +112,14 @@ export function LiveSundayExamCard() {
 
           <p className="text-xs sm:text-sm text-indigo-200/80 leading-relaxed">
             {timeLeft.isLive
-              ? 'Şu anda binlerce öğrenciyle eşzamanlı sınavdasın. Hemen başla, süren işliyor!'
+              ? 'Haftalık canlı deneme başladı. Gerçek sınav süresiyle denemeni hemen başlat!'
               : 'Her Pazar saat 10:00’da tüm Türkiye ile eşzamanlı başla, gerçek LGS provası yap ve sınav bitince Liderlik Kürsüsü’ndeki yerini al!'}
           </p>
 
           <div className="flex flex-wrap items-center gap-4 pt-1 text-[11px] text-indigo-200/70 font-semibold">
             <span className="flex items-center gap-1">
               <Users className="h-3.5 w-3.5 text-indigo-400" />
-              1,420+ Eşzamanlı Katılımcı
+              Türkiye Geneli Canlı Katılım
             </span>
             <span className="flex items-center gap-1">
               <Trophy className="h-3.5 w-3.5 text-amber-400" />
