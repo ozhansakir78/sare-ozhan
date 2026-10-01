@@ -148,9 +148,16 @@ export function UniversityRadarCard({
       <div className="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50/50 via-white to-slate-50 p-5 dark:border-indigo-950 dark:from-indigo-950/30 dark:via-slate-900 dark:to-slate-900 space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <span className="rounded-md bg-indigo-600 text-white px-2 py-0.5 text-[10px] font-black uppercase tracking-wider">
-              {selectedTarget.badge}
-            </span>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="rounded-md bg-indigo-600 text-white px-2 py-0.5 text-[10px] font-black uppercase tracking-wider">
+                {selectedTarget.badge}
+              </span>
+              {selectedTarget.isYokBaraji && (
+                <span className="rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/30 px-2 py-0.5 text-[10px] font-bold">
+                  ⚠️ YÖK Başarı Sırası Barajı
+                </span>
+              )}
+            </div>
             <h4 className="mt-1 text-lg font-black text-slate-900 dark:text-white">
               {selectedTarget.name}
             </h4>
@@ -160,9 +167,12 @@ export function UniversityRadarCard({
           </div>
 
           <div className="text-right">
-            <span className="text-[10px] uppercase font-bold text-slate-400">Tahmini Başarı Sırası</span>
+            <span className="text-[10px] uppercase font-bold text-slate-400">YÖK Atlas Başarı Sırası</span>
             <div className="text-base font-black text-slate-900 dark:text-white">
               İlk {selectedTarget.minRank.toLocaleString('tr-TR')}
+            </div>
+            <div className="text-[10px] font-bold text-slate-500">
+              Taban: {selectedTarget.minScore} Puan
             </div>
           </div>
         </div>
@@ -172,19 +182,19 @@ export function UniversityRadarCard({
         </p>
 
         {/* 9. Sınıf OBP & Net İhtiyacı Karşılaştırma Göstergesi */}
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 pt-2">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 pt-2">
           {/* İdeal Diploma Notu */}
           <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-800/80 text-center">
-            <span className="text-[10px] font-bold text-slate-400">Hedef Lise Not Ortalaması</span>
+            <span className="text-[10px] font-bold text-slate-400">Hedef Diploma Notu</span>
             <div className="text-lg font-black text-slate-900 dark:text-white">
               {selectedTarget.targetObp} / 100
             </div>
-            <span className="text-[10px] text-slate-500">9. sınıf OBP&apos;nin %25&apos;idir</span>
+            <span className="text-[10px] text-slate-500">OBP Katsayısı: 0.12</span>
           </div>
 
           {/* Öğrencinin Mevcut Durumu */}
           <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-800/80 text-center">
-            <span className="text-[10px] font-bold text-slate-400">Senin Dönem Notun</span>
+            <span className="text-[10px] font-bold text-slate-400">Senin Not Ortalaman</span>
             <div className={`text-lg font-black ${hasGrades ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'}`}>
               {hasGrades ? `${termAverage?.toFixed(1)} / 100` : '— / 100'}
             </div>
@@ -203,7 +213,22 @@ export function UniversityRadarCard({
             <div className="text-lg font-black text-indigo-600 dark:text-indigo-400">
               {selectedTarget.idealTytNet} Net / 120
             </div>
-            <span className="text-[10px] text-slate-500">9. sınıfta temel atarak başla</span>
+            <span className="text-[10px] text-slate-500">{selectedTarget.scoreType === 'TYT' ? 'Önlisans için tek sınav' : 'TYT Ağırlığı: %40'}</span>
+          </div>
+
+          {/* İdeal AYT/YDT Net veya Taban Puan */}
+          <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-800/80 text-center">
+            <span className="text-[10px] font-bold text-slate-400">
+              {selectedTarget.scoreType === 'TYT' ? 'Kontenjan & Tür' : `Hedef ${selectedTarget.scoreType === 'DİL' ? 'YDT' : 'AYT'} Neti`}
+            </span>
+            <div className="text-lg font-black text-violet-600 dark:text-violet-400">
+              {selectedTarget.scoreType === 'TYT'
+                ? `${selectedTarget.quota ?? '60'} Kontenjan`
+                : `${selectedTarget.idealAytNet ?? '—'} Net / 80`}
+            </div>
+            <span className="text-[10px] text-slate-500">
+              {selectedTarget.scoreType === 'TYT' ? '2 Yıllık Önlisans' : 'Alan Sınavı Ağırlığı %60'}
+            </span>
           </div>
         </div>
 

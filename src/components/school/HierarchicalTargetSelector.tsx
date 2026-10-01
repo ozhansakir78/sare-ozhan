@@ -53,7 +53,7 @@ export function HierarchicalTargetSelector({
 }: HierarchicalTargetSelectorProps) {
   const [schoolSearchQuery, setSchoolSearchQuery] = useState('');
   const [departmentSearchQuery, setDepartmentSearchQuery] = useState('');
-  const [scoreFilter, setScoreFilter] = useState<'ALL' | 'SAY' | 'EA' | 'SÖZ' | 'DİL'>('ALL');
+  const [scoreFilter, setScoreFilter] = useState<'ALL' | 'SAY' | 'EA' | 'SÖZ' | 'DİL' | 'TYT'>('ALL');
   const [isCustomUniversity, setIsCustomUniversity] = useState(false);
   const [isCustomDepartment, setIsCustomDepartment] = useState(false);
   const [customUniInput, setCustomUniInput] = useState('');
@@ -377,7 +377,7 @@ export function HierarchicalTargetSelector({
             <div className="space-y-2">
               {/* Puan Türü Filtreleri & Arama */}
               <div className="flex flex-wrap items-center gap-1.5">
-                {(['ALL', 'SAY', 'EA', 'SÖZ', 'DİL'] as const).map((st) => (
+                {(['ALL', 'SAY', 'EA', 'SÖZ', 'DİL', 'TYT'] as const).map((st) => (
                   <button
                     key={st}
                     type="button"
