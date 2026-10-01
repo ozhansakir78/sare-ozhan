@@ -220,14 +220,20 @@ export function calculateLise1Term(inputs: Lise1CourseGradeInput[]): Lise1Calcul
     certificateStatus = 'not_girilmedi';
     certificateLabel = 'Not Girişi Bekleniyor';
     certificateBadgeColor = 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400';
-  } else if (termAverage < 50) {
+  } else if (termAverage < 50 || failedCourseCount > 3) {
     certificateStatus = 'kaldi';
-    certificateLabel = 'Sınıf Tekrarı / Başarısız';
+    certificateLabel =
+      failedCourseCount > 3
+        ? 'Sınıf Tekrarı (3\'ten Fazla Başarısız Ders)'
+        : 'Sınıf Tekrarı / Başarısız (Dönem Ortalaması < 50)';
     certificateBadgeColor = 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300';
+    if (failedCourseCount > 3) {
+      notes.push('⚠️ MEB Ortaöğretim Kurumları Yönetmeliği Madde 58: Başarısız ders sayısı 3\'ten fazla olan öğrenciler sınıf tekrarı yapar.');
+    }
   } else if (!isEdebiyatPassed || failedCourseCount > 0) {
     certificateStatus = 'sorumlu';
     certificateLabel = isEdebiyatPassed
-      ? 'Sorumlu Olarak Geçti (Zayıf Ders Var)'
+      ? `Sorumlu Olarak Geçti (${failedCourseCount} Zayıf Ders)`
       : 'Edebiyat Barajı Aşılamadı (Belgesiz Geçiş)';
     certificateBadgeColor = 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300';
   } else if (termAverage >= 85) {
