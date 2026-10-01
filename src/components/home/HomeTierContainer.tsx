@@ -6,6 +6,7 @@ import { useGradeTier } from '@/lib/grade-tier';
 import { GradeTierSwitcher } from '@/components/ui/GradeTierSwitcher';
 import { LgsCalculatorForm } from '@/components/exam/LgsCalculatorForm';
 import { Lise1CalculatorForm } from '@/components/exam/Lise1CalculatorForm';
+import { YksTytCalculatorForm } from '@/components/exam/YksTytCalculatorForm';
 import { TargetHighSchoolCard } from '@/components/target/TargetHighSchoolCard';
 import { UniversityRadarCard } from '@/components/target/UniversityRadarCard';
 import { DailyQuestCard } from '@/components/quest/DailyQuestCard';
@@ -23,11 +24,16 @@ import {
   BookOpen,
   Award,
   Lock,
+  Trophy,
+  Compass,
+  Layers,
+  Clock,
+  Target,
 } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 
 export function HomeTierContainer() {
-  const { isLise1, isLgs, mounted } = useGradeTier();
+  const { isLise1, isLise2, isLise3, isYks, isLgs, mounted } = useGradeTier();
   const { user, profile, signInWithGoogle } = useAuth();
   const isAuthenticated = Boolean(user || profile);
 
@@ -87,14 +93,297 @@ export function HomeTierContainer() {
     );
   }
 
+  // ==========================================================================
+  // 12. SINIF & MEZUN (YKS TYT / AYT) GÖRÜNÜMÜ
+  // ==========================================================================
+  if (isYks) {
+    return (
+      <>
+        {/* YKS Hero Section */}
+        <section className="relative overflow-hidden border-b border-slate-200/80 bg-gradient-to-b from-rose-50/40 via-white to-slate-50/50 py-12 dark:border-slate-800/80 dark:from-rose-950/20 dark:via-slate-900 dark:to-slate-950">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6">
+            <div className="mx-auto max-w-3xl text-center">
+              {/* Segmented Switcher */}
+              <div className="mb-4 flex justify-center">
+                <GradeTierSwitcher variant="segmented" />
+              </div>
+
+              <div className="inline-flex items-center gap-2 rounded-full border border-rose-500/30 bg-rose-500/10 px-3.5 py-1 text-xs font-semibold text-rose-600 dark:text-rose-400">
+                <Trophy className="h-3.5 w-3.5" />
+                <span>ÖSYM 2026-2027 YKS (TYT / AYT / YDT) Puan &amp; Sıralama Modülü</span>
+              </div>
+
+              <h1 className="mt-4 text-3xl font-black tracking-tight text-slate-900 dark:text-white sm:text-4xl lg:text-5xl">
+                YKS TYT (120 Soru) Puan &amp;{' '}
+                <span className="bg-gradient-to-r from-rose-600 to-pink-500 bg-clip-text text-transparent">
+                  Sıralama Hesaplama
+                </span>
+              </h1>
+
+              <p className="mt-3 text-sm text-slate-600 dark:text-slate-400 sm:text-base leading-relaxed">
+                4 yanlış 1 doğruyu götürür resmi kuralı, 0.5 net Türkçe/Matematik baraj şartı,
+                OBP diploma katsayısı ve 165 dakika sınav süre optimizasyonu ile <strong>YKS Türkiye Başarı Sıranı</strong> anında hesapla.
+              </p>
+
+              {/* Bilgilendirici İpuçları */}
+              <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-xs font-medium text-slate-500 dark:text-slate-400">
+                <span className="flex items-center gap-1">
+                  <CheckCircle className="h-3.5 w-3.5 text-rose-500" /> 120 Soru (Türkçe, Mat, Fen, Sosyal)
+                </span>
+                <span className="flex items-center gap-1">
+                  <CheckCircle className="h-3.5 w-3.5 text-rose-500" /> 165 Dakika Sınav Süresi Modeli
+                </span>
+                <span className="flex items-center gap-1">
+                  <CheckCircle className="h-3.5 w-3.5 text-rose-500" /> OBP Katkısı (+30 ila +60 Puan)
+                </span>
+              </div>
+
+              {/* Hızlı Aksiyon Butonları */}
+              <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                <Link
+                  href="/deneme-coz"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-rose-600 to-pink-600 px-4 py-1.5 text-xs font-bold text-white shadow-xs hover:from-rose-700 hover:to-pink-700 transition"
+                >
+                  <FileCheck2 className="h-3.5 w-3.5" />
+                  <span>Online TYT Provasını Çöz</span>
+                  <ArrowRight className="h-3 w-3" />
+                </Link>
+
+                <Link
+                  href="/lise3-konulari"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-4 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 transition shadow-2xs"
+                >
+                  <BookOpen className="h-3.5 w-3.5 text-rose-500" />
+                  <span>AYT Alan Konuları &amp; Erken TYT</span>
+                  <ArrowRight className="h-3 w-3" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* YKS İçerik Bölümü */}
+        <section className="py-10">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 space-y-8">
+            {!isAuthenticated ? (
+              renderAuthGate(
+                'YKS Puan, Sıralama & Üniversite Radarı',
+                '120 soruluk TYT netlerinizi hesaplamak, tahmini Türkiye sıralamanızı görmek, OBP puanınızı eklemek ve hedef üniversitelerinize göre koçluk almak için lütfen ücretsiz üye olun veya giriş yapın.'
+              )
+            ) : (
+              <>
+                <UniversityRadarCard />
+                <DailyQuestCard />
+                <LiveSundayExamCard />
+                <YksTytCalculatorForm />
+              </>
+            )}
+          </div>
+        </section>
+
+        {/* YKS Bilgilendirme ve ÖSYM Kılavuzu */}
+        <section className="border-t border-slate-200 bg-white py-12 dark:border-slate-800 dark:bg-slate-900/60">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 space-y-6">
+            <div>
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                ÖSYM YKS TYT Değerlendirme ve Yerleştirme Esasları
+              </h2>
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 sm:text-sm">
+                Ölçme, Seçme ve Yerleştirme Merkezi (ÖSYM) YKS Kılavuzu&apos;na göre Temel Yeterlilik Testi kuralları:
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-4 dark:border-slate-800 dark:bg-slate-800/40">
+                <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                  1. ÖSYM 0.5 Net Baraj Şartı
+                </h4>
+                <p className="mt-1 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Adayın TYT puanının hesaplanabilmesi için Türkçe veya Temel Matematik testlerinin en az birinden 0.5 veya üzeri ham puan (net) yapılmış olması zorunludur.
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-4 dark:border-slate-800 dark:bg-slate-800/40">
+                <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                  2. 165 Dakika Süre Yönetimi
+                </h4>
+                <p className="mt-1 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                  120 soru için verilen 165 dakikada soru başına ortalama 82.5 saniye düşer. Turlama tekniğiyle en az 20 dakika kontrol süresi ayrılması başarıyı katlar.
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-4 dark:border-slate-800 dark:bg-slate-800/40">
+                <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                  3. OBP ve Tercih Hakları
+                </h4>
+                <p className="mt-1 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Lise mezuniyet diploma notu x0.12 (kırık ise x0.06) katsayısıyla eklenir. TYT puanı ile tüm 2 yıllık ön lisans ve PMYO bölümleri tercih edilebilir.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </>
+    );
+  }
+
+  // ==========================================================================
+  // 11. SINIF (LİSE 3) GÖRÜNÜMÜ
+  // ==========================================================================
+  if (isLise3) {
+    return (
+      <>
+        <section className="relative overflow-hidden border-b border-slate-200/80 bg-gradient-to-b from-amber-50/40 via-white to-slate-50/50 py-12 dark:border-slate-800/80 dark:from-amber-950/20 dark:via-slate-900 dark:to-slate-950">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6">
+            <div className="mx-auto max-w-3xl text-center">
+              <div className="mb-4 flex justify-center">
+                <GradeTierSwitcher variant="segmented" />
+              </div>
+
+              <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-3.5 py-1 text-xs font-semibold text-amber-600 dark:text-amber-400">
+                <Layers className="h-3.5 w-3.5" />
+                <span>MEB 11. Sınıf Alanlaşma &amp; AYT / Erken TYT Koçluğu</span>
+              </div>
+
+              <h1 className="mt-4 text-3xl font-black tracking-tight text-slate-900 dark:text-white sm:text-4xl lg:text-5xl">
+                11. Sınıf Alan Müfredatı &amp;{' '}
+                <span className="bg-gradient-to-r from-amber-600 via-orange-500 to-rose-600 bg-clip-text text-transparent">
+                  Erken TYT Radarı
+                </span>
+              </h1>
+
+              <p className="mt-3 text-sm text-slate-600 dark:text-slate-400 sm:text-base leading-relaxed">
+                11. sınıf, YKS AYT&apos;nin %60&apos;ını oluşturur. Sayısal, EA, Sözel ve Dil derslerinin derinlemesine kazanımlarını incele,
+                70/30 Altın Kuralı ile 9-10. sınıf TYT tekrar planını hazırla.
+              </p>
+
+              <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                <Link
+                  href="/lise3-konulari"
+                  className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-amber-600 to-orange-600 px-5 py-2.5 text-xs font-bold text-white shadow-md shadow-amber-600/20 hover:from-amber-700 hover:to-orange-700 transition"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  <span>11. Sınıf Konu &amp; Erken TYT Radarına Git</span>
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+
+                <Link
+                  href="/deneme-coz"
+                  className="inline-flex items-center gap-1.5 rounded-2xl border border-slate-300 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 transition"
+                >
+                  <FileCheck2 className="h-3.5 w-3.5 text-amber-500" />
+                  <span>11. Sınıf Yazılı Provalarını Çöz</span>
+                  <ArrowRight className="h-3 w-3" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-10">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 space-y-8">
+            {!isAuthenticated ? (
+              renderAuthGate(
+                '11. Sınıf Alanlaşma & Erken TYT Modülü',
+                '11. sınıf alan derslerinizi takip etmek, MEB ortak yazılılarına hazırlanmak ve Erken TYT teşhis motoruyla haftalık çizelgenizi oluşturmak için lütfen ücretsiz üye olun veya giriş yapın.'
+              )
+            ) : (
+              <>
+                <UniversityRadarCard />
+                <DailyQuestCard />
+                <LiveSundayExamCard />
+                <YksTytCalculatorForm />
+              </>
+            )}
+          </div>
+        </section>
+      </>
+    );
+  }
+
+  // ==========================================================================
+  // 10. SINIF (LİSE 2) GÖRÜNÜMÜ
+  // ==========================================================================
+  if (isLise2) {
+    return (
+      <>
+        <section className="relative overflow-hidden border-b border-slate-200/80 bg-gradient-to-b from-teal-50/40 via-white to-slate-50/50 py-12 dark:border-slate-800/80 dark:from-teal-950/20 dark:via-slate-900 dark:to-slate-950">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6">
+            <div className="mx-auto max-w-3xl text-center">
+              <div className="mb-4 flex justify-center">
+                <GradeTierSwitcher variant="segmented" />
+              </div>
+
+              <div className="inline-flex items-center gap-2 rounded-full border border-teal-500/30 bg-teal-500/10 px-3.5 py-1 text-xs font-semibold text-teal-600 dark:text-teal-400">
+                <Compass className="h-3.5 w-3.5" />
+                <span>10. Sınıf MEB Yazılıları &amp; 11. Sınıf Alan Seçimi</span>
+              </div>
+
+              <h1 className="mt-4 text-3xl font-black tracking-tight text-slate-900 dark:text-white sm:text-4xl lg:text-5xl">
+                10. Sınıf Yazılıları &amp;{' '}
+                <span className="bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
+                  Alan Seçimi Radarı
+                </span>
+              </h1>
+
+              <p className="mt-3 text-sm text-slate-600 dark:text-slate-400 sm:text-base leading-relaxed">
+                10. sınıf notlarını gir, OBP&apos;ni yükselt ve ilgi analizine göre Sayısal (MF), Eşit Ağırlık (TM), Sözel (TS) veya Yabancı Dil (DİL) alanlarından hangisine en yüksek uyuma sahip olduğunu gör.
+              </p>
+
+              <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                <Link
+                  href="/lise2-konulari"
+                  className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-teal-600 to-emerald-600 px-5 py-2.5 text-xs font-bold text-white shadow-md shadow-teal-600/20 hover:from-teal-700 hover:to-emerald-700 transition"
+                >
+                  <Compass className="h-4 w-4" />
+                  <span>Alan Seçimi Simülatörüne Git</span>
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+
+                <Link
+                  href="/deneme-coz"
+                  className="inline-flex items-center gap-1.5 rounded-2xl border border-slate-300 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 transition"
+                >
+                  <FileCheck2 className="h-3.5 w-3.5 text-teal-500" />
+                  <span>10. Sınıf MEB Yazılı Provalarını Çöz</span>
+                  <ArrowRight className="h-3 w-3" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-10">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 space-y-8">
+            {!isAuthenticated ? (
+              renderAuthGate(
+                '10. Sınıf Alan Seçimi & Yazılı Takip Modülü',
+                '10. sınıf MEB yazılı notlarınızı takip etmek ve 11. sınıf Sayısal/EA/Sözel/Dil alan uyum skorunuzu hesaplamak için lütfen ücretsiz üye olun veya giriş yapın.'
+              )
+            ) : (
+              <>
+                <UniversityRadarCard />
+                <DailyQuestCard />
+                <LiveSundayExamCard />
+                <Lise1CalculatorForm />
+              </>
+            )}
+          </div>
+        </section>
+      </>
+    );
+  }
+
+  // ==========================================================================
+  // 9. SINIF (LİSE 1) GÖRÜNÜMÜ
+  // ==========================================================================
   if (isLise1) {
     return (
       <>
-        {/* 9. Sınıf (Lise 1) Hero Section */}
+        {/* 9. Sınıf Hero Section */}
         <section className="relative overflow-hidden border-b border-slate-200/80 bg-gradient-to-b from-emerald-50/40 via-white to-slate-50/50 py-12 dark:border-slate-800/80 dark:from-emerald-950/20 dark:via-slate-900 dark:to-slate-950">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <div className="mx-auto max-w-3xl text-center">
-              {/* Kademe Değiştirici Butonları */}
               <div className="mb-4 flex justify-center">
                 <GradeTierSwitcher variant="segmented" />
               </div>
@@ -116,7 +405,6 @@ export function HomeTierContainer() {
                 belge durumunu ve <strong>üniversite yerleştirme puanına (YKS) eklenecek OBP katkını</strong> anında hesapla.
               </p>
 
-              {/* Bilgilendirici Küçük İpuçları */}
               <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-xs font-medium text-slate-500 dark:text-slate-400">
                 <span className="flex items-center gap-1">
                   <CheckCircle className="h-3.5 w-3.5 text-emerald-500" /> Türk Dili ve Edebiyatı 70 Barajı
@@ -129,7 +417,6 @@ export function HomeTierContainer() {
                 </span>
               </div>
 
-              {/* Hızlı Aksiyon Butonları */}
               <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
                 <Link
                   href="/deneme-coz"
@@ -148,21 +435,11 @@ export function HomeTierContainer() {
                   <span>9. Sınıf Konu Rehberi</span>
                   <ArrowRight className="h-3 w-3" />
                 </Link>
-
-                <Link
-                  href="/deneme-coz"
-                  className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 px-4 py-1.5 text-xs font-black text-slate-950 shadow-xs hover:from-amber-400 hover:to-orange-400 transition"
-                >
-                  <Wand2 className="h-3.5 w-3.5" />
-                  <span>Özel Yazılı Testi Üret</span>
-                  <ArrowRight className="h-3 w-3" />
-                </Link>
               </div>
             </div>
           </div>
         </section>
 
-        {/* 9. Sınıf İçerik Bölümü */}
         <section className="py-10">
           <div className="mx-auto max-w-6xl px-4 sm:px-6 space-y-8">
             {!isAuthenticated ? (
@@ -173,13 +450,14 @@ export function HomeTierContainer() {
             ) : (
               <>
                 <UniversityRadarCard />
+                <DailyQuestCard />
+                <LiveSundayExamCard />
                 <Lise1CalculatorForm />
               </>
             )}
           </div>
         </section>
 
-        {/* 9. Sınıf Bilgilendirme ve MEB Yönetmeliği */}
         <section className="border-t border-slate-200 bg-white py-12 dark:border-slate-800 dark:bg-slate-900/60">
           <div className="mx-auto max-w-6xl px-4 sm:px-6 space-y-6">
             <div>
@@ -225,7 +503,9 @@ export function HomeTierContainer() {
     );
   }
 
-  // Varsayılan: 8. Sınıf LGS Deneyimi
+  // ==========================================================================
+  // VARSAYILAN: 8. SINIF (LGS) GÖRÜNÜMÜ
+  // ==========================================================================
   return (
     <>
       {/* LGS Hero Section */}
@@ -250,41 +530,41 @@ export function HomeTierContainer() {
             </h1>
 
             <p className="mt-3 text-sm text-slate-600 dark:text-slate-400 sm:text-base leading-relaxed">
-              Deneme sınavı doğru ve yanlışlarınızı girin. 3 yanlışın 1 doğruyu götürdüğü sistemde
-              tahmini LGS standart puanınızı, yüzdelik diliminizi ve en çok net kaybettiğiniz
-              dersleri anında görün.
+              Doğru ve yanlış sayılarınızı girin. 2026-2027 MEB katsayılarıyla güncel <strong>LGS puanınızı</strong>,
+              tahmini <strong>yüzdelik diliminizi</strong> ve hedef liseleriniz arasındaki farkı hemen öğrenin.
             </p>
 
-            {/* Bilgilendirici Küçük İpuçları */}
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-xs font-medium text-slate-500 dark:text-slate-400">
-              <span className="flex items-center gap-1">
-                <CheckCircle className="h-3.5 w-3.5 text-emerald-500" /> Toplam 90 Soru
-              </span>
-              <span className="flex items-center gap-1">
-                <CheckCircle className="h-3.5 w-3.5 text-emerald-500" /> 100 - 500 Puan Aralığı
-              </span>
-              <span className="flex items-center gap-1">
-                <CheckCircle className="h-3.5 w-3.5 text-emerald-500" /> MEB Yığılmalı Yüzdelik Dilim
-              </span>
+            {/* Geri Sayım Rozeti */}
+            <div className="mt-6 flex justify-center">
+              <LgsCountdown />
             </div>
 
-            {/* LGS Geri Sayım ve Deneme Çöz Butonu */}
+            {/* Hızlı Aksiyon Butonları */}
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-              <LgsCountdown variant="compact" />
               <Link
                 href="/deneme-coz"
-                className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 px-3.5 py-1 text-xs font-bold text-white shadow-xs hover:from-indigo-700 hover:to-violet-700 transition"
+                className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-1.5 text-xs font-bold text-white shadow-xs hover:from-indigo-700 hover:to-violet-700 transition"
               >
-                <Sparkles className="h-3.5 w-3.5 text-amber-300" />
-                <span>Online Deneme Çöz</span>
+                <FileCheck2 className="h-3.5 w-3.5" />
+                <span>Hemen Deneme Çöz</span>
                 <ArrowRight className="h-3 w-3" />
               </Link>
+
+              <Link
+                href="/lgs-konulari"
+                className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-4 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 transition shadow-2xs"
+              >
+                <BookOpen className="h-3.5 w-3.5 text-indigo-500" />
+                <span>LGS Konu Haritası</span>
+                <ArrowRight className="h-3 w-3" />
+              </Link>
+
               <Link
                 href="/deneme-coz"
-                className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 px-3.5 py-1 text-xs font-black text-slate-950 shadow-xs hover:from-amber-400 hover:to-orange-400 transition"
+                className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 px-4 py-1.5 text-xs font-black text-slate-950 shadow-xs hover:from-amber-400 hover:to-orange-400 transition"
               >
                 <Wand2 className="h-3.5 w-3.5" />
-                <span>Özel Pekiştirme Testi Üret</span>
+                <span>Akıllı Pekiştirme Denemesi</span>
                 <ArrowRight className="h-3 w-3" />
               </Link>
             </div>
@@ -292,8 +572,8 @@ export function HomeTierContainer() {
         </div>
       </section>
 
-      {/* Hesaplama Modülü Bölümü */}
-      <section id="hesaplama" className="py-10">
+      {/* LGS Hesaplama & Kartlar Bölümü */}
+      <section className="py-10">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 space-y-8">
           {!isAuthenticated ? (
             renderAuthGate(
