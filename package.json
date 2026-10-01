@@ -9,7 +9,8 @@
     "lint": "eslint",
     "test:exams": "node scripts/validate-all-exams.js",
     "test:lgs": "node scripts/test-lgs-scenarios.js",
-    "test:lise1": "node scripts/test-lise1-calculation.js"
+    "test:lise1": "node scripts/test-lise1-calculation.js",
+    "test:field-selection": "node scripts/test-field-selection.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",

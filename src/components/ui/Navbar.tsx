@@ -35,6 +35,7 @@ import {
   Cloud,
   CloudOff,
   AlertCircle,
+  Compass,
 } from 'lucide-react';
 
 export function Navbar() {
@@ -110,7 +111,7 @@ export function Navbar() {
       iconColor: 'text-rose-400',
     },
     {
-      href: isLise ? '/lise1-konulari' : '/lgs-konulari',
+      href: isLise2 ? '/lise2-konulari' : isLise ? '/lise1-konulari' : '/lgs-konulari',
       label: 'Konular',
       icon: Layers,
       iconColor: 'text-sky-400',
@@ -128,6 +129,16 @@ export function Navbar() {
     { href: '/liderlik-tablosu', label: 'Liderlik Sıralaması', icon: Trophy, iconColor: 'text-amber-400' },
     { href: '/deneme-gecmisi', label: 'Deneme Geçmişim & Gelişim', icon: TrendingUp, iconColor: 'text-emerald-400' },
     { href: '/veli-raporu', label: 'Haftalık Veli Raporu', icon: HeartHandshake, iconColor: 'text-pink-400' },
+    ...(isLise2
+      ? [
+          {
+            href: '/lise2-konulari',
+            label: '11. Sınıf Alan Seçimi Radarı',
+            icon: Compass,
+            iconColor: 'text-purple-400',
+          },
+        ]
+      : []),
   ];
 
   const allNavLinks = [...primaryNavLinks, ...secondaryNavLinks];
