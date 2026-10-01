@@ -29,11 +29,14 @@ export interface WrongQuestionItem {
   studentAnswer?: string;
   solutionExplanation?: string;
   examTitle?: string;
+  tier?: 'lgs' | 'lise1' | 'lise2' | 'lise3' | 'yks';
+  gradeLevel?: '8' | '9' | '10' | '11' | '12' | 'mezun';
 }
 
 export interface QuestionFilterState {
   courseKey: string | 'all';
   status: QuestionStatus | 'all';
+  tier?: 'all' | 'lgs' | 'lise1' | 'lise2' | 'lise3' | 'yks';
   searchQuery?: string;
 }
 

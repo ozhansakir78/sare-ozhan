@@ -38,10 +38,17 @@ export function QuestionList({
 
   const [selectedCourse, setSelectedCourse] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<QuestionStatus | 'all'>('all');
+  const [selectedTier, setSelectedTier] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   const filteredQuestions = useMemo(() => {
     return questions.filter((q) => {
+      // Kademe Filtresi
+      if (selectedTier !== 'all') {
+        const qTier = q.tier || (q.gradeLevel === '9' ? 'lise1' : q.gradeLevel === '10' ? 'lise2' : q.gradeLevel === '11' ? 'lise3' : q.gradeLevel === '12' ? 'yks' : 'lgs');
+        if (qTier !== selectedTier) return false;
+      }
+
       // Ders Filtresi
       if (selectedCourse !== 'all' && q.courseKey !== selectedCourse) {
         return false;
@@ -63,7 +70,7 @@ export function QuestionList({
 
       return true;
     });
-  }, [questions, selectedCourse, selectedStatus, searchQuery]);
+  }, [questions, selectedTier, selectedCourse, selectedStatus, searchQuery]);
 
   return (
     <div className="space-y-6">
@@ -129,6 +136,32 @@ export function QuestionList({
               Öğrenildi ✓
             </button>
           </div>
+        </div>
+
+        {/* Kademe Filtreleri */}
+        <div className="mt-3 flex items-center gap-1.5 overflow-x-auto border-t border-slate-100 pt-3 dark:border-slate-800 text-xs">
+          <span className="text-[11px] font-bold text-slate-400 shrink-0 mr-1">Kademe:</span>
+          {[
+            { id: 'all', label: 'Tüm Kademeler' },
+            { id: 'lgs', label: '8. Sınıf LGS' },
+            { id: 'lise1', label: '9. Sınıf' },
+            { id: 'lise2', label: '10. Sınıf' },
+            { id: 'lise3', label: '11. Sınıf' },
+            { id: 'yks', label: 'YKS (TYT/AYT)' },
+          ].map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setSelectedTier(t.id)}
+              className={`rounded-lg px-2.5 py-1 text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
+                selectedTier === t.id
+                  ? 'bg-indigo-600 text-white shadow-xs font-bold'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
         </div>
 
         {/* Ders Sekmeleri */}

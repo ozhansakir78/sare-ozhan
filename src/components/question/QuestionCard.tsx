@@ -44,6 +44,18 @@ export function QuestionCard({
   const [isStudyNoteOpen, setIsStudyNoteOpen] = useState(false);
   const [currentReason, setCurrentReason] = useState<ErrorReason | undefined>(question.errorReason);
 
+  const tierLabel = React.useMemo(() => {
+    const t = question.tier || (question.gradeLevel === '9' ? 'lise1' : question.gradeLevel === '10' ? 'lise2' : question.gradeLevel === '11' ? 'lise3' : question.gradeLevel === '12' ? 'yks' : 'lgs');
+    switch (t) {
+      case 'lise1': return '9. Sınıf';
+      case 'lise2': return '10. Sınıf';
+      case 'lise3': return '11. Sınıf';
+      case 'yks': return 'YKS';
+      case 'lgs':
+      default: return 'LGS';
+    }
+  }, [question.tier, question.gradeLevel]);
+
   const handleSetReason = (reason: ErrorReason) => {
     setCurrentReason(reason);
     updateQuestionErrorReason(id, reason);
@@ -95,7 +107,7 @@ export function QuestionCard({
         <div className="relative min-h-[140px] max-h-52 w-full overflow-y-auto bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 p-4 text-white">
           <div className="flex items-center justify-between gap-2 border-b border-indigo-500/20 pb-2 mb-2">
             <span className="rounded-lg bg-indigo-500/30 px-2 py-0.5 text-[10px] font-bold text-indigo-200 border border-indigo-400/30">
-              {courseName}
+              {courseName} &bull; {tierLabel}
             </span>
             <div className="flex items-center gap-1.5">
               <span className="rounded-lg bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-300 border border-amber-400/30">
@@ -141,7 +153,7 @@ export function QuestionCard({
           {/* Görsel Üzerindeki Rozetler */}
           <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
             <span className="rounded-lg bg-slate-900/80 px-2.5 py-1 text-[11px] font-bold text-white backdrop-blur-sm">
-              {courseName}
+              {courseName} &bull; {tierLabel}
             </span>
           </div>
 

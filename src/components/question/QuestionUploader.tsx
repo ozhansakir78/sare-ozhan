@@ -10,6 +10,7 @@ import {
 } from '@/lib/lgs-topics';
 import { saveQuestionToStorage } from '@/lib/question-storage';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { useGradeTier } from '@/lib/grade-tier';
 import { compressImage, uploadQuestionImage } from '@/lib/storage';
 import {
   UploadCloud,
@@ -30,6 +31,7 @@ interface QuestionUploaderProps {
 
 export function QuestionUploader({ onQuestionAdded, onCancel }: QuestionUploaderProps) {
   const { user } = useAuth();
+  const { tier } = useGradeTier();
   const [selectedCourse, setSelectedCourse] = useState<LgsCourseKey>('matematik');
   const [selectedTopic, setSelectedTopic] = useState<string>(
     getTopicsByCourse('matematik')[0] || ''
@@ -169,6 +171,7 @@ export function QuestionUploader({ onQuestionAdded, onCancel }: QuestionUploader
         courseKey: selectedCourse,
         courseName,
         topicName: selectedTopic,
+        tier: tier || 'lgs',
         imageUrl: finalImageUrl,
         studentNote: studentNote.trim() ? studentNote.trim() : undefined,
         status: 'unresolved',

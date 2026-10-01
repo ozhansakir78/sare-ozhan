@@ -14,7 +14,8 @@
     "test:early-tyt": "node scripts/test-early-tyt.js",
     "test:yks-tyt": "node scripts/test-yks-tyt.js",
     "test:yks-ayt": "node scripts/test-yks-ayt.js",
-    "test:yks-universities": "node scripts/test-yks-universities.js"
+    "test:yks-universities": "node scripts/test-yks-universities.js",
+    "test:socratic": "node scripts/test-socratic-tier-adapter.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",

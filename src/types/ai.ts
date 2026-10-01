@@ -12,6 +12,9 @@ export interface SolveApiRequest {
   studentNote?: string;
   userMessage?: string;
   mode?: 'hint' | 'full_solve';
+  tier?: 'lgs' | 'lise1' | 'lise2' | 'lise3' | 'yks';
+  gradeLevel?: '8' | '9' | '10' | '11' | '12' | 'mezun';
+  scoreType?: 'SAY' | 'EA' | 'SÖZ' | 'DİL' | 'TYT';
   conversationHistory?: {
     role: 'user' | 'assistant';
     content: string;

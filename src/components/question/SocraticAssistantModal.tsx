@@ -141,6 +141,8 @@ export function SocraticAssistantModal({
         courseName: question.courseName,
         topicName: question.topicName,
         studentNote: enrichedStudentNote,
+        tier: question.tier,
+        gradeLevel: question.gradeLevel,
         mode: mode || (messageContent.toLowerCase().includes('soruyu çöz') || messageContent.toLowerCase().includes('tamamen çöz') ? 'full_solve' : 'hint'),
         conversationHistory: newHistory.map((m) => ({
           role: m.role,
@@ -205,6 +207,23 @@ export function SocraticAssistantModal({
     if (direction === 'reset') setZoomLevel(1);
   };
 
+  const tierBadge = React.useMemo(() => {
+    const t = question.tier || (question.gradeLevel === '9' ? 'lise1' : question.gradeLevel === '10' ? 'lise2' : question.gradeLevel === '11' ? 'lise3' : question.gradeLevel === '12' ? 'yks' : 'lgs');
+    switch (t) {
+      case 'lise1':
+        return { label: '🏛️ 9. Sınıf Maarif Koçu', color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' };
+      case 'lise2':
+        return { label: '🧭 10. Sınıf Alan Koçu', color: 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300' };
+      case 'lise3':
+        return { label: '🎯 11. Sınıf & TYT Koçu', color: 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300' };
+      case 'yks':
+        return { label: '🏆 ÖSYM YKS Koçu', color: 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' };
+      case 'lgs':
+      default:
+        return { label: '🎓 LGS Sınav Koçu', color: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300' };
+    }
+  }, [question.tier, question.gradeLevel]);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-2 sm:p-4 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="flex h-[94vh] w-full max-w-6xl flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-900">
@@ -215,10 +234,13 @@ export function SocraticAssistantModal({
               <Sparkles className="h-5 w-5 text-amber-300" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white sm:text-base">
                   Sokratik Soru Koçu
                 </h3>
+                <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${tierBadge.color}`}>
+                  {tierBadge.label}
+                </span>
                 <span className="flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                   AI Aktif

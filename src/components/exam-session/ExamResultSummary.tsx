@@ -381,6 +381,8 @@ export function ExamResultSummary({
       courseKey: detail.question.courseKey,
       courseName: detail.question.courseName,
       topicName: detail.question.topicName,
+      tier: exam.tier || 'lgs',
+      examTitle: exam.title,
       imageUrl:
         detail.question.questionImageUrl ||
         'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&auto=format&fit=crop&q=60',
