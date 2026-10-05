@@ -4,13 +4,20 @@ import React, { useState, useEffect } from 'react';
 import { LeaderboardEntry } from '@/types/leaderboard';
 import { getLeaderboardEntries } from '@/lib/leaderboard-storage';
 import { ONLINE_EXAMS } from '@/lib/online-exams-data';
+import { useGradeTier } from '@/lib/grade-tier';
 import { Trophy, Medal, Crown, Target, MapPin, Sparkles, Filter, Calendar, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 export function LeaderboardTable() {
+  const { tier: activeGradeTier } = useGradeTier();
   const [period, setPeriod] = useState<'weekly' | 'all-time'>('all-time');
   const [selectedExam, setSelectedExam] = useState<string>('all');
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
+
+  const availableExams = ONLINE_EXAMS.filter((e) => {
+    if (!activeGradeTier || activeGradeTier === 'lgs') return !e.tier || e.tier === 'lgs';
+    return e.tier === activeGradeTier;
+  });
 
   useEffect(() => {
     setEntries(getLeaderboardEntries(period, selectedExam));
@@ -58,7 +65,7 @@ export function LeaderboardTable() {
             className="w-full sm:w-64 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
             <option value="all">Tüm Deneme Sınavları</option>
-            {ONLINE_EXAMS.map((exam) => (
+            {availableExams.map((exam) => (
               <option key={exam.slug} value={exam.slug}>
                 {exam.title}
               </option>

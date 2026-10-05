@@ -537,7 +537,7 @@ export default function Lise2KonulariPage() {
                     </div>
 
                     <Link
-                      href="/deneme-coz"
+                      href={`/deneme-coz?tier=lise2&filter=${course.key}`}
                       className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 transition"
                     >
                       <FileCheck2 className="h-3.5 w-3.5 text-blue-500" />
@@ -568,7 +568,7 @@ export default function Lise2KonulariPage() {
                         </div>
 
                         <Link
-                          href="/deneme-coz"
+                          href={`/deneme-coz?tier=lise2&filter=${course.key}`}
                           className="shrink-0 rounded-lg px-2.5 py-1 text-xs font-bold text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-950/40 transition"
                         >
                           Soru Çöz

@@ -372,7 +372,7 @@ export default function Lise3KonulariPage() {
                     </div>
 
                     <Link
-                      href="/deneme-coz"
+                      href={`/deneme-coz?tier=lise3&filter=${course.key}`}
                       className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 transition"
                     >
                       <FileCheck2 className="h-3.5 w-3.5 text-amber-500" />
@@ -403,7 +403,7 @@ export default function Lise3KonulariPage() {
                         </div>
 
                         <Link
-                          href="/deneme-coz"
+                          href={`/deneme-coz?tier=lise3&filter=${course.key}`}
                           className="shrink-0 rounded-lg px-2.5 py-1 text-xs font-bold text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-950/40 transition"
                         >
                           Soru Çöz

@@ -301,7 +301,7 @@ export default function Lise1KonulariPage() {
                 {/* Alt Aksiyon */}
                 <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 grid grid-cols-2 gap-2">
                   <Link
-                    href={`/deneme-coz?filter=${course.key}`}
+                    href={`/deneme-coz?tier=lise1&filter=${course.key}`}
                     className="flex items-center justify-center gap-1.5 rounded-xl bg-slate-50 py-2 px-2 text-[11px] font-bold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-300 transition text-center"
                   >
                     <FileCheck2 className="h-3.5 w-3.5 shrink-0" />

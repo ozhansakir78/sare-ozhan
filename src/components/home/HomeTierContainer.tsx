@@ -6,6 +6,7 @@ import { useGradeTier } from '@/lib/grade-tier';
 import { GradeTierSwitcher } from '@/components/ui/GradeTierSwitcher';
 import { LgsCalculatorForm } from '@/components/exam/LgsCalculatorForm';
 import { Lise1CalculatorForm } from '@/components/exam/Lise1CalculatorForm';
+import { Lise2CalculatorForm } from '@/components/exam/Lise2CalculatorForm';
 import { YksTytCalculatorForm } from '@/components/exam/YksTytCalculatorForm';
 import { TargetHighSchoolCard } from '@/components/target/TargetHighSchoolCard';
 import { UniversityRadarCard } from '@/components/target/UniversityRadarCard';
@@ -365,7 +366,7 @@ export function HomeTierContainer() {
                 <UniversityRadarCard />
                 <DailyQuestCard />
                 <LiveSundayExamCard />
-                <Lise1CalculatorForm />
+                <Lise2CalculatorForm />
               </>
             )}
           </div>

@@ -23,13 +23,24 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!exam) {
     return {
-      title: 'LGS Online Deneme Sınavı | SınavKoçu LGS',
+      title: 'Online Deneme Sınavı | SınavKoçu.ai',
     };
   }
 
+  const tierLabel =
+    exam.tier === 'yks'
+      ? 'ÖSYM YKS (TYT/AYT)'
+      : exam.tier === 'lise3'
+      ? 'MEB 11. Sınıf Yazılı'
+      : exam.tier === 'lise2'
+      ? 'MEB 10. Sınıf Yazılı'
+      : exam.tier === 'lise1'
+      ? 'MEB 9. Sınıf Yazılı'
+      : 'LGS';
+
   return {
-    title: `${exam.title} — Online Çöz | SınavKoçu LGS`,
-    description: `${exam.title}: ${exam.questionCount} soru, ${exam.durationMinutes} dakika. Yeni nesil LGS denemesini süre tutarak çözün.`,
+    title: `${exam.title} — Online Çöz | SınavKoçu.ai`,
+    description: `${exam.title}: ${exam.questionCount} soru, ${exam.durationMinutes} dakika. Güncel ${tierLabel} müfredatına tam uyumlu denemeyi süre tutarak çözün.`,
   };
 }
 

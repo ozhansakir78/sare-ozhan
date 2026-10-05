@@ -6,15 +6,15 @@ import Link from 'next/link';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 
 export const metadata: Metadata = {
-  title: 'Türkiye Geneli LGS Liderlik Sıralaması | SınavKoçu.ai',
-  description: '2027 LGS denemelerinde en yüksek puan ve net yapan öğrencilerin Türkiye geneli haftalık ve genel liderlik tablosu.',
+  title: 'Türkiye Geneli Liderlik Sıralaması | SınavKoçu.ai',
+  description: 'Online denemelerde en yüksek puan ve net yapan öğrencilerin Türkiye geneli haftalık ve genel liderlik tablosu.',
 };
 
 export default function LeaderboardPage() {
   return (
     <AuthGuard
       title="Liderlik Tablosuna Erişmek İçin Giriş Yapmalısınız"
-      description="Türkiye geneli LGS sıralamanızı görmek ve diğer öğrencilerle yarışmak için lütfen hesabınıza giriş yapın."
+      description="Türkiye geneli başarı sıralamanızı görmek ve diğer öğrencilerle yarışmak için lütfen hesabınıza giriş yapın."
     >
       <div className="py-8 sm:py-12">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
@@ -22,7 +22,7 @@ export default function LeaderboardPage() {
         <div className="text-center max-w-2xl mx-auto mb-10">
           <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3.5 py-1 text-xs font-bold text-amber-800 dark:bg-amber-950 dark:text-amber-300 mb-3">
             <Trophy className="h-3.5 w-3.5 text-amber-600" />
-            <span>2027 LGS Türkiye Ligi</span>
+            <span>Türkiye Geneli Başarı Ligi</span>
           </div>
           <h1 className="text-2xl font-black text-slate-900 dark:text-white sm:text-4xl tracking-tight">
             Türkiye Geneli Liderlik Tablosu

@@ -70,14 +70,16 @@ const LISE2_COURSES = [
 ];
 
 const LISE3_COURSES = [
-  { key: 'ileri-matematik', name: 'İleri Matematik (11. Sınıf)', iconColor: 'text-blue-500 bg-blue-50 dark:bg-blue-950/60', defaultQuestionCount: 10 },
-  { key: 'ileri-fizik', name: 'İleri Fizik (11. Sınıf)', iconColor: 'text-indigo-500 bg-indigo-50 dark:bg-indigo-950/60', defaultQuestionCount: 10 },
-  { key: 'ileri-kimya', name: 'İleri Kimya (11. Sınıf)', iconColor: 'text-violet-500 bg-violet-50 dark:bg-violet-950/60', defaultQuestionCount: 10 },
-  { key: 'ileri-biyoloji', name: 'İleri Biyoloji (11. Sınıf)', iconColor: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/60', defaultQuestionCount: 10 },
+  { key: 'matematik', name: 'İleri Matematik (11. Sınıf)', iconColor: 'text-blue-500 bg-blue-50 dark:bg-blue-950/60', defaultQuestionCount: 10 },
+  { key: 'fizik', name: 'İleri Fizik (11. Sınıf)', iconColor: 'text-indigo-500 bg-indigo-50 dark:bg-indigo-950/60', defaultQuestionCount: 10 },
+  { key: 'kimya', name: 'İleri Kimya (11. Sınıf)', iconColor: 'text-violet-500 bg-violet-50 dark:bg-violet-950/60', defaultQuestionCount: 10 },
+  { key: 'biyoloji', name: 'İleri Biyoloji (11. Sınıf)', iconColor: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/60', defaultQuestionCount: 10 },
   { key: 'edebiyat', name: 'Türk Dili ve Edebiyatı', iconColor: 'text-rose-500 bg-rose-50 dark:bg-rose-950/60', defaultQuestionCount: 10 },
   { key: 'tarih', name: 'Tarih (11. Sınıf)', iconColor: 'text-amber-500 bg-amber-50 dark:bg-amber-950/60', defaultQuestionCount: 5 },
   { key: 'cografya', name: 'Seçmeli Coğrafya', iconColor: 'text-teal-500 bg-teal-50 dark:bg-teal-950/60', defaultQuestionCount: 5 },
   { key: 'felsefe', name: 'Felsefe Grubu', iconColor: 'text-cyan-500 bg-cyan-50 dark:bg-cyan-950/60', defaultQuestionCount: 5 },
+  { key: 'ingilizce', name: 'İngilizce (11. Sınıf)', iconColor: 'text-sky-500 bg-sky-50 dark:bg-sky-950/60', defaultQuestionCount: 10 },
+  { key: 'din', name: 'Din Kültürü ve Ahlak Bilgisi', iconColor: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/60', defaultQuestionCount: 5 },
   { key: 'all', name: '11. Sınıf Alan Karma Denemesi', iconColor: 'text-purple-500 bg-purple-50 dark:bg-purple-950/60', defaultQuestionCount: 15 },
 ];
 
@@ -136,7 +138,7 @@ export function CustomExamGeneratorModal({
     ? LISE1_COURSES
     : LGS_COURSES;
 
-  const initialCourse = defaultCourse || (isYks ? 'ayt-matematik' : isLise3 ? 'ileri-matematik' : isLise2 ? 'matematik' : isLise1 ? 'edebiyat' : 'matematik');
+  const initialCourse = defaultCourse || (isYks ? 'ayt-matematik' : isLise3 ? 'matematik' : isLise2 ? 'matematik' : isLise1 ? 'edebiyat' : 'matematik');
 
   const [selectedCourse, setSelectedCourse] = useState<string>(initialCourse);
   const [selectedTopic, setSelectedTopic] = useState<string>(defaultTopic || 'all');

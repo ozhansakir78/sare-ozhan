@@ -93,7 +93,7 @@ export function ExamResultSummary({
       initialNickname = user.email.split('@')[0];
     }
 
-    if (isLise1) {
+    if (isLise || isYks) {
       if (profile?.target_university) {
         initialTarget = `${profile.target_university}${profile.target_department ? ` (${profile.target_department.split('(')[0].trim()})` : ''}`;
       } else if (profile?.target_high_school && !initialTarget) {
@@ -112,7 +112,7 @@ export function ExamResultSummary({
     if (initialNickname) setNickname(initialNickname);
     if (initialTarget) setTargetSchool(initialTarget);
     if (initialCity) setCity(initialCity);
-  }, [profile, user, isLise1]);
+  }, [profile, user, isLise, isYks]);
 
   // Yanlış veya boş soruları tespit et
   const wrongOrEmptyQuestions = result.questionDetails.filter((d) => !d.isCorrect);
@@ -635,7 +635,7 @@ export function ExamResultSummary({
                 </span>
               </div>
               <div className="text-xs text-slate-600 dark:text-slate-300 flex flex-wrap items-center gap-x-4 gap-y-1">
-                <span>🎯 <strong>Hedef:</strong> {targetSchool || (isLise1 ? 'Hedef Üniversite Belirtilmedi' : 'Hedef Lise Belirtilmedi')}</span>
+                <span>🎯 <strong>Hedef:</strong> {targetSchool || (isLise || isYks ? 'Hedef Üniversite Belirtilmedi' : 'Hedef Lise Belirtilmedi')}</span>
                 <span>📍 <strong>Şehir:</strong> {city || 'Türkiye Geneli'}</span>
               </div>
             </div>

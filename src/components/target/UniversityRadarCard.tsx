@@ -8,6 +8,7 @@ import {
   analyzeUniversityTargetGap,
 } from '@/lib/yks-universities';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { useGradeTier } from '@/lib/grade-tier';
 import { getStoredLise1TermAverage } from '@/lib/lise1-grade-storage';
 import {
   GraduationCap,
@@ -34,10 +35,24 @@ export function UniversityRadarCard({
   onTargetChange,
 }: UniversityRadarCardProps) {
   const { profile, user, updateProfile } = useAuth();
+  const { isLise1, isLise2, isLise3, isYks, isLgs } = useGradeTier();
+
+  const getTierAverage = (): number | null => {
+    if (typeof window !== 'undefined') {
+      if (isLise2) {
+        const l2 = localStorage.getItem('sinavkocu_lise2_term_average');
+        if (l2) {
+          const val = parseFloat(l2);
+          if (!isNaN(val) && val > 0) return val;
+        }
+      }
+    }
+    return getStoredLise1TermAverage(user?.id);
+  };
 
   const [termAverage, setTermAverage] = useState<number | null>(() => {
     if (propAverage !== undefined) return propAverage;
-    return getStoredLise1TermAverage(user?.id);
+    return getTierAverage();
   });
 
   const [selectedTargetId, setSelectedTargetId] = useState<string>(() => {
@@ -60,14 +75,18 @@ export function UniversityRadarCard({
       if (propAverage !== undefined) {
         setTermAverage(propAverage);
       } else {
-        setTermAverage(getStoredLise1TermAverage(user?.id));
+        setTermAverage(getTierAverage());
       }
     };
 
     updateAvg();
     window.addEventListener('lise1_grades_updated', updateAvg);
-    return () => window.removeEventListener('lise1_grades_updated', updateAvg);
-  }, [propAverage, user?.id]);
+    window.addEventListener('lise1_grade_updated', updateAvg);
+    return () => {
+      window.removeEventListener('lise1_grades_updated', updateAvg);
+      window.removeEventListener('lise1_grade_updated', updateAvg);
+    };
+  }, [propAverage, user?.id, isLise2]);
 
   // Profil veya prop değiştiğinde hedefi senkronize et
   useEffect(() => {
@@ -114,7 +133,17 @@ export function UniversityRadarCard({
         <div className="min-w-0">
           <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-1">
             <Sparkles className="h-3.5 w-3.5 shrink-0" />
-            <span>9. Sınıftan YKS Temel Atma Vizyonu</span>
+            <span>
+              {isYks
+                ? 'YKS Zirve & Üniversite Radarı'
+                : isLise3
+                ? '11. Sınıf Alanlaşma & YKS Hedef Radarı'
+                : isLise2
+                ? '10. Sınıf Alan & YKS Hedef Vizyonu'
+                : isLise1
+                ? '9. Sınıftan YKS Temel Atma Vizyonu'
+                : 'Hedef Lise & Üniversite Vizyonu'}
+            </span>
           </div>
           <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
             <Target className="h-5 w-5 text-indigo-500 shrink-0" />

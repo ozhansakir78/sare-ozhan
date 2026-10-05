@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { getWeeklySundayInfo } from '@/lib/weekly-live-exam';
-import { Trophy, Clock, Sparkles, Users, ArrowRight, ShieldCheck, Radio } from 'lucide-react';
+import { useGradeTier } from '@/lib/grade-tier';
+import { Trophy, Clock, Sparkles, Users, ArrowRight, ShieldCheck, Radio, School, Compass, GraduationCap } from 'lucide-react';
 
 interface TimeLeft {
   days: number;
@@ -39,6 +40,7 @@ function getNextSunday10AM(): { targetDate: Date; isCurrentlyLive: boolean } {
 }
 
 export function LiveSundayExamCard() {
+  const { tier, isLise1, isLise2, isLise3, isYks } = useGradeTier();
   const [sundayInfo, setSundayInfo] = useState(() => getWeeklySundayInfo());
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({
     days: 0,
@@ -65,7 +67,7 @@ export function LiveSundayExamCard() {
 
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
       const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-      const minutes = Math.floor((diff / 1000 / 60) % 60);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
       const seconds = Math.floor((diff / 1000) % 60);
 
       setTimeLeft({ days, hours, minutes, seconds, isLive: false });
@@ -75,6 +77,67 @@ export function LiveSundayExamCard() {
     const interval = setInterval(updateCountdown, 1000);
     return () => clearInterval(interval);
   }, []);
+
+  // Kademeye özel metin ve rotalar
+  const tierConfig = isYks
+    ? {
+        leagueBadge: '2027 YKS (TYT/AYT) Türkiye Ligi',
+        title: timeLeft.isLive
+          ? `${sundayInfo.dateStr} — Türkiye Geneli Canlı YKS TYT Denemesi Başladı!`
+          : `${sundayInfo.dateStr} Pazar 10:00 — Türkiye Geneli Canlı YKS TYT Denemesi`,
+        desc: timeLeft.isLive
+          ? 'Haftalık canlı TYT denemesi başladı. ÖSYM 165 dk süre ve 120 soruyla hemen katıl!'
+          : 'Her Pazar saat 10:00’da tüm Türkiye ile eşzamanlı başla, gerçek ÖSYM provası yap ve Türkiye sıralamandaki yerini al!',
+        href: '/deneme-coz?tier=yks',
+        badgeColor: 'border-rose-400 bg-rose-500/20 text-rose-200',
+      }
+    : isLise3
+    ? {
+        leagueBadge: '11. Sınıf Alan & Erken TYT Ligi',
+        title: timeLeft.isLive
+          ? `${sundayInfo.dateStr} — Türkiye Geneli 11. Sınıf Alan & Erken TYT Provası Başladı!`
+          : `${sundayInfo.dateStr} Pazar 10:00 — Türkiye Geneli 11. Sınıf Alan & Erken TYT Provası`,
+        desc: timeLeft.isLive
+          ? '11. sınıf MEB ortak yazılı ve Erken TYT deneme provası başladı. Hemen başla!'
+          : 'Her Pazar saat 10:00’da 11. sınıf alan dersleri ve Erken TYT 70/30 deneme provasıyla üniversite maratonuna önde başla!',
+        href: '/deneme-coz?tier=lise3',
+        badgeColor: 'border-blue-400 bg-blue-500/20 text-blue-200',
+      }
+    : isLise2
+    ? {
+        leagueBadge: '10. Sınıf MEB Yazılı & Alan Seçimi Ligi',
+        title: timeLeft.isLive
+          ? `${sundayInfo.dateStr} — Türkiye Geneli 10. Sınıf Canlı MEB Yazılı Provası Başladı!`
+          : `${sundayInfo.dateStr} Pazar 10:00 — Türkiye Geneli 10. Sınıf Canlı MEB Yazılı Provası`,
+        desc: timeLeft.isLive
+          ? '10. sınıf MEB ortak yazılı provası başladı. 10 temel derste yazılı hazırlığını test et!'
+          : 'Her Pazar saat 10:00’da 10 temel dersin MEB ortak yazılı provasını Türkiye genelindeki akranlarınla çöz, 11. sınıf alan seçimi öncesi gücünü gör!',
+        href: '/deneme-coz?tier=lise2',
+        badgeColor: 'border-teal-400 bg-teal-500/20 text-teal-200',
+      }
+    : isLise1
+    ? {
+        leagueBadge: 'MEB 9. Sınıf Maarif Modeli Ligi',
+        title: timeLeft.isLive
+          ? `${sundayInfo.dateStr} — Türkiye Geneli 9. Sınıf Canlı MEB Yazılı Provası Başladı!`
+          : `${sundayInfo.dateStr} Pazar 10:00 — Türkiye Geneli 9. Sınıf Canlı MEB Yazılı Provası`,
+        desc: timeLeft.isLive
+          ? 'MEB 9. sınıf ortak yazılı provası başladı. Açık uçlu Maarif Modeli sorularıyla hemen çöz!'
+          : 'Her Pazar saat 10:00’da MEB 9. sınıf ortak yazılı sınav provasına Türkiye ile aynı anda katıl, okul başarını zirveye taşı!',
+        href: '/deneme-coz?tier=lise1',
+        badgeColor: 'border-emerald-400 bg-emerald-500/20 text-emerald-200',
+      }
+    : {
+        leagueBadge: '2027 LGS Türkiye Ligi',
+        title: timeLeft.isLive
+          ? `${sundayInfo.dateStr} — Türkiye Geneli Canlı LGS Denemesi Başladı!`
+          : `${sundayInfo.dateStr} Pazar 10:00 — Türkiye Geneli Canlı LGS Denemesi`,
+        desc: timeLeft.isLive
+          ? 'Haftalık canlı deneme başladı. Gerçek sınav süresiyle denemeni hemen başlat!'
+          : 'Her Pazar saat 10:00’da tüm Türkiye ile eşzamanlı başla, gerçek LGS provası yap ve sınav bitince Liderlik Kürsüsü’ndeki yerini al!',
+        href: '/deneme-coz/lgs-canli-pazar-denemesi',
+        badgeColor: 'border-indigo-400 bg-indigo-500/20 text-indigo-200',
+      };
 
   return (
     <div className="relative overflow-hidden rounded-3xl border border-indigo-200 bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-950 p-6 sm:p-8 text-white shadow-xl">
@@ -101,19 +164,15 @@ export function LiveSundayExamCard() {
               </>
             )}
             <span className="text-indigo-400">&bull;</span>
-            <span>2027 LGS Türkiye Ligi</span>
+            <span>{tierConfig.leagueBadge}</span>
           </div>
 
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-white">
-            {timeLeft.isLive
-              ? `${sundayInfo.dateStr} — Türkiye Geneli Canlı LGS Denemesi Başladı!`
-              : `${sundayInfo.dateStr} Pazar 10:00 — Türkiye Geneli Canlı LGS Denemesi`}
+            {tierConfig.title}
           </h2>
 
           <p className="text-xs sm:text-sm text-indigo-200/80 leading-relaxed">
-            {timeLeft.isLive
-              ? 'Haftalık canlı deneme başladı. Gerçek sınav süresiyle denemeni hemen başlat!'
-              : 'Her Pazar saat 10:00’da tüm Türkiye ile eşzamanlı başla, gerçek LGS provası yap ve sınav bitince Liderlik Kürsüsü’ndeki yerini al!'}
+            {tierConfig.desc}
           </p>
 
           <div className="flex flex-wrap items-center gap-4 pt-1 text-[11px] text-indigo-200/70 font-semibold">
@@ -127,7 +186,7 @@ export function LiveSundayExamCard() {
             </span>
             <span className="flex items-center gap-1">
               <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
-              MEB Müfredatı ve Yeni Nesil Sorular
+              {isLise1 || isLise2 || isLise3 ? 'MEB Müfredatı ve Açık Uçlu Format' : isYks ? 'ÖSYM YKS Kılavuzu & Standartları' : 'MEB Müfredatı ve Yeni Nesil Sorular'}
             </span>
           </div>
         </div>
@@ -175,7 +234,7 @@ export function LiveSundayExamCard() {
 
           {/* Buton */}
           <Link
-            href="/deneme-coz/lgs-canli-pazar-denemesi"
+            href={tierConfig.href}
             className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-3.5 text-xs font-black shadow-lg transition cursor-pointer ${
               timeLeft.isLive
                 ? 'bg-gradient-to-r from-rose-500 to-amber-500 text-white shadow-rose-500/25 hover:from-rose-600 hover:to-amber-600'
