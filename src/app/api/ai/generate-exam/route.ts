@@ -8,6 +8,7 @@ import {
   buildExamGenerationPrompt,
   getFallbackQuestions,
 } from '@/lib/exam-generator-engine';
+import { ONLINE_EXAMS } from '@/lib/online-exams-data';
 
 const GEMINI_MODELS = [
   process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
@@ -151,7 +152,7 @@ export async function POST(req: NextRequest) {
     // Pedagojik Yedek Motor: Eğer yapay zekâ yanıt vermezse veya çıktı yetersizse havuzdan güvenli sınav derle!
     if (formattedQuestions.length === 0) {
       console.info(`Yapay zekâ yanıt vermediği için ${tier} pedagojik havuz motoru devreye giriyor...`);
-      const fallbackList = getFallbackQuestions(tier, courseKey, count, topicName);
+      const fallbackList = getFallbackQuestions(tier, courseKey, count, topicName, ONLINE_EXAMS);
       formattedQuestions = fallbackList.map((q, idx) => ({
         ...q,
         id: `fb-q-${Date.now()}-${idx + 1}-${Math.random().toString(36).slice(2, 6)}`,

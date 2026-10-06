@@ -270,6 +270,17 @@ export function buildExamGenerationPrompt(
     examTarget = `MEB LGS Yeni Nesil Branş Denemesi (${courseName})`;
   }
 
+  const topicInstruction =
+    topicName && topicName !== 'all'
+      ? `HAYATİ VE KESİN KURAL: Üretilecek ${questionCount} sorunun TAMAMI istisnasız olarak "${topicName}" konusuna ait olmalıdır. Kesinlikle başka bir konudan soru sorma! Soru metinlerinde ve her sorunun 'topicName' alanında tam olarak "${topicName}" konusunu işle.`
+      : `Sorular ${courseName} dersinin temel müfredat kazanımlarını dengeli biçimde taramalıdır.`;
+
+  const disciplineRules = ['tarih', 'cografya', 'edebiyat', 'felsefe', 'din', 'inkilap', 'turkce'].includes(courseKey)
+    ? `DİSİPLİN KURALI: Bu bir sözel/sosyal branştır (${courseName}). KESİNLİKLE matematiksel formül, x/y fonksiyonları, cebirsel denklemler (f(x), f(2) vb.) yazma! Sorular metin analizi, kavram bilgisi, tarihsel bağlam, harita/olgu yorumlama veya ilke analizi şeklinde olmalıdır.`
+    : ['fizik', 'kimya', 'biyoloji', 'fen'].includes(courseKey)
+    ? `DİSİPLİN KURALI: Bu bir fen bilimi branşıdır (${courseName}). Deney düzenekleri, formül mantığı, grafik yorumlama ve bilimsel süreç becerilerini ölçen sorular hazırla.`
+    : `DİSİPLİN KURALI: Bu bir matematik branşıdır (${courseName}). Sayısal hesaplamaları temiz, MEB/ÖSYM tarzı yeni nesil mantık ve problem çözme soruları kurgula.`;
+
   const systemPrompt = `Sen ${roleDefinition}
 Görevin, ${examTarget} için %100 özgün, matematiksel ve pedagojik olarak kusursuz, çeldiricileri güçlü ve güvenilir bir sınav üretmektir.
 
@@ -278,7 +289,10 @@ Görevin, ${examTarget} için %100 özgün, matematiksel ve pedagojik olarak kus
 - Konu / Kapsam: ${topicName || 'Müfredat Kazanımları / Genel Tarama'}
 - Soru Sayısı: ${questionCount} adet
 - Zorluk Derecesi: ${difficulty}
-- Seçenek Sayısı: Her soru için tam ${optionCount} seçenek (${optionList}), doğrulanmış doğru cevap, adım adım çözüm ve yönlendirici Sokratik ipucu.`;
+- Seçenek Sayısı: Her soru için tam ${optionCount} seçenek (${optionList}), doğrulanmış doğru cevap, adım adım çözüm ve yönlendirici Sokratik ipucu.
+
+${topicInstruction}
+${disciplineRules}`;
 
   const jsonSchemaInstruction = `
 ŞU JSON FORMATINDA ÇIKTI VER:
@@ -292,7 +306,7 @@ Görevin, ${examTarget} için %100 özgün, matematiksel ve pedagojik olarak kus
       "questionNumber": 1,
       "courseKey": "${courseKey}",
       "courseName": "${courseName}",
-      "topicName": "MEB/ÖSYM Kazanım Konusu",
+      "topicName": "${topicName || 'MEB/ÖSYM Kazanım Konusu'}",
       "questionText": "Sorunun eksiksiz ve anlaşılır metni",
       "options": {
         "A": "A şıkkı",
@@ -311,7 +325,7 @@ Görevin, ${examTarget} için %100 özgün, matematiksel ve pedagojik olarak kus
 1. Sadece saf JSON üret, markdown blokları (\`\`\`json) ekleme.
 2. ÖNCE ÇÖZ, SONRA ŞIKKA KOY: Sayısal veya mantıksal sorularda önce çözümü adım adım yap. Çıkan kesin sonucu seçeneklerden BİRİNE yaz. 'correctAnswer' alanına KESİNLİKLE o şıkkın harfini yaz. Asla çözümde bir sayı bulup şıklara başka bir harf yazma!
 3. TUTARLILIK ŞARTI: 'explanation' metninin son cümlesi mutlaka 'Doğru seçenek [A/B/C/D/E]\\'dir.' şeklinde bitmeli ve buradaki harf 'correctAnswer' ile %100 aynı olmalıdır.
-4. ASLA UYDURMA DENKLEM KURMA: Çözümleri tam sayı veya temiz kesir çıkan, gerçekçi sorular yaz.
+4. KONUYA TAM SADAKAT: Tüm sorular istisnasız seçilen '${topicName || courseName}' konusuna odaklanmalıdır.
 5. YAZIM KURALI: Bilgisayar programlama üs işareti '^' KESİNLİKLE KULLANMA! Üsleri Unicode üst simge olarak yaz: ⁰, ¹, ², ³, ⁴, ⁵, ⁶, ⁷, ⁸, ⁹, ⁺, ⁻, ⁿ, ˣ. Bölme için '/' veya kesir çizgisi, kök için '√', çarpma için '·' kullan. ASLA LaTeX kodu (\\frac, \\sqrt, $) KULLANMA!`;
 
   return { systemPrompt, jsonSchemaInstruction };
@@ -342,57 +356,114 @@ export function getFallbackQuestions(
       }
     }
 
-    if (candidateQuestions.length === 0) {
-      for (const ex of relevantExams) {
-        candidateQuestions.push(...ex.questions);
-      }
-    }
-
     if (candidateQuestions.length > 0) {
-      let safetyCounter = 0;
-      while (candidateQuestions.length < count && safetyCounter < 5) {
-        safetyCounter++;
-        const cloned = candidateQuestions.map((q, cIdx) => ({
-          ...q,
-          id: `${q.id}-dup-${safetyCounter}-${cIdx}`,
-        }));
-        candidateQuestions.push(...cloned);
+      // 1. Aşama: Konu Filtrelemesi (Kullanıcı belirli bir konu seçtiyse önce o konunun sorularını filtrele)
+      if (topicName && topicName !== 'all') {
+        const lowerTopic = topicName.toLowerCase().trim();
+        const topicMatches = candidateQuestions.filter((q) => {
+          const qTopic = (q.topicName || '').toLowerCase();
+          return qTopic.includes(lowerTopic) || lowerTopic.includes(qTopic);
+        });
+
+        if (topicMatches.length >= count) {
+          return [...topicMatches].sort(() => Math.random() - 0.5).slice(0, count);
+        }
+        if (topicMatches.length > 0) {
+          // Kısmen eşleşenleri başa al, kalanları aynı dersten tamamla
+          const others = candidateQuestions.filter((q) => !topicMatches.includes(q));
+          const combined = [...topicMatches, ...others.sort(() => Math.random() - 0.5)];
+          return combined.slice(0, count);
+        }
       }
 
+      // 2. Aşama: İlgili dersten rastgele seç
       const shuffled = [...candidateQuestions].sort(() => Math.random() - 0.5);
-      return shuffled.slice(0, count);
+      if (shuffled.length >= count) {
+        return shuffled.slice(0, count);
+      }
     }
   }
 
-  // Havuz boşsa veya dışarıdan havuz verilmemişse kademeye uygun temel doğrulanmış sorular üret
+  // Havuz boşsa veya dışarıdan havuz verilmemişse branşa ve konuya özgü pedagojik doğrulanmış sorular üret
   const isHighSchool = tier !== 'lgs';
   const result: OnlineExamQuestion[] = [];
   const cName = resolveTierCourseName(tier, courseKey);
+  const targetTopic = topicName && topicName !== 'all' ? topicName : `${cName} Temel Kazanımı`;
 
   for (let i = 0; i < count; i++) {
-    const baseNum = i + 2;
     const ans = ['A', 'B', 'C', 'D', 'E'][i % (isHighSchool ? 5 : 4)] as ExamQuestionOptionKey;
-    const opts: Record<ExamQuestionOptionKey, string> = {
-      A: `${baseNum * 2}`,
-      B: `${baseNum * 3}`,
-      C: `${baseNum * 4}`,
-      D: `${baseNum * 5}`,
-    } as any;
-    if (isHighSchool) {
-      opts.E = `${baseNum * 6}`;
+    let qText = '';
+    let opts: OnlineExamQuestion['options'] = { A: '', B: '', C: '', D: '' };
+    let expl = '';
+
+    if (['tarih', 'inkilap'].includes(courseKey)) {
+      qText = `${targetTopic} kapsamında yaşanan tarihsel süreç ve belgeler incelendiğinde, bu durumun ortaya çıkardığı en önemli sonuç aşağıdakilerden hangisidir?`;
+      opts = {
+        A: 'Merkezî otoritenin güçlenmesi ve sınır güvenliğinin sağlanması',
+        B: 'Toplumsal tabakalar arasındaki ayrımların tamamen ortadan kalkması',
+        C: 'Dış ticaret gelirlerinin durma noktasına gelmesi',
+        D: 'Kültürel etkileşimin tamamen kesilmesi',
+        ...(isHighSchool ? { E: 'Bölgesel ittifakların sona ermesi' } : {}),
+      };
+      expl = `Verilen tarihsel süreç analiz edildiğinde merkezî yapının güçlenmesi ve istikrarın sağlanması temel amaçtır.\nDoğru seçenek ${ans}'dir.`;
+    } else if (['cografya'].includes(courseKey)) {
+      qText = `${targetTopic} ile ilgili doğal ve beşerî sistemlerin karşılıklı etkileşimi dikkate alındığında, aşağıdaki yargılardan hangisine ulaşılabilir?`;
+      opts = {
+        A: 'Doğal unsurlar ekonomik faaliyetlerin dağılışını doğrudan etkiler.',
+        B: 'İklim özellikleri yerleşme üzerinde hiçbir sınırlandırma oluşturmaz.',
+        C: 'Yeryüzü şekilleri hidrolojik döngüyü etkilemez.',
+        D: 'Nüfus yoğunluğu yeraltı kaynaklarından bağımsızdır.',
+        ...(isHighSchool ? { E: 'Bitki örtüsü yalnızca sıcaklığa bağlıdır.' } : {}),
+      };
+      expl = `Coğrafi sistemlerde fiziki çevre koşulları ekonomik ve beşerî hayatı doğrudan şekillendirir.\nDoğru seçenek ${ans}'dir.`;
+    } else if (['edebiyat', 'turkce'].includes(courseKey)) {
+      qText = `${targetTopic} doğrultusunda incelenen metin özellikleri veya dil bilgisi kuralları hakkında aşağıdakilerden hangisi söylenebilir?`;
+      opts = {
+        A: 'Düşünceyi geliştirme yolları ve anlatım teknikleri metnin amacına hizmet eder.',
+        B: 'Metinde yalnızca tek bir anlatıcı bakış açısı bulunabilir.',
+        C: 'Söz sanatları metnin anlaşılırlığını zorunlu olarak azaltır.',
+        D: 'Kafiye ve redif yalnızca düzyazılarda aranır.',
+        ...(isHighSchool ? { E: 'Edebi akımlar toplumsal değişimlerden etkilenmez.' } : {}),
+      };
+      expl = `Metin tahlillerinde anlatım özellikleri ve yapısal unsurlar ana temayı destekler.\nDoğru seçenek ${ans}'dir.`;
+    } else if (['fizik', 'kimya', 'biyoloji', 'fen'].includes(courseKey)) {
+      qText = `${targetTopic} konusuyla ilgili laboratuvarda kurulan deney düzeneğinde elde edilen veriler incelendiğinde, aşağıdaki çıkarımlardan hangisi doğrudur?`;
+      opts = {
+        A: 'Bağımsız değişken değiştirildiğinde bağımlı değişken doğrudan etkilenir.',
+        B: 'Kontrol edilen değişkenler deney boyunca sürekli değiştirilmelidir.',
+        C: 'Sistemdeki enerji veya kütle korunumu prensibi geçersiz kılınmıştır.',
+        D: 'Sıcaklık değişimi reaksiyon hızını veya denge durumunu etkilemez.',
+        ...(isHighSchool ? { E: 'Fiziksel ve kimyasal özellikler birbirinden bağımsızdır.' } : {}),
+      };
+      expl = `Bilimsel deneylerde bağımsız değişkenin etkisi kontrol değişkenleri sabit tutularak ölçülür.\nDoğru seçenek ${ans}'dir.`;
+    } else {
+      // Matematik
+      const base = i + 3;
+      qText = `${targetTopic} kazanımı kapsamında x = ${base} değeri için ${base}x + ${base * 2} cebirsel ifadesinin değeri kaçtır?`;
+      opts = {
+        A: `${base * base + base * 2}`,
+        B: `${base * base + base * 3}`,
+        C: `${base * base + base}`,
+        D: `${(base + 1) * base}`,
+        ...(isHighSchool ? { E: `${base * base + 2}` } : {}),
+      };
+      expl = `x = ${base} yerine konulduğunda: ${base}·(${base}) + ${base * 2} = ${base * base + base * 2} bulunur.\nDoğru seçenek ${ans}'dir.`;
     }
+
+    // Şıkların seçilen ans harfine göre doluluğunu garantile
+    opts[ans] = opts[ans] || opts.A;
 
     result.push({
       id: `fb-q-${tier}-${Date.now()}-${i + 1}`,
       questionNumber: i + 1,
       courseKey,
       courseName: cName,
-      topicName: topicName || `${cName} Temel Kazanımı`,
-      questionText: `${cName} müfredatındaki ${topicName || 'temel kavramlar'} kapsamında x = ${baseNum} için f(x) = x · ${(i % (isHighSchool ? 5 : 4)) + 2} fonksiyonunun değeri kaçtır?`,
+      topicName: targetTopic,
+      questionText: qText,
       options: opts,
       correctAnswer: ans,
-      explanation: `1. Adım: x = ${baseNum} değeri yerine konulduğunda işlem adımı tamamlanır.\nDoğru seçenek ${ans}'dir.`,
-      hintForSocratic: 'Verilen değeri bağıntıda yerine koyup işlem önceliğini takip et.',
+      explanation: expl,
+      hintForSocratic: `${targetTopic} konusundaki temel tanım ve kuralları hatırlayarak seçenekleri ele.`,
       tier,
     });
   }
