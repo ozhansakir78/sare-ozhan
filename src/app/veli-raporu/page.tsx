@@ -79,8 +79,18 @@ export default function VeliRaporuPage() {
   const criticalTopics = sortedTopics.map(([name, data]) => ({ name, count: data.count }));
 
   // WhatsApp için hazır paylaşım metni
+  const isHighSchoolExam =
+    latestExam?.tier === 'lise1' ||
+    latestExam?.tier === 'lise2' ||
+    latestExam?.tier === 'lise3' ||
+    (latestExam?.examTitle || '').toLowerCase().includes('yazılı');
+
   const examInfoText = latestExam
-    ? `🎯 *Son Deneme Sınavı:* ${latestExam.examTitle}\n📈 *Puan & Net:* ${latestExam.totalScore} Puan (${latestExam.totalNet.toFixed(2)} Net) - Tahmini Dilim: %${latestExam.calculatedPercentile}\n`
+    ? isHighSchoolExam
+      ? `🎯 *Son MEB Yazılı Provası:* ${latestExam.examTitle}\n📈 *Yazılı Notu:* ${latestExam.totalScore} / 100 (${latestExam.totalNet.toFixed(2)} Doğru/Net)\n`
+      : latestExam.tier === 'yks'
+      ? `🎯 *Son YKS Deneme Sınavı:* ${latestExam.examTitle}\n📈 *ÖSYM Puanı & Net:* ${latestExam.totalScore} Puan (${latestExam.totalNet.toFixed(2)} Net)\n`
+      : `🎯 *Son Deneme Sınavı:* ${latestExam.examTitle}\n📈 *Puan & Net:* ${latestExam.totalScore} Puan (${latestExam.totalNet.toFixed(2)} Net)${latestExam.calculatedPercentile ? ` - Tahmini Dilim: %${latestExam.calculatedPercentile}` : ''}\n`
     : '';
 
   const reportSummaryText = stats.total > 0

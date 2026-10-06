@@ -1,13 +1,12 @@
 'use client';
 
 import React, { useState, useRef, ChangeEvent, DragEvent } from 'react';
-import type { LgsCourseKey } from '@/types/exam';
 import type { WrongQuestionItem } from '@/types/question';
 import {
-  LGS_COURSE_OPTIONS,
-  getTopicsByCourse,
-  getCourseName,
-} from '@/lib/lgs-topics';
+  getCourseOptionsForTier,
+  getTopicsForTierAndCourse,
+  getCourseNameForTier,
+} from '@/lib/tier-courses';
 import { saveQuestionToStorage } from '@/lib/question-storage';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useGradeTier } from '@/lib/grade-tier';
@@ -32,10 +31,12 @@ interface QuestionUploaderProps {
 export function QuestionUploader({ onQuestionAdded, onCancel }: QuestionUploaderProps) {
   const { user } = useAuth();
   const { tier } = useGradeTier();
-  const [selectedCourse, setSelectedCourse] = useState<LgsCourseKey>('matematik');
-  const [selectedTopic, setSelectedTopic] = useState<string>(
-    getTopicsByCourse('matematik')[0] || ''
-  );
+  const courseOptions = getCourseOptionsForTier(tier);
+  const [selectedCourse, setSelectedCourse] = useState<string>(() => courseOptions[0]?.key || 'matematik');
+  const [selectedTopic, setSelectedTopic] = useState<string>(() => {
+    const topics = getTopicsForTierAndCourse(tier, courseOptions[0]?.key || 'matematik');
+    return topics[0] || 'Genel Konu';
+  });
   const [studentNote, setStudentNote] = useState<string>('');
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -50,11 +51,20 @@ export function QuestionUploader({ onQuestionAdded, onCancel }: QuestionUploader
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
+  // Kademe değiştiğinde ders ve konuları senkronize et
+  React.useEffect(() => {
+    const opts = getCourseOptionsForTier(tier);
+    const firstCourse = opts[0]?.key || 'matematik';
+    setSelectedCourse(firstCourse);
+    const topics = getTopicsForTierAndCourse(tier, firstCourse);
+    setSelectedTopic(topics[0] || 'Genel Konu');
+  }, [tier]);
+
   // Ders değiştiğinde konuyu o dersin ilk konusuna güncelle
-  const handleCourseChange = (courseKey: LgsCourseKey) => {
+  const handleCourseChange = (courseKey: string) => {
     setSelectedCourse(courseKey);
-    const topics = getTopicsByCourse(courseKey);
-    setSelectedTopic(topics[0] || '');
+    const topics = getTopicsForTierAndCourse(tier, courseKey);
+    setSelectedTopic(topics[0] || 'Genel Konu');
   };
 
   const handleFileProcess = async (file: File) => {
@@ -166,12 +176,22 @@ export function QuestionUploader({ onQuestionAdded, onCancel }: QuestionUploader
         finalImageUrl = url;
       }
 
-      const courseName = getCourseName(selectedCourse);
+      const courseName = getCourseNameForTier(tier, selectedCourse);
       const newQuestion = saveQuestionToStorage({
         courseKey: selectedCourse,
         courseName,
         topicName: selectedTopic,
         tier: tier || 'lgs',
+        gradeLevel:
+          tier === 'lgs'
+            ? '8'
+            : tier === 'lise1'
+            ? '9'
+            : tier === 'lise2'
+            ? '10'
+            : tier === 'lise3'
+            ? '11'
+            : '12',
         imageUrl: finalImageUrl,
         studentNote: studentNote.trim() ? studentNote.trim() : undefined,
         status: 'unresolved',
@@ -201,7 +221,7 @@ export function QuestionUploader({ onQuestionAdded, onCancel }: QuestionUploader
     }
   };
 
-  const currentTopics = getTopicsByCourse(selectedCourse);
+  const currentTopics = getTopicsForTierAndCourse(tier, selectedCourse);
 
   return (
     <form
@@ -390,7 +410,7 @@ export function QuestionUploader({ onQuestionAdded, onCancel }: QuestionUploader
                 </div>
                 <div className="mt-1.5 flex items-center gap-2">
                   <span className="rounded-md bg-white px-2 py-0.5 text-xs font-bold text-slate-800 shadow-2xs dark:bg-slate-800 dark:text-white">
-                    {getCourseName(selectedCourse)}
+                    {getCourseNameForTier(tier, selectedCourse)}
                   </span>
                   <span className="text-xs text-slate-400">&rsaquo;</span>
                   <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
@@ -414,10 +434,10 @@ export function QuestionUploader({ onQuestionAdded, onCancel }: QuestionUploader
                   <select
                     id="course-select"
                     value={selectedCourse}
-                    onChange={(e) => handleCourseChange(e.target.value as LgsCourseKey)}
+                    onChange={(e) => handleCourseChange(e.target.value)}
                     className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-indigo-400"
                   >
-                    {LGS_COURSE_OPTIONS.map((c) => (
+                    {courseOptions.map((c) => (
                       <option key={c.key} value={c.key}>
                         {c.name}
                       </option>

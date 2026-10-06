@@ -111,14 +111,16 @@ export function Navbar() {
       iconColor: 'text-rose-400',
     },
     {
-      href: isLise3
+      href: isYks
+        ? '/deneme-coz?tier=yks'
+        : isLise3
         ? '/lise3-konulari'
         : isLise2
         ? '/lise2-konulari'
-        : isLise
+        : isLise1
         ? '/lise1-konulari'
         : '/lgs-konulari',
-      label: 'Konular',
+      label: isYks ? 'YKS Müfredatı' : 'Konular',
       icon: Layers,
       iconColor: 'text-sky-400',
     },

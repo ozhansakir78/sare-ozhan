@@ -8,9 +8,11 @@ import {
   submitDailyQuestAnswer,
   DailyQuestQuestion,
   DailyQuestState,
+  QuestOptionKey,
 } from '@/lib/daily-quest-engine';
 import { saveQuestionToStorage } from '@/lib/question-storage';
 import { MathText } from '@/components/ui/MathText';
+import { useGradeTier } from '@/lib/grade-tier';
 import {
   Sparkles,
   Flame,
@@ -27,30 +29,35 @@ import {
 } from 'lucide-react';
 
 export function DailyQuestCard() {
-  const [question, setQuestion] = useState<DailyQuestQuestion>(() => getTodayQuestQuestion());
-  const [questState, setQuestState] = useState<DailyQuestState>(() => getDailyQuestState());
-  const [selectedOption, setSelectedOption] = useState<'A' | 'B' | 'C' | 'D' | null>(null);
+  const { tier } = useGradeTier();
+  const [question, setQuestion] = useState<DailyQuestQuestion>(() => getTodayQuestQuestion(tier));
+  const [questState, setQuestState] = useState<DailyQuestState>(() => getDailyQuestState(tier));
+  const [selectedOption, setSelectedOption] = useState<QuestOptionKey | null>(null);
   const [showHint, setShowHint] = useState<boolean>(false);
   const [isSavedToNotebook, setIsSavedToNotebook] = useState<boolean>(false);
 
   useEffect(() => {
-    const q = getTodayQuestQuestion();
-    const st = getDailyQuestState();
+    const q = getTodayQuestQuestion(tier);
+    const st = getDailyQuestState(tier);
     setQuestion(q);
     setQuestState(st);
     if (st.isSolved && st.selectedOption) {
       setSelectedOption(st.selectedOption);
+    } else {
+      setSelectedOption(null);
     }
-  }, []);
+    setIsSavedToNotebook(false);
+    setShowHint(false);
+  }, [tier]);
 
-  const handleSelectOption = (key: 'A' | 'B' | 'C' | 'D') => {
+  const handleSelectOption = (key: QuestOptionKey) => {
     if (questState.isSolved) return;
     setSelectedOption(key);
   };
 
   const handleSubmit = () => {
     if (!selectedOption || questState.isSolved) return;
-    const result = submitDailyQuestAnswer(selectedOption);
+    const result = submitDailyQuestAnswer(selectedOption, tier);
     setQuestState(result);
   };
 
@@ -66,10 +73,21 @@ export function DailyQuestCard() {
         options: question.options.reduce((acc, opt) => ({ ...acc, [opt.key]: opt.text }), {}),
         correctAnswer: question.correctOption,
         solutionExplanation: question.solutionExplanation,
-        studentNote: `Günün Sorusu: "${question.questionText}" - Doğru Cevap: ${question.correctOption}. MEB Notu: ${question.mebTrapNote}`,
+        studentNote: `Günün Sorusu: "${question.questionText}" - Doğru Cevap: ${question.correctOption}. MEB/ÖSYM Notu: ${question.mebTrapNote}`,
         status: 'unresolved',
         isResolved: false,
         errorReason: 'carelessness',
+        tier: question.tier,
+        gradeLevel:
+          question.tier === 'lgs'
+            ? '8'
+            : question.tier === 'lise1'
+            ? '9'
+            : question.tier === 'lise2'
+            ? '10'
+            : question.tier === 'lise3'
+            ? '11'
+            : '12',
       });
       setIsSavedToNotebook(true);
     } catch (e) {
@@ -77,9 +95,20 @@ export function DailyQuestCard() {
     }
   };
 
+  const badgeLabel =
+    tier === 'yks'
+      ? 'GÜNÜN ÖSYM YKS MEYDAN OKUMASI'
+      : tier === 'lise3'
+      ? 'GÜNÜN 11. SINIF ALAN SORUSU'
+      : tier === 'lise2'
+      ? 'GÜNÜN 10. SINIF YAZILI SORUSU'
+      : tier === 'lise1'
+      ? 'GÜNÜN 9. SINIF YAZILI SORUSU'
+      : 'GÜNÜN LGS MEYDAN OKUMASI';
+
   return (
     <section
-      aria-label="Günün Yeni Nesil LGS Sorusu"
+      aria-label={badgeLabel}
       className="relative overflow-hidden rounded-3xl border border-indigo-200/90 bg-gradient-to-br from-white via-indigo-50/20 to-amber-50/30 p-5 shadow-sm dark:border-slate-800 dark:from-slate-900 dark:via-slate-900 dark:to-indigo-950/30 sm:p-7"
     >
       {/* Üst Rozet Satırı */}
@@ -87,7 +116,7 @@ export function DailyQuestCard() {
         <div className="flex flex-wrap items-center gap-2">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-3 py-1 text-[11px] font-black text-white shadow-xs">
             <Flame className="h-3.5 w-3.5 fill-white" />
-            GÜNÜN LGS MEYDAN OKUMASI
+            {badgeLabel}
           </span>
           <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-[11px] font-bold text-indigo-700 dark:bg-indigo-950/80 dark:text-indigo-300">
             {question.courseName} &bull; {question.topicName}
@@ -226,17 +255,17 @@ export function DailyQuestCard() {
             )}
           </div>
 
-          {/* MEB Çözüm Açıklaması & Tuzağı */}
+          {/* MEB / ÖSYM Çözüm Açıklaması & Tuzağı */}
           <div className="space-y-2 text-xs border-t border-slate-200 dark:border-slate-700 pt-3">
             <div className="p-3 rounded-xl bg-indigo-50/80 dark:bg-indigo-950/40 text-indigo-950 dark:text-indigo-200">
-              <span className="font-black block mb-1">📘 MEB Çözüm Yolu:</span>
+              <span className="font-black block mb-1">📘 Resmi Çözüm Yolu:</span>
               <div className="leading-relaxed font-medium">
                 <MathText text={question.solutionExplanation} />
               </div>
             </div>
 
             <div className="p-3 rounded-xl bg-amber-50/80 dark:bg-amber-950/40 text-amber-950 dark:text-amber-200">
-              <span className="font-black block mb-1">⚠️ MEB Çeldirici Tuzağı:</span>
+              <span className="font-black block mb-1">⚠️ Sınav Çeldirici Tuzağı:</span>
               <div className="leading-relaxed font-medium">
                 <MathText text={question.mebTrapNote} />
               </div>

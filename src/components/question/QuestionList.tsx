@@ -4,9 +4,8 @@ import React, { useState, useMemo } from 'react';
 import type { WrongQuestionItem, QuestionStatus } from '@/types/question';
 import type { LgsCourseKey } from '@/types/exam';
 import { QuestionCard } from '@/components/question/QuestionCard';
-import { LGS_COURSE_OPTIONS } from '@/lib/lgs-topics';
-import { LISE1_COURSE_OPTIONS } from '@/lib/lise1-topics';
-import { useGradeTier } from '@/lib/grade-tier';
+import { getCourseOptionsForTier } from '@/lib/tier-courses';
+import { useGradeTier, GradeTier } from '@/lib/grade-tier';
 import {
   Search,
   Filter,
@@ -33,13 +32,14 @@ export function QuestionList({
   onOpenAiAssistant,
   onOpenUploader,
 }: QuestionListProps) {
-  const { isLise1 } = useGradeTier();
-  const courseOptions = isLise1 ? LISE1_COURSE_OPTIONS : LGS_COURSE_OPTIONS;
-
+  const { tier: activeTier } = useGradeTier();
+  const [selectedTier, setSelectedTier] = useState<string>('all');
   const [selectedCourse, setSelectedCourse] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<QuestionStatus | 'all'>('all');
-  const [selectedTier, setSelectedTier] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
+
+  const effectiveTier = (selectedTier !== 'all' ? selectedTier : activeTier) as GradeTier;
+  const courseOptions = getCourseOptionsForTier(effectiveTier);
 
   const filteredQuestions = useMemo(() => {
     return questions.filter((q) => {
@@ -152,7 +152,10 @@ export function QuestionList({
             <button
               key={t.id}
               type="button"
-              onClick={() => setSelectedTier(t.id)}
+              onClick={() => {
+                setSelectedTier(t.id);
+                setSelectedCourse('all');
+              }}
               className={`rounded-lg px-2.5 py-1 text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
                 selectedTier === t.id
                   ? 'bg-indigo-600 text-white shadow-xs font-bold'

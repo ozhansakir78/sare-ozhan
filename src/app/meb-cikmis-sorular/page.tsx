@@ -11,6 +11,7 @@ import {
 } from '@/lib/meb-past-questions';
 import { PastQuestionCard } from '@/components/meb/PastQuestionCard';
 import { AuthGuard } from '@/components/auth/AuthGuard';
+import { useGradeTier } from '@/lib/grade-tier';
 import {
   FileText,
   Search,
@@ -24,6 +25,7 @@ import {
 } from 'lucide-react';
 
 export default function MebCikmisSorularPage() {
+  const { isLise, isYks, config } = useGradeTier();
   const [selectedYear, setSelectedYear] = useState<number | 'all'>('all');
   const [selectedCourse, setSelectedCourse] = useState<LgsCourseKey | 'all'>('all');
   const [selectedSource, setSelectedSource] = useState<PastQuestionSource | 'all'>('all');
@@ -69,6 +71,26 @@ export default function MebCikmisSorularPage() {
         <p className="mx-auto max-w-2xl text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
           Geçmiş yıllarda MEB&apos;in sorduğu gerçek LGS sorularını süre tutarak veya soru soru çöz. Resmi çözüm adımlarını, çeldirici tuzakları ve Sokratik ipuçlarını incele.
         </p>
+
+        {isLise && (
+          <div className="mx-auto max-w-2xl rounded-2xl border border-amber-200 bg-amber-50/80 p-4 text-xs text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-left">
+            <div className="flex items-center gap-2.5">
+              <Sparkles className="h-4 w-4 text-amber-600 shrink-0" />
+              <span>
+                {isYks
+                  ? 'ÖSYM YKS (TYT/AYT) çıkmış prova denemelerini'
+                  : `${config.label} MEB Ortak Yazılı senaryolarını`}{' '}
+                doğrudan online deneme kataloğumuzda çözebilirsiniz.
+              </span>
+            </div>
+            <Link
+              href="/deneme-coz"
+              className="shrink-0 rounded-xl bg-amber-600 px-3.5 py-1.5 text-xs font-bold text-white hover:bg-amber-700 transition"
+            >
+              Sınavlara Git &rsaquo;
+            </Link>
+          </div>
+        )}
       </section>
 
       {/* Arama & Filtreleme Çubuğu */}

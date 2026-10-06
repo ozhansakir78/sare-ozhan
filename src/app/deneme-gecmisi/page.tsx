@@ -200,14 +200,18 @@ export default function DenemeGecmisiPage() {
                   Henüz kayıtlı bir denemeniz yok
                 </h3>
                 <p className="mt-1 text-xs text-slate-500 max-w-sm mx-auto">
-                  Ana sayfadaki LGS Net Hesaplama modülünden deneme sonuçlarınızı hesaplayıp &ldquo;Denemeyi Kaydet&rdquo; butonuna basın.
+                  {isLise
+                    ? 'Ana sayfadaki Ortak Yazılı & Not Hesaplama modülünden veya Deneme Çöz bölümünden sınav sonuçlarınızı kaydedin.'
+                    : isYks
+                    ? 'Ana sayfadaki YKS (TYT/AYT) Hesaplama modülünden veya Deneme Çöz bölümünden sınav sonuçlarınızı kaydedin.'
+                    : 'Ana sayfadaki LGS Net Hesaplama modülünden veya Deneme Çöz bölümünden sınav sonuçlarınızı kaydedin.'}
                 </p>
                 <Link
-                  href="/#hesaplama"
+                  href="/deneme-coz"
                   className="mt-5 inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white shadow"
                 >
                   <Plus className="h-4 w-4" />
-                  <span>İlk Denemeni Hesapla</span>
+                  <span>İlk Denemeni Çöz &amp; Kaydet</span>
                 </Link>
               </div>
             ) : (

@@ -45,7 +45,7 @@ import { syncLocalDataToCloud, pullCloudDataToLocal } from '@/lib/cloud-sync';
 export default function ProfilPage() {
   const router = useRouter();
   const { profile, user, updateProfile, refreshProfile, signOut, isPro } = useAuth();
-  const { isLise, isLgs, config } = useGradeTier();
+  const { isLise, isLgs, isYks, config } = useGradeTier();
 
   const [mounted, setMounted] = useState(false);
   const [exams, setExams] = useState<SavedStudentExam[]>([]);
@@ -414,7 +414,9 @@ export default function ProfilPage() {
             <div className="mt-2 text-xl font-black text-slate-900 dark:text-white">
               {avgNet}
             </div>
-            <div className="text-[10px] text-slate-400">/ 90 Toplam Soru</div>
+            <div className="text-[10px] text-slate-400">
+              {isYks ? '/ 120 TYT Soru' : isLise ? 'Yazılı & Prova Ortalaması' : '/ 90 Toplam Soru'}
+            </div>
           </div>
 
           {/* Yanlış Defteri */}
