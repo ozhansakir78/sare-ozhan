@@ -306,6 +306,9 @@ export interface ActiveChallengeInfo {
 export function getActiveChallengeForToday(now = new Date(), tier: 'lgs' | 'lise1' = 'lgs'): ActiveChallengeInfo {
   const day = now.getDay(); // 0 = Sunday, 1 = Monday, 2 = Tuesday, 4 = Thursday...
   const week = getCurrentSchoolWeek(now);
+  const adjustedFirstDay = new Date(now.getFullYear(), now.getMonth(), 1).getDay() || 7;
+  const weekOfMonth = Math.ceil((now.getDate() + adjustedFirstDay - 1) / 7);
+  const currentMonthName = now.toLocaleDateString("tr-TR", { month: "long" });
 
   // --- 9. SINIF (LİSE 1) ETKİNLİKLERİ ---
   if (tier === 'lise1') {
@@ -373,7 +376,7 @@ export function getActiveChallengeForToday(now = new Date(), tier: 'lgs' | 'lise
     // Salı veya Çarşamba: Sayısal Meydan Okuma
     return {
       type: 'tuesday-stem',
-      title: `Haftalık Sayısal Meydan Okuma (${week.monthName} ${week.weekNumber}. Hafta)`,
+      title: `Haftalık Sayısal Meydan Okuma ( . Hafta)`,
       badge: '⚡ SALI SAYISAL MEYDAN OKUMA',
       courseHighlight: `Matematik (${week.topics.matematik.split('(')[0].trim()}) + Fen Bilimleri`,
       description: `Bu haftanın güncel MEB konuları: "${week.topics.matematik}" ve "${week.topics.fen}". Hemen çöz, ligde puanını katla!`,
@@ -387,7 +390,7 @@ export function getActiveChallengeForToday(now = new Date(), tier: 'lgs' | 'lise
   // Perşembe, Cuma, Cumartesi veya Pazartesi: Sözel Kampı
   return {
     type: 'thursday-verbal',
-    title: `Haftalık Sözel Kampı (${week.monthName} ${week.weekNumber}. Hafta)`,
+    title: `Haftalık Sözel Kampı ( . Hafta)`,
     badge: '📚 PERŞEMBE SÖZEL KAMPI',
     courseHighlight: `Türkçe (${week.topics.turkce.split('(')[0].trim()}) + İnkılap + Din + İngilizce`,
     description: `Bu haftanın sözel kazanımları: "${week.topics.turkce}". Yeni nesil paragraf ve mantık sorularıyla pratik yap!`,

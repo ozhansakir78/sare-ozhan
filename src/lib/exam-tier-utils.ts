@@ -79,12 +79,11 @@ export function calculateNetScoreByTier(
   correctCount: number,
   incorrectCount: number
 ): number {
-  if (tier === 'lise1' || tier === 'lise2' || tier === 'lise3') {
-    return correctCount;
-  }
-  if (tier === 'yks') {
+  if (tier === 'lise1' || tier === 'lise2' || tier === 'lise3' || tier === 'yks') {
+    // Tüm lise kademeleri (9, 10, 11 ve YKS) için 4 yanlış 1 doğruyu götürür (5 şıklı mantık)
     return Math.max(0, Number((correctCount - incorrectCount / 4).toFixed(2)));
   }
+  // LGS (8) için 3 yanlış 1 doğruyu götürür (4 şıklı mantık)
   return Math.max(0, Number((correctCount - incorrectCount / 3).toFixed(2)));
 }
 

@@ -28,8 +28,21 @@ interface GenerateExamRequest {
   examType?: 'branch' | 'full' | 'mini' | 'yazili' | 'tyt' | 'ayt' | 'ydt';
 }
 
+import { supabase } from '@/lib/supabase';
+
 export async function POST(req: NextRequest) {
   try {
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return NextResponse.json({ error: 'Yetkisiz eriim: Token bulunamad.' }, { status: 401 });
+    }
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Yetkisiz eriim: Geersiz token.' }, { status: 401 });
+    }
+
     const body = (await req.json()) as GenerateExamRequest;
     const {
       examTitle,

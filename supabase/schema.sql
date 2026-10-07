@@ -127,6 +127,10 @@ CREATE POLICY "user_profiles_select_own" ON public.user_profiles
 CREATE POLICY "user_profiles_update_own" ON public.user_profiles
     FOR UPDATE USING (auth.uid() = id);
 
+-- GÜVENLİK DÜZELTMESİ: Kullanıcıların kendilerini PRO yapmasını engellemek için kritik sütunlarda UPDATE yetkisi alınıyor.
+-- Yalnızca Service Role (Admin) bu sütunları güncelleyebilir.
+REVOKE UPDATE (is_pro, pro_expires_at, daily_quota_used) ON public.user_profiles FROM authenticated, anon;
+
 CREATE POLICY "user_profiles_insert_own" ON public.user_profiles
     FOR INSERT WITH CHECK (auth.uid() = id);
 

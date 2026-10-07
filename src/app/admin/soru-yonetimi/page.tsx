@@ -11,6 +11,7 @@ import {
 } from '@/lib/custom-exams-storage';
 import { LGS_COURSE_OPTIONS, getCourseName } from '@/lib/lgs-topics';
 import { MathText } from '@/components/ui/MathText';
+import { AuthGuard } from '@/components/auth/AuthGuard';
 
 import Link from 'next/link';
 import {
@@ -264,7 +265,8 @@ Doğru Cevap: A
   const totalQuestionsCount = exams.reduce((acc, e) => acc + e.questionCount, 0);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 sm:px-6 space-y-8 py-8">
+    <AuthGuard title="Admin Paneline Erişmek İçin Giriş Yapmalısınız">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 space-y-8 py-8">
           {/* Başlık Banner */}
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -862,5 +864,6 @@ Doğru Cevap: A
             </div>
           )}
         </div>
+    </AuthGuard>
   );
 }

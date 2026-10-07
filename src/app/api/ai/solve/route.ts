@@ -7,8 +7,21 @@ import {
   generateMockSocraticResponse,
 } from '@/lib/socratic-tier-adapter';
 
+import { supabase } from '@/lib/supabase';
+
 export async function POST(req: NextRequest) {
   try {
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return NextResponse.json({ error: 'Yetkisiz erişim: Token bulunamadı.' }, { status: 401 });
+    }
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Yetkisiz erişim: Geçersiz token.' }, { status: 401 });
+    }
+
     const body = (await req.json()) as SolveApiRequest;
     const { questionImage, courseName, topicName, studentNote, userMessage, mode, tier, gradeLevel, scoreType, conversationHistory } = body;
 

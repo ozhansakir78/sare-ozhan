@@ -5,6 +5,7 @@ import type { WrongQuestionItem, QuestionStatus } from '@/types/question';
 import type { ChatMessage, SolveApiRequest, SolveApiResponse } from '@/types/ai';
 import { updateStoredQuestionStatus } from '@/lib/question-storage';
 import { getQuotaStatus, consumeQuota } from '@/lib/quota';
+import { supabase } from '@/lib/supabase';
 import { ProUpgradeModal } from '@/components/subscription/ProUpgradeModal';
 import { FormattedMessage } from '@/components/ui/FormattedMessage';
 import {
@@ -150,9 +151,15 @@ export function SocraticAssistantModal({
         })),
       };
 
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token || '';
+
       const res = await fetch('/api/ai/solve', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` })
+        },
         body: JSON.stringify(payload),
       });
 

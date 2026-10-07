@@ -35,6 +35,10 @@ CREATE POLICY "Users can update their own profile"
     FOR UPDATE
     USING (auth.uid() = id);
 
+-- GÜVENLİK DÜZELTMESİ: Kullanıcıların kendilerini PRO yapmasını engellemek için kritik sütunlarda UPDATE yetkisi alınıyor.
+-- Yalnızca Service Role (Admin) bu sütunları güncelleyebilir.
+REVOKE UPDATE (is_pro, pro_expires_at, daily_quota_used) ON public.user_profiles FROM authenticated, anon;
+
 CREATE POLICY "Users can insert their own profile"
     ON public.user_profiles
     FOR INSERT

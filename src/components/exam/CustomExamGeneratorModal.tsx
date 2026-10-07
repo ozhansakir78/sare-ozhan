@@ -8,6 +8,7 @@ import { LISE2_TOPICS_BY_COURSE } from '@/lib/lise2-topics';
 import { LISE3_TOPICS_BY_COURSE } from '@/lib/lise3-topics';
 import type { OnlineExam } from '@/types/online-exam';
 import { useGradeTier } from '@/lib/grade-tier';
+import { supabase } from '@/lib/supabase';
 import {
   Sparkles,
   BookOpen,
@@ -219,9 +220,15 @@ export function CustomExamGeneratorModal({
             : `2027 LGS Özel Karma Deneme (${difficulty})`
           : `${courseName}: ${topicLabel} Pekiştirme Testi`;
 
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token || '';
+      
       const response = await fetch('/api/ai/generate-exam', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` })
+        },
         body: JSON.stringify({
           tier: activeTier,
           examTitle: autoTitle,

@@ -20,12 +20,15 @@ import {
 const EVENT_MODAL_STORAGE_KEY = 'lgs_event_modal_dismissed_v2';
 
 export function EventAnnouncementModal() {
-  const { isLise1 } = useGradeTier();
+  const { isLise1, isLise2, isLise3, isYks } = useGradeTier();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [challenge, setChallenge] = useState<ActiveChallengeInfo | null>(null);
 
   useEffect(() => {
     // Sadece istemci tarafında aktif kademeye göre kontrol et
+    // 10, 11 ve YKS için şimdilik etkinlik yok
+    if (isLise2 || isLise3 || isYks) return;
+
     const activeTier = isLise1 ? 'lise1' : 'lgs';
     const current = getActiveChallengeForToday(new Date(), activeTier);
     setChallenge(current);

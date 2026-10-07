@@ -19,7 +19,7 @@ Bu belge, projede geliştirme yapacak yapay zekâ kodlama asistanları için mim
 
 ## 3. Temel Mimari Kuralları & Sınırlar
 1. **Modüler Sınav Mimarisi:** Dersler, konular ve sorular doğrudan kod içine gömülmeyecek; `exams` tablosu üzerinden dinamik gelecektir. LGS özelindeki sabitler sadece konfigürasyon dosyalarında tutulacaktır.
-2. **Sokratik Yaklaşım:** Soru çözüm asistanı hiçbir zaman cevabı doğrudan (ör. "Cevap C şıkkıdır") vermeyecek; öğrenciye yönlendirici sorular ve aşamalı ipuçları sunacaktır.
+2. **Sokratik Yaklaşım:** Soru çözüm asistanı varsayılan olarak cevabı doğrudan (ör. "Cevap C şıkkıdır") vermeyecek; öğrenciye yönlendirici sorular ve aşamalı ipuçları sunacaktır. Sadece öğrenci açıkça "Tam çözüm" veya "Soruyu çöz" talep ettiğinde adım adım eksiksiz çözüm sunabilir.
 3. **Temiz Kod & Tip Güvenliği:** TypeScript `any` tipi kullanılmayacak, tüm veritabanı tipleri ve API dönüşleri `@/types` altında tanımlanacaktır.
 4. **Bileşen Ayrımı:** Server Component ve Client Component (`'use client'`) sınırlarına dikkat edilecek, veri çekme işlemleri mümkün olduğunca sunucu tarafında yapılacaktır.
 

@@ -23,8 +23,16 @@ export async function POST(req: NextRequest) {
     const proExpiresAt = calculateProExpirationDate(planId);
 
     // Eğer Supabase bağlıysa ve userId varsa kullanıcı profilini PRO yap
-    if (isSupabaseConfigured && userId) {
-      await supabase
+    const supabaseAdminUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+    
+    if (supabaseAdminUrl && supabaseServiceKey && userId) {
+      const { createClient } = require('@supabase/supabase-js');
+      const adminAuthClient = createClient(supabaseAdminUrl, supabaseServiceKey, {
+        auth: { autoRefreshToken: false, persistSession: false }
+      });
+      
+      await adminAuthClient
         .from('user_profiles')
         .update({
           is_pro: true,

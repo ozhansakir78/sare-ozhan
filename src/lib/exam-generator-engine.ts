@@ -450,8 +450,12 @@ export function getFallbackQuestions(
       expl = `x = ${base} yerine konulduğunda: ${base}·(${base}) + ${base * 2} = ${base * base + base * 2} bulunur.\nDoğru seçenek ${ans}'dir.`;
     }
 
-    // Şıkların seçilen ans harfine göre doluluğunu garantile
-    opts[ans] = opts[ans] || opts.A;
+    // Doğru cevap metnini ans şıkkına taşı (eğer ans 'A' değilse)
+    if (ans !== 'A') {
+      const correctText = opts.A;
+      opts.A = opts[ans] || '';
+      opts[ans] = correctText;
+    }
 
     result.push({
       id: `fb-q-${tier}-${Date.now()}-${i + 1}`,
