@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
@@ -75,7 +75,7 @@ export function Navbar() {
     };
   }, []);
 
-  // Sayfa deÄŸiÅŸtiÄŸinde menÃ¼leri otomatik kapat
+  // Sayfa değiştiğinde menüleri otomatik kapat
   useEffect(() => {
     setIsMobileMenuOpen(false);
     setIsToolsMenuOpen(false);
@@ -89,11 +89,11 @@ export function Navbar() {
     highlight?: boolean;
   }
 
-  // Ana Ã‡ekirdek MenÃ¼ Linkleri (MasaÃ¼stÃ¼nde daima gÃ¶rÃ¼nenler)
+  // Ana Çekirdek Menü Linkleri (Masaüstünde daima görünenler)
   const primaryNavLinks: NavLinkItem[] = [
     {
       href: '/deneme-coz',
-      label: isYks ? 'YKS (TYT/AYT)' : isLise ? 'Ortak YazÄ±lÄ± & TYT' : 'Deneme Ã‡Ã¶z',
+      label: isYks ? 'YKS (TYT/AYT)' : isLise ? 'Ortak Yazılı & TYT' : 'Deneme Çöz',
       icon: FileCheck2,
       highlight: true,
       iconColor: isYks ? 'text-rose-300' : isLise ? 'text-emerald-300' : 'text-indigo-300',
@@ -106,7 +106,7 @@ export function Navbar() {
     },
     {
       href: '/yanlis-defteri',
-      label: 'YanlÄ±ÅŸ Defteri',
+      label: 'Yanlış Defteri',
       icon: BookOpen,
       iconColor: 'text-rose-400',
     },
@@ -120,28 +120,28 @@ export function Navbar() {
         : isLise1
         ? '/lise1-konulari'
         : '/lgs-konulari',
-      label: isYks ? 'YKS MÃ¼fredatÄ±' : 'Konular',
+      label: isYks ? 'YKS Müfredatı' : 'Konular',
       icon: Layers,
       iconColor: 'text-sky-400',
     },
     {
       href: '/odaklanma-odasi',
-      label: 'Odaklanma OdasÄ±',
+      label: 'Odaklanma Odası',
       icon: Timer,
       iconColor: 'text-violet-400',
     },
   ];
 
-  // Ekstra KoÃ§luk & Analiz AraÃ§larÄ± (AÃ§Ä±lÄ±r menÃ¼de toplananlar)
+  // Ekstra Koçluk & Analiz Araçları (Açılır menüde toplananlar)
   const secondaryNavLinks: NavLinkItem[] = [
-    { href: '/liderlik-tablosu', label: 'Liderlik SÄ±ralamasÄ±', icon: Trophy, iconColor: 'text-amber-400' },
-    { href: '/deneme-gecmisi', label: 'Deneme GeÃ§miÅŸim & GeliÅŸim', icon: TrendingUp, iconColor: 'text-emerald-400' },
-    { href: '/veli-raporu', label: 'HaftalÄ±k Veli Raporu', icon: HeartHandshake, iconColor: 'text-pink-400' },
+    { href: '/liderlik-tablosu', label: 'Liderlik Sıralaması', icon: Trophy, iconColor: 'text-amber-400' },
+    { href: '/deneme-gecmisi', label: 'Deneme Geçmişim & Gelişim', icon: TrendingUp, iconColor: 'text-emerald-400' },
+    { href: '/veli-raporu', label: 'Haftalık Veli Raporu', icon: HeartHandshake, iconColor: 'text-pink-400' },
     ...(isLise2
       ? [
           {
             href: '/lise2-konulari',
-            label: '11. SÄ±nÄ±f Alan SeÃ§imi RadarÄ±',
+            label: '11. Sınıf Alan Seçimi Radarı',
             icon: Compass,
             iconColor: 'text-purple-400',
           },
@@ -185,7 +185,7 @@ export function Navbar() {
     <>
       <header className="sticky top-0 z-40 border-b border-slate-800 bg-slate-900/95 backdrop-blur-md text-slate-100 shadow-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-3 py-2 sm:px-6">
-          {/* Logo & Marka & Kademe SeÃ§ici */}
+          {/* Logo & Marka & Kademe Seçici */}
           <div className="flex items-center gap-2.5 shrink-0 mr-2">
             <Link href="/" className="flex items-center gap-2 shrink-0">
               <div
@@ -194,17 +194,17 @@ export function Navbar() {
                 <BrandIcon className="h-5 w-5" />
               </div>
               <span className="text-base font-black tracking-tight text-white">
-                SÄ±navKoÃ§u<span className={brandTextColor}>.ai</span>
+                SınavKoçu<span className={brandTextColor}>.ai</span>
               </span>
             </Link>
 
-            {/* ÅÄ±k ve Kompakt Kademe AÃ§Ä±lÄ±r MenÃ¼sÃ¼ */}
+            {/* Şık ve Kompakt Kademe Açılır Menüsü */}
             <div className="hidden sm:flex items-center">
               <GradeTierSwitcher variant="dropdown" />
             </div>
           </div>
 
-          {/* MasaÃ¼stÃ¼ MenÃ¼ Linkleri (Ã‡ekirdek Linkler + ÅÄ±k 'AraÃ§lar â–¾' AÃ§Ä±lÄ±r MenÃ¼sÃ¼) */}
+          {/* Masaüstü Menü Linkleri (Çekirdek Linkler + Şık 'Araçlar ▾' Açılır Menüsü) */}
           <nav className="hidden lg:flex items-center gap-1 xl:gap-1.5">
             {primaryNavLinks.map((link) => {
               const Icon = link.icon;
@@ -233,7 +233,7 @@ export function Navbar() {
                   <Icon className={`h-3.5 w-3.5 shrink-0 ${link.highlight && isActive ? 'text-white' : link.iconColor}`} />
                   <span>{link.label}</span>
                   {isFocusRunning && (
-                    <span className="relative flex h-2 w-2 ml-0.5" title="Odaklanma SeansÄ± Devam Ediyor">
+                    <span className="relative flex h-2 w-2 ml-0.5" title="Odaklanma Seansı Devam Ediyor">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
                     </span>
@@ -242,7 +242,7 @@ export function Navbar() {
               );
             })}
 
-            {/* AraÃ§lar AÃ§Ä±lÄ±r MenÃ¼sÃ¼ (Asla saÄŸa taÅŸmaz, derli toplu) */}
+            {/* Araçlar Açılır Menüsü (Asla sağa taşmaz, derli toplu) */}
             <div className="relative" ref={toolsMenuRef}>
               <button
                 type="button"
@@ -252,9 +252,9 @@ export function Navbar() {
                     ? 'bg-slate-800 text-white border border-indigo-500/40 shadow-xs'
                     : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                 }`}
-                title="DiÄŸer SÄ±nav ve KoÃ§luk AraÃ§larÄ±"
+                title="Diğer Sınav ve Koçluk Araçları"
               >
-                <span>AraÃ§lar</span>
+                <span>Araçlar</span>
                 <ChevronDown
                   className={`h-3 w-3 text-slate-400 transition-transform duration-200 ${
                     isToolsMenuOpen ? 'rotate-180 text-indigo-400' : ''
@@ -265,7 +265,7 @@ export function Navbar() {
               {isToolsMenuOpen && (
                 <div className="absolute left-0 top-full mt-2 w-60 rounded-2xl border border-slate-700 bg-slate-900/98 p-1.5 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 backdrop-blur-md">
                   <div className="px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-400">
-                    KoÃ§luk &amp; GeliÅŸim
+                    Koçluk &amp; Gelişim
                   </div>
                   {secondaryNavLinks.map((item) => {
                     const Icon = item.icon;
@@ -291,7 +291,7 @@ export function Navbar() {
             </div>
           </nav>
 
-          {/* SaÄŸ Alan: AI Kota, GiriÅŸ / Profil & Mobil Hamburger */}
+          {/* Sağ Alan: AI Kota, Giriş / Profil & Mobil Hamburger */}
           <div className="flex items-center gap-2 shrink-0">
             {/* AI Kota & PRO Rozeti */}
             {quota?.isPro ? (
@@ -304,14 +304,14 @@ export function Navbar() {
                 type="button"
                 onClick={() => setIsProModalOpen(true)}
                 className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/90 px-2.5 py-1.5 text-xs font-bold text-slate-200 transition hover:bg-slate-800 hover:text-white cursor-pointer"
-                title="Soru KotasÄ±nÄ± GeniÅŸlet"
+                title="Soru Kotasını Genişlet"
               >
                 <Zap className="h-3 w-3 text-amber-400" />
                 <span>AI {quota ? `${quota.remainingToday}/${quota.dailyLimit}` : '100/100'}</span>
               </button>
             )}
 
-            {/* MasaÃ¼stÃ¼ Profil / GiriÅŸ */}
+            {/* Masaüstü Profil / Giriş */}
             <div className="hidden sm:flex items-center" ref={userMenuRef}>
               {profile || user ? (
                 <div className="relative">
@@ -319,17 +319,17 @@ export function Navbar() {
                     type="button"
                     onClick={() => setIsUserMenuOpen((prev) => !prev)}
                     className="flex items-center gap-2 rounded-xl bg-slate-800 border border-slate-700 hover:border-indigo-500/50 px-2.5 py-1.5 text-xs text-slate-200 transition cursor-pointer group shadow-2xs"
-                    title="Ã–ÄŸrenci Profil MenÃ¼sÃ¼"
+                    title="Öğrenci Profil Menüsü"
                   >
                     <div className="relative">
                       <div className="flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-tr from-indigo-600 to-violet-600 text-[10px] font-black text-white shadow-xs group-hover:scale-105 transition">
-                        {(profile?.display_name || user?.email || 'Ã–')[0].toUpperCase()}
+                        {(profile?.display_name || user?.email || 'Ö')[0].toUpperCase()}
                       </div>
                       <span
                         className={`absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full ring-2 ring-slate-800 ${
                           user ? 'bg-emerald-400' : 'bg-amber-400'
                         }`}
-                        title={user ? 'Bulut Senkronizasyonu Aktif' : 'Yerel Mod (Buluta EÅŸitlenmedi)'}
+                        title={user ? 'Bulut Senkronizasyonu Aktif' : 'Yerel Mod (Buluta Eşitlenmedi)'}
                       />
                     </div>
                     <span className="font-bold max-w-[95px] truncate">
@@ -342,17 +342,17 @@ export function Navbar() {
                     />
                   </button>
 
-                  {/* AÃ§Ä±lÄ±r Profil KartÄ± / Dropdown */}
+                  {/* Açılır Profil Kartı / Dropdown */}
                   {isUserMenuOpen && (
                     <div className="absolute right-0 top-full mt-2 w-64 rounded-2xl border border-slate-700 bg-slate-900/98 p-2 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 backdrop-blur-md">
-                      {/* Ãœst KullanÄ±cÄ± Bilgisi */}
+                      {/* Üst Kullanıcı Bilgisi */}
                       <Link
                         href="/profil"
                         onClick={() => setIsUserMenuOpen(false)}
                         className="flex items-center gap-3 rounded-xl bg-slate-800/80 p-2.5 hover:bg-slate-800 transition"
                       >
                         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-xs font-black text-white shadow-inner">
-                          {(profile?.display_name || user?.email || 'Ã–')[0].toUpperCase()}
+                          {(profile?.display_name || user?.email || 'Ö')[0].toUpperCase()}
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className="text-xs font-black text-white truncate">
@@ -360,28 +360,28 @@ export function Navbar() {
                           </div>
                           <div className="text-[10px] text-indigo-300 truncate">
                             {(isLise || isYks) ? (profile?.target_university
-                                  ? `${profile.target_university}${profile.target_department ? ` Â· ${profile.target_department.split('(')[0].trim()}` : ''}`
-                                  : 'Hedef Ãœniversite Belirtilmedi')
+                                  ? `${profile.target_university}${profile.target_department ? ` · ${profile.target_department.split('(')[0].trim()}` : ''}`
+                                  : 'Hedef Üniversite Belirtilmedi')
                               : (profile?.target_high_school || 'Hedef Lise Belirtilmedi')}
                           </div>
                           <div className="text-[10px] text-slate-400 font-semibold">
-                            Profili GÃ¶rÃ¼ntÃ¼le &rarr;
+                            Profili Görüntüle &rarr;
                           </div>
                         </div>
                       </Link>
 
-                      {/* Bulut BaÄŸlantÄ± Durumu Åeridi */}
+                      {/* Bulut Bağlantı Durumu Şeridi */}
                       <div className="mt-2 px-2.5 py-1.5 rounded-xl border text-[11px] font-semibold flex items-center justify-between gap-1 border-slate-700/80 bg-slate-800/60">
                         <div className="flex items-center gap-1.5 min-w-0">
                           {user ? (
                             <>
                               <span className="h-2 w-2 shrink-0 rounded-full bg-emerald-400 animate-pulse" />
-                              <span className="text-emerald-300 truncate">Bulut Aktif (Cihazlar EÅŸit)</span>
+                              <span className="text-emerald-300 truncate">Bulut Aktif (Cihazlar Eşit)</span>
                             </>
                           ) : (
                             <>
                               <span className="h-2 w-2 shrink-0 rounded-full bg-amber-400" />
-                              <span className="text-amber-300 truncate">Yerel Mod (Buluta BaÄŸlan)</span>
+                              <span className="text-amber-300 truncate">Yerel Mod (Buluta Bağlan)</span>
                             </>
                           )}
                         </div>
@@ -391,12 +391,12 @@ export function Navbar() {
                             onClick={() => setIsUserMenuOpen(false)}
                             className="text-[10px] font-bold text-amber-300 underline hover:text-amber-200 shrink-0"
                           >
-                            GiriÅŸ Yap
+                            Giriş Yap
                           </Link>
                         )}
                       </div>
 
-                      {/* MenÃ¼ SeÃ§enekleri */}
+                      {/* Menü Seçenekleri */}
                       <div className="mt-2 space-y-0.5 border-t border-slate-800 pt-2 text-xs">
                         <Link
                           href="/profil"
@@ -413,7 +413,7 @@ export function Navbar() {
                           className="flex items-center gap-2.5 rounded-lg px-3 py-2 font-semibold text-slate-200 hover:bg-slate-800 hover:text-white transition"
                         >
                           <TrendingUp className="h-4 w-4 text-emerald-400" />
-                          <span>Deneme GeÃ§miÅŸim</span>
+                          <span>Deneme Geçmişim</span>
                         </Link>
 
                         <Link
@@ -422,7 +422,7 @@ export function Navbar() {
                           className="flex items-center gap-2.5 rounded-lg px-3 py-2 font-semibold text-slate-200 hover:bg-slate-800 hover:text-white transition"
                         >
                           <BookOpen className="h-4 w-4 text-rose-400" />
-                          <span>YanlÄ±ÅŸ Defterim</span>
+                          <span>Yanlış Defterim</span>
                         </Link>
 
                         <Link
@@ -431,7 +431,7 @@ export function Navbar() {
                           className="flex items-center gap-2.5 rounded-lg px-3 py-2 font-semibold text-slate-200 hover:bg-slate-800 hover:text-white transition"
                         >
                           <Timer className="h-4 w-4 text-amber-400" />
-                          <span>Odaklanma OdasÄ±</span>
+                          <span>Odaklanma Odası</span>
                         </Link>
 
                         <div className="border-t border-slate-800 my-1" />
@@ -445,7 +445,7 @@ export function Navbar() {
                           className="w-full flex items-center gap-2.5 rounded-lg px-3 py-2 font-semibold text-rose-400 hover:bg-rose-950/40 transition text-left cursor-pointer"
                         >
                           <LogOut className="h-4 w-4" />
-                          <span>Ã‡Ä±kÄ±ÅŸ Yap</span>
+                          <span>Çıkış Yap</span>
                         </button>
                       </div>
                     </div>
@@ -458,14 +458,14 @@ export function Navbar() {
                     className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/90 px-3 py-1.5 text-xs font-semibold text-slate-200 transition hover:bg-slate-700 hover:text-white"
                   >
                     <LogIn className="h-3.5 w-3.5" />
-                    <span>GiriÅŸ</span>
+                    <span>Giriş</span>
                   </Link>
                   <Link
                     href="/kayit"
                     className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-3 py-1.5 text-xs font-bold text-white shadow-xs transition hover:bg-indigo-500"
                   >
                     <Sparkles className="h-3 w-3 text-amber-300" />
-                    <span>KayÄ±t Ol</span>
+                    <span>Kayıt Ol</span>
                   </Link>
                 </div>
               )}
@@ -475,7 +475,7 @@ export function Navbar() {
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen((prev) => !prev)}
-              aria-label="MenÃ¼yÃ¼ AÃ§"
+              aria-label="Menüyü Aç"
               className="lg:hidden rounded-xl border border-slate-700 bg-slate-800 p-2 text-slate-200 hover:bg-slate-700 cursor-pointer"
             >
               {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -483,10 +483,10 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Mobil MenÃ¼ (lg altÄ±nda aÃ§Ä±lÄ±r Ã§ekmece) */}
+        {/* Mobil Menü (lg altında açılır çekmece) */}
         {isMobileMenuOpen && (
           <div className="lg:hidden border-t border-slate-800 bg-slate-900/95 px-4 py-4 backdrop-blur-md animate-in slide-in-from-top-2 duration-200 text-slate-200">
-            {/* Mobil Kademe SeÃ§ici */}
+            {/* Mobil Kademe Seçici */}
             <div className="mb-3 pb-3 border-b border-slate-800 flex justify-center">
               <GradeTierSwitcher />
             </div>
@@ -523,11 +523,11 @@ export function Navbar() {
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-xs font-bold text-amber-300 bg-amber-950/40 hover:bg-amber-950/60 transition border border-amber-800/50"
               >
-                <span>âš™ï¸ Soru FabrikasÄ± (Admin Paneli)</span>
+                <span>⚙️ Soru Fabrikası (Admin Paneli)</span>
               </Link>
             </div>
 
-            {/* Mobil Profil / GiriÅŸ */}
+            {/* Mobil Profil / Giriş */}
             <div className="mt-4 pt-4 border-t border-slate-800 flex flex-col gap-2.5">
               {profile || user ? (
                 <>
@@ -538,14 +538,14 @@ export function Navbar() {
                   >
                     <div className="flex items-center gap-2.5">
                       <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold text-white shadow-xs">
-                        {(profile?.display_name || user?.email || 'Ã–')[0].toUpperCase()}
+                        {(profile?.display_name || user?.email || 'Ö')[0].toUpperCase()}
                       </div>
                       <div>
                         <div className="text-xs font-bold text-slate-200">
                           {profile?.display_name || user?.email}
                         </div>
                         <div className="text-[10px] text-indigo-300">
-                          Profilim ve Hedeflerimi YÃ¶net &rarr;
+                          Profilim ve Hedeflerimi Yönet &rarr;
                         </div>
                       </div>
                     </div>
@@ -561,7 +561,7 @@ export function Navbar() {
                     className="flex items-center justify-center gap-2 rounded-xl border border-rose-900/40 bg-rose-950/20 py-2.5 text-xs font-bold text-rose-400 hover:bg-rose-950/40 transition cursor-pointer"
                   >
                     <LogOut className="h-4 w-4" />
-                    <span>Ã‡Ä±kÄ±ÅŸ Yap</span>
+                    <span>Çıkış Yap</span>
                   </button>
                 </>
               ) : (
@@ -571,7 +571,7 @@ export function Navbar() {
                   className="flex items-center justify-center gap-2 rounded-xl bg-indigo-600 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-indigo-500 transition"
                 >
                   <LogIn className="h-4 w-4" />
-                  <span>Ã–ÄŸrenci / Veli GiriÅŸi Yap</span>
+                  <span>Öğrenci / Veli Girişi Yap</span>
                 </Link>
               )}
             </div>
@@ -579,13 +579,13 @@ export function Navbar() {
         )}
       </header>
 
-      {/* Ã–ÄŸrenciyi AteÅŸleyen Navbar AltÄ± Yatay Åerit (Seri, GÃ¼nlÃ¼k Hedef, Ä°lerleme Ã‡ubuÄŸu ve Buton) */}
+      {/* Öğrenciyi Ateşleyen Navbar Altı Yatay Şerit (Seri, Günlük Hedef, İlerleme Çubuğu ve Buton) */}
       <DailyStreakStrip />
 
-      {/* 1 GÃ¼nlÃ¼k Serinin AltÄ±na Yatay LGS Liderlik Åeridi (Ä°lk 5 + Ã–ÄŸrencinin SÄ±rasÄ± ve Ä°smi) */}
+      {/* 1 Günlük Serinin Altına Yatay LGS Liderlik Şeridi (İlk 5 + Öğrencinin Sırası ve İsmi) */}
       <HorizontalLeaderboardBar />
 
-      {/* Pro Abonelik SatÄ±ÅŸ ModalÄ± */}
+      {/* Pro Abonelik Satış Modalı */}
       <ProUpgradeModal
         isOpen={isProModalOpen}
         onClose={() => setIsProModalOpen(false)}
