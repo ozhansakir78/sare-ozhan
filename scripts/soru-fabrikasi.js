@@ -1,9 +1,24 @@
-﻿require('dotenv').config({ path: '.env.local' });
+﻿const fs = require('fs');
+const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+
+// .env.local dosyasını manuel yükle
+try {
+  const envFile = fs.readFileSync(path.join(__dirname, '../.env.local'), 'utf8');
+  envFile.split('\n').forEach(line => {
+    const match = line.match(/^([^#\s]+)\s*=\s*(.*)$/);
+    if (match) {
+      let key = match[1].trim();
+      let value = match[2].trim().replace(/^['"](.*)['"]$/, '$1'); 
+      process.env[key] = value;
+    }
+  });
+} catch (e) {
+  console.log("Uyarı: .env.local dosyası okunamadı. Sistem ortam değişkenleri kullanılacak.");
+}
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY; // Admin yetkisi için
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY; 
 const geminiApiKey = process.env.GEMINI_API_KEY;
 
 if (!supabaseUrl || !supabaseKey || !geminiApiKey) {
@@ -13,18 +28,16 @@ if (!supabaseUrl || !supabaseKey || !geminiApiKey) {
 }
 
 const supabase = createClient(supabaseUrl, supabaseKey);
-const genAI = new GoogleGenerativeAI(geminiApiKey);
 
 async function generateQuestions(tier, course, topic, count) {
-  console.log(🚀 Soru Fabrikası Başladı:  -  -  ( Soru));
+  console.log(`🚀 Soru Fabrikası Başladı: ${tier} - ${course} - ${topic} (${count} Soru)`);
   
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-  const prompt = 
+  const prompt = `
   Sen uzman bir MEB soru yazarısın. 
-  Şu bilgilere göre  adet çoktan seçmeli soru üret:
-  Kademe: 
-  Ders: 
-  Konu: 
+  Şu bilgilere göre ${count} adet çoktan seçmeli soru üret:
+  Kademe: ${tier}
+  Ders: ${course}
+  Konu: ${topic}
   
   LÜTFEN ÇIKTIYI SADECE GEÇERLİ BİR JSON DİZİSİ (Array) OLARAK VER. Başka hiçbir açıklama yazma.
   Format şu şekilde olmalı:
@@ -43,15 +56,30 @@ async function generateQuestions(tier, course, topic, count) {
       "difficulty": "orta"
     }
   ]
-  ;
+  `;
 
   try {
-    const result = await model.generateContent(prompt);
-    let text = result.response.text();
-    text = text.replace(/\\\\\\json/g, '').replace(/\\\\\\/g, '').trim();
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+            temperature: 0.7
+        }
+      })
+    });
+
+    if (!response.ok) {
+        throw new Error(`Gemini API Hatası: ${response.status} ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    let text = result.candidates[0].content.parts[0].text;
+    text = text.replace(/```json/g, '').replace(/```/g, '').trim();
     
     const questions = JSON.parse(text);
-    console.log(✅ Yapay zeka  soru üretti. Veritabanına kaydediliyor...);
+    console.log(`✅ Yapay zeka ${questions.length} soru üretti. Veritabanına kaydediliyor...`);
 
     let savedCount = 0;
     for (const q of questions) {
@@ -73,19 +101,17 @@ async function generateQuestions(tier, course, topic, count) {
       }
     }
     
-    console.log(🎉 İşlem Tamamlandı! Veritabanına başarıyla eklenen soru sayısı: );
+    console.log(`🎉 İşlem Tamamlandı! Veritabanına başarıyla eklenen soru sayısı: ${savedCount}`);
     
   } catch (err) {
     console.error('❌ Yapay zeka veya JSON çeviri hatası:', err.message);
   }
 }
 
-// Örnek Kullanım: 
-// node scripts/soru-fabrikasi.js lise1 edebiyat "Şiir Bilgisi" 5
 const args = process.argv.slice(2);
 if (args.length < 4) {
-  console.log("Kullanım: node soru-fabrikasi.js <kademe> <ders> <konu> <adet>");
-  console.log("Örnek: node soru-fabrikasi.js lise1 matematik \"Mantık ve Önermeler\" 10");
+  console.log('Kullanım: node soru-fabrikasi.js <kademe> <ders> <konu> <adet>');
+  console.log('Örnek: node soru-fabrikasi.js lise1 matematik "Mantık ve Önermeler" 10');
   process.exit(0);
 }
 
